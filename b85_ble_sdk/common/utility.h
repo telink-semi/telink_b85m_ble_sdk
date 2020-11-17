@@ -245,6 +245,9 @@ u8 * my_fifo_get (my_fifo_t *f);
 /*DLE RX buffer len = DMA(4) + Header(2) + DLE + MIC(4) + CRC(3) + ExtraInfor(8)  = DLE + 21*/
 #define 	ACL_DLE_RX_FIFO_SIZE(n)				(((n+10) + 21) / 16 *16)
 
+/*HCI TX RX buffer len = uart_fifo+ dma 4byte */
+#define 	HCI_FIFO_SIZE(n)					(((n+2+4) + 15) / 16 *16)
+
 												/*
 												 * DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(8B)
 												 *             **use 2B enough**

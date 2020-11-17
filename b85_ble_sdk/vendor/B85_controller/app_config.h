@@ -51,17 +51,8 @@
 #define HCI_ACCESS				HCI_USE_UART
 
 
-/////////////////////HCI UART variables///////////////////////////////////////
-#define UART_DATA_LEN    		64 // data max 252
-typedef struct{
-    unsigned int  len;        // data max 252
-    unsigned char data[UART_DATA_LEN];
-}uart_data_t;
 
-
-
-
-#if (__PROJECT_8258_HCI__)
+#if (__PROJECT_8258_CONTROLLER__)
 	#define CHIP_TYPE				CHIP_TYPE_825x
 #else
 	#define CHIP_TYPE				CHIP_TYPE_827x
@@ -69,7 +60,7 @@ typedef struct{
 
 #define MASTER_MAX_NUM								4
 #define SLAVE_MAX_NUM								4
-
+#define USED_MAX_CONN_NUM                          (MASTER_MAX_NUM + SLAVE_MAX_NUM)
 
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////

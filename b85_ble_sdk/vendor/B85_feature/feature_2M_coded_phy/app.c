@@ -204,7 +204,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * then send a "CONN_REQ" packet, enter to connection state and send a connection complete event
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
-								 pa->adr_type, pa->mac, BLE_ADDR_PUBLIC, \
+								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
 								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_2S, \
 								 0, 0xFFFF);
 

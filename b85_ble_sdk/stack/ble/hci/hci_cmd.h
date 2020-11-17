@@ -47,7 +47,7 @@
 #define HCI_CMD_H_
 
 
-#include "stack/ble/ll/iso/iso_config.h"
+#include "stack/ble/controller/ll/iso/iso_config.h"
 #include "stack/ble/ble_common.h"
 
 

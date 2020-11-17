@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	tl_common.h
+ * @file	main.c
  *
- * @brief	This is the header file for BLE SDK
+ * @brief	This is the source file for BLE SDK
  *
  * @author	BLE GROUP
  * @date	2020.06
@@ -43,27 +43,98 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
+#include "tl_common.h"
+#include "drivers.h"
+#include "stack/ble/ble.h"
+#include "app.h"
+#include "hci_tr.h"
 
-#pragma once
+
+/**
+ * @brief   IRQ handler
+ * @param   none.
+ * @return  none.
+ */
+_attribute_ram_code_ void irq_handler(void)
+{
+    DBG_CHN15_HIGH;
+
+	blc_sdk_irq_handler ();
+
+#if (HCI_ACCESS==HCI_USE_UART)
+  #if HCI_TR_EN
+	HCI_Tr_IRQHandler();
+  #else
+	unsigned char irqS = dma_chn_irq_status_get();
+    if(irqS & FLD_DMA_CHN_UART_RX)	//rx
+    {
+    	dma_chn_irq_status_clr(FLD_DMA_CHN_UART_RX);
+    	//printf("rx irq\n");
+		
+		u8* w = hci_rxfifo.p + (hci_rxfifo.wptr & (hci_rxfifo.num-1)) * hci_rxfifo.size;
+    	if(w[0]!=0)
+    	{
+    		my_fifo_next(&hci_rxfifo);
+    		u8* p = hci_rxfifo.p + (hci_rxfifo.wptr & (hci_rxfifo.num-1)) * hci_rxfifo.size;
+    		reg_dma_uart_rx_addr = (u16)((u32)p);  //switch uart RX dma address
+    	}
+    }
+
+    if(irqS & FLD_DMA_CHN_UART_TX)	//tx
+    {
+    	//printf("tx irq\n");
+    	dma_chn_irq_status_clr(FLD_DMA_CHN_UART_TX);
+    }
+  #endif
+#endif
+
+	DBG_CHN15_LOW;
+}
+
+/**
+ * @brief		This is main function
+ * @param[in]	none
+ * @return      none
+ */
+_attribute_ram_code_ int main(void)
+{
+
+#if(MCU_CORE_TYPE == MCU_CORE_825x)
+	cpu_wakeup_init();
+#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+#endif
+
+	/* detect if MCU is wake_up from deep retention mode */
+	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();
+
+	
+	clock_init(SYS_CLK_TYPE);
+
+	rf_drv_init(RF_MODE_BLE_1M);
+
+	gpio_init(!deepRetWakeUp);
+
+	/* load customized freq_offset cap value. */
+	blc_app_loadCustomizedParameters();  //note: to be tested
+
+	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
+		user_init_deepRetn ();
+	}
+	else{ //MCU power_on or wake_up from deepSleep mode
+		/* read flash size only in power_on or deepSleep */
+		blc_readFlashSize_autoConfigCustomFlashSector();
+		user_init_normal ();
+	}
 
 
-#include "common/types.h"
-#include "common/bit.h"
-#include "common/utility.h"
+	irq_enable();
 
-#include "vendor/common/user_config.h"
-#include "config.h"
+	while(1)
+	{
+		main_loop ();
+	}
+	return 0;
+}
 
-#include "common/string.h"
 
-#include "common/myudb.h"
-
-#include "application/print/u_printf.h"
-
-#include "vendor/common/blt_common.h"
-#include "vendor/common/blt_fw_sign.h"
-#include "vendor/common/blt_led.h"
-#include "vendor/common/blt_soft_timer.h"
-#include "vendor/common/custom_pair.h"
-#include "vendor/common/device_manage.h"
-#include "vendor/common/flash_fw_check.h"

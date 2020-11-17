@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	acl_master.h
+ * @file	app_buffer.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,30 +43,86 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-#ifndef LLMS_MASTER_H_
-#define LLMS_MASTER_H_
+#ifndef APP_BUFFER_H_
+#define APP_BUFFER_H_
+
+#include "tl_common.h"
+
+#include "app_config.h"
 
 
 
-/**
- * @brief      for user to initialize ACL connection master role.
- * @param	   none
- * @return     none
- */
-void 		blc_ll_initAclMasterRole_module(void);
+/********************* USB_DEBUG_LOG FIFO allocation, Begin *******************************/
 
+#if (APP_DUMP_EN)
+	extern my_fifo_t print_fifo;
+	extern	u8 	print_fifo_b[];
+#endif
 
-
-/**
- * @brief      for user to initialize LinkLayer ACL connection RX FIFO.
- * 			   all connection will share the FIFO.
- * @param[in]  conn_interval - Set connection interval, unit 1.25ms.
- * @return     status, 0x00:  succeed
- * 					   other: failed
- */
-ble_sts_t	blc_ll_setAclMasterConnectionInterval(u16 conn_interval);
+/******************** USB_DEBUG_LOG FIFO allocation, End ***********************************/
 
 
 
 
-#endif /* LLMS_MASTER_H_ */
+/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
+
+//CONN Rx fifo size
+#define ACL_RX_MAX_DLE				(251)
+//slave tx fifo size
+#define ACL_SLAVE_TX_MAX_DLE		(251)
+//master tx fifo size
+#define ACL_MASTER_TX_MAX_DLE		(251)
+
+#define ACL_RX_FIFO_SIZE		 	ACL_DLE_RX_FIFO_SIZE(ACL_RX_MAX_DLE)
+#define ACL_RX_FIFO_NUM				8
+
+#define ACL_SLAVE_TX_FIFO_SIZE		ACL_DLE_TX_FIFO_SIZE(ACL_SLAVE_TX_MAX_DLE)
+#define ACL_SLAVE_TX_FIFO_NUM		8 //Different process for different MCU: kite&vulture 8 and eagle 9.
+
+#define ACL_MASTER_TX_FIFO_SIZE		ACL_DLE_TX_FIFO_SIZE(ACL_MASTER_TX_MAX_DLE)
+#define ACL_MASTER_TX_FIFO_NUM		8 //Different process for different MCU: kite&vulture 8 and eagle 9.
+
+extern	u8	app_acl_rxfifo[];
+extern	u8	app_acl_mstTxfifo[];
+extern	u8	app_acl_slvTxfifo[];
+
+/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
+
+
+
+
+/***************************** HCI TX & RX data FIFO allocation, Begin *********************************************/
+#define HCI_MAX_TX_SIZE				max2(ACL_SLAVE_TX_MAX_DLE, ACL_MASTER_TX_MAX_DLE) //support common tx max
+
+#define HCI_TX_FIFO_SIZE			HCI_FIFO_SIZE(HCI_MAX_TX_SIZE)
+#define HCI_TX_FIFO_NUM				8
+
+#define HCI_RX_FIFO_SIZE			HCI_FIFO_SIZE(ACL_RX_MAX_DLE)
+#define HCI_RX_FIFO_NUM				4
+
+#define HCI_RX_ACL_FIFO_SIZE		HCI_FIFO_SIZE(ACL_RX_MAX_DLE)
+#define HCI_RX_ACL_FIFO_NUM			8
+
+#if (HCI_NEW_FIFO_FEATURE_ENABLE)
+extern	u8	app_hci_rxfifo[];
+extern	u8	app_hci_txfifo[];
+extern	u8	app_hci_rxAclfifo[];
+#else
+extern  u8  hci_rxfifo_b[];
+extern  u8  hci_txfifo_b[];
+#endif
+
+//HCI UART variables
+#define UART_DATA_LEN    			HCI_TX_FIFO_SIZE
+
+typedef struct{
+    unsigned int  len;
+    unsigned char data[UART_DATA_LEN];
+}uart_data_t;
+
+/****************************** HCI TX & RX data FIFO allocation, End *********************************************/
+
+
+
+
+#endif /* APP_BUFFER_H_ */

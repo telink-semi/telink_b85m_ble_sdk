@@ -46,10 +46,6 @@
 #pragma once
 
 #include "tl_common.h"
-#include "stack/ble/ble_common.h"
-#include "stack/ble/l2cap/l2cap.h"
-#include "gatt.h"
-
 
 
 /** @defgroup ATT_PERMISSIONS_BITMAPS GAP ATT Attribute Access Permissions Bit Fields

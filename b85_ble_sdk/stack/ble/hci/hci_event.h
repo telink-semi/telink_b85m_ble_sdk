@@ -48,7 +48,7 @@
 
 #include "stack/ble/hci/hci.h"
 #include "stack/ble/ble_common.h"
-#include "stack/ble/ll/iso/bis.h"
+#include "stack/ble/controller/ll/iso/bis.h"
 
 /**
  *  @brief  Definition for general HCI event packet
@@ -158,7 +158,7 @@ typedef struct {
 	u16	latency;
 	u16	timeout;
 	u8	accuracy;
-} event_connection_complete_t;
+} event_connection_complete_t;  //TODO, replace it
 
 typedef struct {
 	u8         subEventCode;
@@ -207,15 +207,6 @@ typedef enum {
 /**
  *  @brief  Event Parameters for "7.7.65.3 LE Connection Update Complete event"
  */
-typedef struct {
-	u8	subcode;
-	u8	status;
-	u16	handle;
-	u16	interval;
-	u16	latency;
-	u16	timeout;
-} event_connection_update_t;
-
 typedef struct {
 	u8         subEventCode;
 	u8         status;

@@ -181,9 +181,10 @@ Situation 2:   SMP Fast Connect																		|
 #define GAP_EVT_ATT_EXCHANGE_MTU									 16
 #define GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM							 17
 
-#define GAP_EVT_L2CAP_CONN_PARAM_UPDATE                              18
-#define GAP_EVT_L2CAP_CREDIT_BASED_CONN_COMPLETE					 19
-#define GAP_EVT_L2CAP_CREDIT_BASED_RECONFIGURE_COMPLETE				 20
+#define GAP_EVT_L2CAP_CONN_PARAM_UPDATE_REQ                          20
+#define GAP_EVT_L2CAP_CONN_PARAM_UPDATE_RSP                          21
+#define GAP_EVT_L2CAP_CREDIT_BASED_CONN_COMPLETE					 22
+#define GAP_EVT_L2CAP_CREDIT_BASED_RECONFIGURE_COMPLETE				 23
 
 
 
@@ -206,7 +207,8 @@ Situation 2:   SMP Fast Connect																		|
 #define GAP_EVT_MASK_ATT_EXCHANGE_MTU                     	 		 (1<<GAP_EVT_ATT_EXCHANGE_MTU)
 #define GAP_EVT_MASK_GATT_HANDLE_VLAUE_CONFIRM                     	 (1<<GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM)
 
-#define GAP_EVT_MASK_L2CAP_CONN_PARAM_UPDATE                         (1<<GAP_EVT_L2CAP_CONN_PARAM_UPDATE)
+#define GAP_EVT_MASK_L2CAP_CONN_PARAM_UPDATE_REQ                     (1<<GAP_EVT_L2CAP_CONN_PARAM_UPDATE_REQ)
+#define GAP_EVT_MASK_L2CAP_CONN_PARAM_UPDATE_RSP                     (1<<GAP_EVT_L2CAP_CONN_PARAM_UPDATE_RSP)
 
 #define GAP_EVT_MASK_L2CAP_CREDIT_BASED_CONN_COMPLETE				 (1<<GAP_EVT_L2CAP_CREDIT_BASED_CONN_COMPLETE)
 #define GAP_EVT_MASK_L2CAP_CREDIT_BASED_RECONFIGURE_COMPLETE		 (1<<GAP_EVT_L2CAP_CREDIT_BASED_RECONFIGURE_COMPLETE)
@@ -218,7 +220,7 @@ Situation 2:   SMP Fast Connect																		|
 
 
 /**
- * @brief      data structure of GAP event callback data
+ *  @brief  Event Parameters for "GAP_EVT_SMP_PAIRING_BEAGIN"
  */
 typedef struct {
 	u16	connHandle;
@@ -226,44 +228,93 @@ typedef struct {
 	u8	tk_method;
 } gap_smp_pairingBeginEvt_t;
 
-
+/**
+ *  @brief  Event Parameters for "GAP_EVT_SMP_PAIRING_SUCCESS"
+ */
 typedef struct {
 	u16	connHandle;
 	u8	bonding;
 	u8	bonding_result;
 } gap_smp_pairingSuccessEvt_t;
 
+/**
+ *  @brief  Event Parameters for "GAP_EVT_SMP_PAIRING_FAIL"
+ */
 typedef struct {
 	u16	connHandle;
 	u8  reason;
 } gap_smp_pairingFailEvt_t;
 
+/**
+ *  @brief  Event Parameters for "GAP_EVT_SMP_CONN_ENCRYPTION_DONE"
+ */
 typedef struct {
 	u16	connHandle;
 	u8	re_connect;   //1: re_connect, encrypt with previous distributed LTK;   0: pairing , encrypt with STK
 } gap_smp_connEncDoneEvt_t;
 
+/**
+ *  @brief  Event Parameters for "GAP_EVT_SMP_SECURITY_PROCESS_DONE"
+ */
 typedef struct {
 	u16	connHandle;
 	u8	re_connect;   //1: re_connect, encrypt with previous distributed LTK;   0: pairing , encrypt with STK
 } gap_smp_securityProcessDoneEvt_t;
 
 
-
+/**
+ *  @brief  Event Parameters for "GAP_EVT_SMP_TK_DISPALY"
+ */
 typedef struct {
 	u16	connHandle;
 	u32	tk_pincode;
 } gap_smp_TkDisplayEvt_t;
 
+/**
+ *  @brief  Event Parameters for "GAP_EVT_SMP_TK_REQUEST_PASSKEY"
+ */
 typedef struct {
 	u16	connHandle;
 } gap_smp_TkReqPassKeyEvt_t;
 
+
+
+/**
+ *  @brief  Event Parameters for "GAP_EVT_ATT_EXCHANGE_MTU"
+ */
 typedef struct {
 	u16	connHandle;
 	u16	peer_MTU;
 	u16	effective_MTU;
 } gap_gatt_mtuSizeExchangeEvt_t;
+
+
+
+
+
+/**
+ *  @brief  Event Parameters for "GAP_EVT_L2CAP_CONN_PARAM_UPDATE_REQ"
+ */
+typedef struct {
+	u16	connHandle;
+	u8	id;
+	u16 min_interval;
+	u16 max_interval;
+	u16 latency;
+	u16 timeout;
+} gap_l2cap_connParamUpdateReqEvt_t;
+
+/**
+ *  @brief  Event Parameters for "GAP_EVT_L2CAP_CONN_PARAM_UPDATE_RSP"
+ */
+typedef struct {
+	u16	connHandle;
+	u8  id;
+	u16	result;
+} gap_l2cap_connParamUpdateRspEvt_t;
+
+
+
 
 
 typedef struct {

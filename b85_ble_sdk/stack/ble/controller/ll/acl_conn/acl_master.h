@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	ll.h
+ * @file	acl_master.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,125 +43,43 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-#ifndef LL_H_
-#define LL_H_
+#ifndef LLMS_MASTER_H_
+#define LLMS_MASTER_H_
 
 
 
 /**
- * @brief	Telink defined LinkLayer Event Callback
- */
-typedef void (*blt_event_callback_t)(u8 e, u8 *p, int n);
-
-#define 		BLT_EV_MAX_NUM						10
-
-#define			BLT_EV_FLAG_ADV						0
-#define			BLT_EV_FLAG_ADV_DURATION_TIMEOUT	1
-#define			BLT_EV_FLAG_SCAN_RSP				2
-#define			BLT_EV_FLAG_LL_REJECT_IND		    3
-#define			BLT_EV_FLAG_RX_DATA_ABANDOM			4
-#define			BLT_EV_FLAG_GPIO_EARLY_WAKEUP		5
-#define			BLT_EV_FLAG_SUSPEND_ENTER			6
-#define			BLT_EV_FLAG_SUSPEND_EXIT			7
-
-
-
-
-
-typedef enum{
-	LL_FEATURE_ENABLE	= 1,
-	LL_FEATURE_DISABLE  = 0,
-}ll_feature_value_t;
-
-
-
-
-
-/**
- * @brief	Telink defined LinkLayer Event Callback
- * @param	none
- * @param	none
- * @return	none
- */
-void 		blc_ll_registerTelinkControllerEventCallback (u8 e, blt_event_callback_t p);
-
-/**
- * @brief	irq_handler for BLE stack, process system tick interrupt and RF interrupt
- * @param	none
- * @return	none
- */
-void 		blc_sdk_irq_handler(void);
-
-/**
- * @brief   main_loop for BLE stack, process data and event
- * @param	none
- * @return	none
- */
-void 		blc_sdk_main_loop (void);
-
-
-
-/**
- * @brief      for user to initialize MCU
+ * @brief      for user to initialize ACL connection master role.
  * @param	   none
  * @return     none
  */
-void 		blc_ll_initBasicMCU (void);
+void 		blc_ll_initAclMasterRole_module(void);
 
 
 
 /**
- * @brief      for user to initialize link layer Standby state
- * @param	   none
- * @return     none
- */
-void 		blc_ll_initStandby_module (u8 *public_adr);
-
-
-
-/**
- * @brief      This function is used to check whether the current handle parameter is legal and in the connected state.
- * @param[in]  connHandle - ACL connection handle.
+ * @brief      for user to initialize LinkLayer ACL connection RX FIFO.
+ * 			   all connection will share the FIFO.
+ * @param[in]  conn_interval - Set connection interval, unit 1.25ms.
  * @return     status, 0x00:  succeed
  * 					   other: failed
  */
-ble_sts_t 	blc_ll_isAclhdlInvalid (u16 connHandle);
-
-
-
-/**
- * @brief      this function is used to read MAC address
- * @param[in]  *addr -  The address where the read value(MAC address) prepare to write.
- * @return     status, 0x00:  succeed
- * 					   other: failed
- */
-ble_sts_t   blc_ll_readBDAddr(u8 *addr);
+ble_sts_t	blc_ll_setAclMasterConnectionInterval(conn_inter_t conn_interval);
 
 
 /**
- * @brief      this function is used to set the LE Random Device Address in the Controller
- * @param[in]  *randomAddr -  Random Device Address
- * @return     status, 0x00:  succeed
- * 					   other: failed
- */
-ble_sts_t 	blc_ll_setRandomAddr(u8 *randomAddr);
-
-
-
-/**
- * @brief      this function is used to change the Link Layer connection parameters of a connection,
- *             only the master role is valid.
+ * @brief      this function is used to change the ACL connection parameters.
  * @param[in]  connHandle - Connection_Handle
- * @param[in]  conn_min - Minimum value for the connection interval.
- * @param[in]  conn_max - Maximum value for the connection interval.
- * @param[in]  conn_latency - Slave latency for the connection in number of connection events
- * @param[in]  timeout - Supervision timeout for the LE Link.
- * @param[in]  ce_min - Information parameter about the minimum length of connection event.
- * @param[in]  ce_max - Information parameter about the maximum length of connection event.
+ * @param[in]  conn_min - the minimum allowed connection interval.
+ * @param[in]  conn_max - the maximum allowed connection interval.
+ * @param[in]  conn_latency - the maximum allowed connection latency.
+ * @param[in]  timeout - the link supervision timeout for the LE link.
+ * @param[in]  ce_min - information parameters providing the Controller with a hint about the expected minimum length of the connection events.
+ * @param[in]  ce_max - information parameters providing the Controller with a hint about the expected maximum length of the connection events.
  * @return     status, 0x00:  succeed
  * 			           other: failed
  */
-ble_sts_t 	blc_ll_updateConnection(u16 connHandle, u16 conn_min, u16 conn_max, u16 conn_latency, u16 timeout, u16 ce_min, u16 ce_max);
+ble_sts_t 	blc_ll_updateConnection(u16 connHandle, conn_inter_t conn_min, conn_inter_t conn_max, u16 conn_latency, conn_tm_t timeout, u16 ce_min, u16 ce_max);
 
 
 
@@ -178,19 +96,4 @@ ble_sts_t 	blc_ll_setHostChannel(u16 connHandle, u8 * chnMap);
 
 
 
-/**
- * @brief      this function is used by the Host to specify a channel classification based on its local information,
- *             only the master role is valid.
- * @param[in]  bit_number - Bit position in the FeatureSet.
- * @param[in]  bit_value - refer to the struct "ll_feature_value_t".
- * @return     status, 0x00:  succeed
- * 			           other: failed
- */
-ble_sts_t	blc_hci_le_setHostFeature(u8 bit_number, ll_feature_value_t bit_value);
-
-
-
-
-
-
-#endif /* LL_H_ */
+#endif /* LLMS_MASTER_H_ */

@@ -55,6 +55,7 @@ typedef int (*blc_hci_app_handler_t) (unsigned char *p);
 
 
 
+
 #define			HCI_FLAG_EVENT_PHYTEST_2_WIRE_UART			(1<<23)
 #define			HCI_FLAG_EVENT_TLK_MODULE					(1<<24)
 #define			HCI_FLAG_EVENT_BT_STD						(1<<25)
@@ -76,7 +77,14 @@ typedef int (*blc_hci_app_handler_t) (unsigned char *p);
 #define 		HCI_MAX_DATA_BUFFERS_SALVE              	8
 #define 		HCI_MAX_DATA_BUFFERS_MASTER              	8
 
+extern	blc_hci_rx_handler_t	blc_hci_rx_handler;
+extern	blc_hci_tx_handler_t	blc_hci_tx_handler;
 
+extern 	my_fifo_t	hci_rxfifo;
+extern 	my_fifo_t	hci_txfifo;
+extern  my_fifo_t	hci_rxAclfifo;
+
+extern  my_fifo_t	hci_tx_iso_fifo;
 
 
 /**
@@ -144,6 +152,35 @@ extern hci_data_handler_t		blc_hci_data_handler;
 
 
 
+/**
+ * @brief      for user to initialize HCI TX FIFO.
+ * @param[in]  pRxbuf - TX FIFO buffer address.
+ * @param[in]  fifo_size - RX FIFO size
+ * @param[in]  fifo_number - RX FIFO number, can only be 4, 8, 16 or 32
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t 	blc_ll_initHciTxFifo(u8 *pTxbuf, int fifo_size, int fifo_number);
+
+/**
+ * @brief      for user to initialize HCI RX FIFO.
+ * @param[in]  pRxbuf - RX FIFO buffer address.
+ * @param[in]  fifo_size - RX FIFO size
+ * @param[in]  fifo_number - RX FIFO number, can only be 4, 8, 16 or 32
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t 	blc_ll_initHciRxFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
+
+/**
+ * @brief      for user to initialize HCI RX ACL Data FIFO.
+ * @param[in]  pRxbuf - RX FIFO buffer address (Attention: buffer size = fifo_size*fifo_num*conn_max_num).
+ * @param[in]  fifo_size - RX FIFO size
+ * @param[in]  fifo_number - RX FIFO number, can only be 4, 8, 16 or 32
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t 	blc_ll_initHciRxAclFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
 
 
 /**
@@ -151,7 +188,7 @@ extern hci_data_handler_t		blc_hci_data_handler;
  * @param[in]  none.
  * @return     0
  */
-int blc_hci_rx_from_usb (void);
+int			blc_hci_rx_from_usb (void);
 
 
 /**
@@ -159,7 +196,7 @@ int blc_hci_rx_from_usb (void);
  * @param[in]  none.
  * @return     0
  */
-int blc_hci_tx_to_usb (void);
+int			blc_hci_tx_to_usb (void);
 
 
 /**
@@ -168,7 +205,7 @@ int blc_hci_tx_to_usb (void);
  * @param[in]  n - the length of HCI data
  * @return     0
  */
-int blc_hci_handler (u8 *p, int n);
+int			blc_hci_handler (u8 *p, int n);
 
 
 /**
@@ -178,7 +215,7 @@ int blc_hci_handler (u8 *p, int n);
  * @param[in]  n - data length of event
  * @return     none
  */
-int blc_hci_send_event (u32 h, u8 *para, int n);
+int			blc_hci_send_event (u32 h, u8 *para, int n);
 
 
 /**
@@ -186,7 +223,7 @@ int blc_hci_send_event (u32 h, u8 *para, int n);
  * @param[in]  none.
  * @return     0
  */
-int blc_hci_proc (void);
+int			blc_hci_proc (void);
 
 
 /**
@@ -226,7 +263,7 @@ void 		blc_hci_registerControllerEventHandler (hci_event_handler_t  handler);
  * @param[in]  handler - hci_data_handler_t
  * @return     none.
  */
-void blc_hci_registerControllerDataHandler (hci_data_handler_t handle);
+void 		blc_hci_registerControllerDataHandler (hci_data_handler_t handle);
 
 
 /**

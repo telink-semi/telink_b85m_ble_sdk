@@ -48,10 +48,10 @@
 
 #if(__PROJECT_8258_M1S1__ )
 	#include "vendor/8258_m1s1_demo/app_config.h"
-#elif(__PROJECT_8258_HCI__ )
-	#include "vendor/B85_hci/app_config.h"
-#elif(__PROJECT_8278_HCI__)
-	#include "vendor/B85_hci/app_config.h"
+#elif(__PROJECT_8258_CONTROLLER__ )
+	#include "vendor/B85_controller/app_config.h"
+#elif(__PROJECT_8278_CONTROLLER__)
+	#include "vendor/B85_controller/app_config.h"
 #elif(__PROJECT_8258_HIGHER_TESTER__ )
 	#include "vendor/8258_higher_tester/app_config.h"
 #elif(__PROJECT_8258_LOWER_TESTER__ )

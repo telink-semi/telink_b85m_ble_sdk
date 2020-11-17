@@ -50,24 +50,8 @@
 #include "ble_common.h"
 #include "ble_format.h"
 
-#include "l2cap/l2cap.h"
-#include "l2cap/l2cap_signal.h"
-
-
-
-#include "attr/att.h"
-#include "attr/gatt.h"
-#include "attr/gatt_uuid.h"
-
-
-#include "smp/smp.h"
-#include "smp/smp_storage.h"
-
-#include "gap/gap.h"
-#include "gap/gap_event.h"
-
-#include "crypt/aes_ccm.h"
-#include "crypt/le_crypto.h"
+#include "controller/ble_controller.h"
+#include "host/ble_host.h"
 
 #include "hci/hci.h"
 #include "hci/hci_const.h"
@@ -81,53 +65,6 @@
 
 
 
-
-#include "ll/ll.h"
-#include "ll/ll_pm.h"
-
-#include "ll/acl_conn/acl_conn.h"
-#include "ll/acl_conn/acl_slave.h"
-#include "ll/acl_conn/acl_master.h"
-
-
-
-
-#include "ll/adv/adv.h"
-#include "ll/adv/leg_adv.h"
-#include "ll/adv/ext_adv.h"
-#include "ll/adv/perd_adv.h"
-
-#include "ll/scan/scan.h"
-#include "ll/scan/leg_scan.h"
-#include "ll/scan/ext_scan.h"
-#include "ll/scan/sync.h"
-
-#include "ll/init/init.h"
-#include "ll/init/leg_init.h"
-#include "ll/init/ext_init.h"
-
-
-#include "ll/iso/iso.h"
-#include "ll/iso/iso_config.h"
-#include "ll/iso/bis.h"
-#include "ll/iso/bis_bcst.h"
-#include "ll/iso/bis_sync.h"
-#include "ll/iso/cis.h"
-#include "ll/iso/cis_master.h"
-#include "ll/iso/cis_slave.h"
-
-
-#include "ial/ial.h"
-
-
-#include "whitelist/whitelist.h"
-
-
-#include "csa/csa.h"
-
-
-#include "phy/phy.h"
-#include "phy/phy_test.h"
 
 
 

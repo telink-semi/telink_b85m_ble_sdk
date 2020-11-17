@@ -54,41 +54,10 @@
 
 
 
-//module spp Tx / Rx fifo
-#define HCI_RXFIFO_SIZE		80
-#define HCI_RXFIFO_NUM		4
-
-#define HCI_TXFIFO_SIZE		80
-#define HCI_TXFIFO_NUM		8
-
-//_attribute_data_retention_
-							u8 		 	hci_rx_fifo_b[HCI_RXFIFO_SIZE * HCI_RXFIFO_NUM] = {0};
-_attribute_data_retention_	my_fifo_t	hci_rx_fifo = {
-												HCI_RXFIFO_SIZE,
-												HCI_RXFIFO_NUM,
-												0,
-												0,
-												hci_rx_fifo_b,};
-
-//_attribute_data_retention_
-							u8 		 	hci_tx_fifo_b[HCI_TXFIFO_SIZE * HCI_TXFIFO_NUM] = {0};
-_attribute_data_retention_	my_fifo_t	hci_tx_fifo = {
-												HCI_TXFIFO_SIZE,
-												HCI_TXFIFO_NUM,
-												0,
-												0,
-												hci_tx_fifo_b,};
-
-
-
-
-
-
 
 #define     MY_APP_ADV_CHANNEL					BLT_ENABLE_ADV_ALL
 #define 	MY_ADV_INTERVAL_MIN					ADV_INTERVAL_30MS
 #define 	MY_ADV_INTERVAL_MAX					ADV_INTERVAL_40MS
-
 
 
 
@@ -109,13 +78,14 @@ const u8	tbl_scanRsp [] = {
 /////////////////////////////////////blc_register_hci_handler for spp//////////////////////////////
 int rx_from_uart_cb (void)//UART data send to Master,we will handler the data as CMD or DATA
 {
-	if(my_fifo_get(&hci_rx_fifo) == 0)
+	if(my_fifo_get(&hci_rxfifo) == 0)
 	{
 		return 0;
 	}
 
-	u8* p = my_fifo_get(&hci_rx_fifo);
-	u32 rx_len = p[0]; //usually <= 255 so 1 byte should be sufficient
+	u8* p = my_fifo_get(&hci_rxfifo);
+
+	u16 rx_len = *(u16*)p; //dma len use 2 byte should be sufficient
 
 	if (rx_len)
 	{
@@ -129,7 +99,8 @@ int rx_from_uart_cb (void)//UART data send to Master,we will handler the data as
 	#else
 		blc_hci_handler(&p[4], rx_len - 4);
 	#endif
-		my_fifo_pop(&hci_rx_fifo);
+
+		my_fifo_pop(&hci_rxfifo);
 
 		return 1;
 	}
@@ -140,21 +111,18 @@ int rx_from_uart_cb (void)//UART data send to Master,we will handler the data as
 uart_data_t T_txdata_buf;
 int tx_to_uart_cb (void)
 {
-	u8 *p;
+	u8 *p = NULL;
+
 	static u32 txLoopTick;
-
-
 	if(clock_time_exceed(txLoopTick, 8000)){  //Tx task loop period interval: 8000us
 		txLoopTick = clock_time();
 	}
 	else{
 		return 0;
 	}
-	my_fifo_t *txfifo;
 
+	p = my_fifo_get (&hci_txfifo);
 
-	txfifo = &hci_tx_fifo;
-	p = my_fifo_get (txfifo);
 
 	if (p && !uart_tx_is_busy ())
 	{
@@ -166,7 +134,8 @@ int tx_to_uart_cb (void)
 		#if (UI_LED_ENABLE)
 			gpio_toggle(GPIO_LED_GREEN);
 		#endif
-			my_fifo_pop (txfifo);
+
+			my_fifo_pop (&hci_txfifo);
 
 			return 1;
 		}
@@ -205,7 +174,7 @@ void user_init_normal(void)
 
 	// Fifo initialization function should be called before  blc_ll_initAclConnection_module()
 	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
+	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{ while(1); }
 	/* ACL Master TX FIFO */
 	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
 	/* ACL Slave TX FIFO */
@@ -243,6 +212,16 @@ void user_init_normal(void)
 	
 	
 	//////////// HCI Initialization  Begin /////////////////////////
+#if (HCI_NEW_FIFO_FEATURE_ENABLE)
+	/* HCI RX FIFO */
+	if(blc_ll_initHciRxFifo(app_hci_rxfifo, HCI_RX_FIFO_SIZE, HCI_RX_FIFO_NUM) != BLE_SUCCESS)	{ BLMS_ERR_DEBUG(DBG_HCI_FIFO, 0xCC110222); while(1); }
+	/* HCI TX FIFO */
+	if(blc_ll_initHciTxFifo(app_hci_txfifo, HCI_TX_FIFO_SIZE, HCI_TX_FIFO_NUM) != BLE_SUCCESS) { BLMS_ERR_DEBUG(DBG_HCI_FIFO, 0xCC110224)while(1); }
+	/* HCI RX ACL FIFO */
+	if(blc_ll_initHciRxAclFifo(app_hci_rxAclfifo, HCI_RX_ACL_FIFO_SIZE, HCI_RX_ACL_FIFO_NUM) != BLE_SUCCESS)	{ BLMS_ERR_DEBUG(DBG_HCI_FIFO, 0xCC110226);while(1); }
+#endif
+	
+	/* HCI Data && Event */
 	blc_hci_registerControllerDataHandler (blc_hci_sendACLData2Host);
 	blc_hci_registerControllerEventHandler(blc_hci_send_data); //controller hci event to host all processed in this func
 
@@ -272,7 +251,7 @@ void user_init_normal(void)
 		usb_dp_pullup_en (1);  //open USB enum
 	#else ///(HCI_ACCESS == HCI_USE_UART)
 		//note: dma addr must be set first before any other uart initialization!
-		uart_recbuff_init((u8*)hci_rx_fifo_b, (u16)hci_rx_fifo.size);
+		uart_recbuff_init((u8*)hci_rxfifo.p, (u16)hci_rxfifo.size);
 		uart_gpio_set(UART_TX_PB1, UART_RX_PB0);
 		uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
@@ -307,7 +286,7 @@ void user_init_normal(void)
 			uart_irq_enable(1, 0);  	                //UART RX/TX IRQ no need, disable them
 			uart_ndma_irq_triglevel(1,1);
 
-			HCI_Tr_Init(&hci_rx_fifo);
+			HCI_Tr_Init(&hci_rxfifo);
 		#else
 			uart_dma_enable(1, 1); 	//UART data in hardware buffer moved by DMA, so we need enable them first
 			irq_set_mask(FLD_IRQ_DMA_EN);
@@ -315,8 +294,6 @@ void user_init_normal(void)
 			uart_irq_enable(0, 0);  	//UART RX/TX IRQ no need, disable them
 		#endif
 
-		extern int rx_from_uart_cb (void);
-		extern int tx_to_uart_cb (void);
 		blc_register_hci_handler(rx_from_uart_cb, tx_to_uart_cb);				//customized uart handler
 	#endif
 	////////////////// End SPP initialization ///////////////////////////////////

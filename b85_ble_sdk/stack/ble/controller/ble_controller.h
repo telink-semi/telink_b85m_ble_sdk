@@ -47,75 +47,59 @@
 #define BLE_CONTROLLER_H_
 
 
-#include "ble_common.h"
-#include "ble_format.h"
+#include "stack/ble/ble_common.h"
+#include "stack/ble/ble_format.h"
 
 
-#include "hci/hci.h"
-#include "hci/hci_const.h"
-#include "hci/hci_cmd.h"
-#include "hci/hci_event.h"
-#include "hci/usb_desc.h"
+#include "stack/ble/hci/hci.h"
+#include "stack/ble/hci/hci_const.h"
+#include "stack/ble/hci/hci_cmd.h"
+#include "stack/ble/hci/hci_event.h"
+#include "stack/ble/hci/usb_desc.h"
 
-#include "ll/ll.h"
+#include "stack/ble/controller/ll/ll.h"
 
-#include "ll/acl_conn/acl_conn.h"
-#include "ll/acl_conn/acl_slave.h"
-#include "ll/acl_conn/acl_master.h"
-
-
-#include "ll/adv/adv.h"
-#include "ll/adv/leg_adv.h"
-#include "ll/adv/ext_adv.h"
-#include "ll/adv/perd_adv.h"
-
-#include "ll/scan/scan.h"
-#include "ll/scan/leg_scan.h"
-#include "ll/scan/ext_scan.h"
-#include "ll/scan/sync.h"
-
-#include "ll/init/init.h"
-#include "ll/init/leg_init.h"
-#include "ll/init/ext_init.h"
+#include "stack/ble/controller/ll/acl_conn/acl_conn.h"
+#include "stack/ble/controller/ll/acl_conn/acl_slave.h"
+#include "stack/ble/controller/ll/acl_conn/acl_master.h"
 
 
-#include "ial/ial.h"
-#include "ll/iso/iso.h"
+#include "stack/ble/controller/ll/adv/adv.h"
+#include "stack/ble/controller/ll/adv/leg_adv.h"
+#include "stack/ble/controller/ll/adv/ext_adv.h"
+#include "stack/ble/controller/ll/adv/perd_adv.h"
 
-#include "ll/iso/bis.h"
-#include "ll/iso/bis_bcst.h"
-#include "ll/iso/bis_sync.h"
-#include "ll/iso/cis.h"
-#include "ll/iso/cis_master.h"
-#include "ll/iso/cis_slave.h"
+#include "stack/ble/controller/ll/scan/scan.h"
+#include "stack/ble/controller/ll/scan/leg_scan.h"
+#include "stack/ble/controller/ll/scan/ext_scan.h"
+#include "stack/ble/controller/ll/scan/sync.h"
 
-
-#include "whitelist/whitelist.h"
-
-#include "csa/csa.h"
-
-#include "phy/phy.h"
-#include "phy/phy_test.h"
+#include "stack/ble/controller/ll/init/init.h"
+#include "stack/ble/controller/ll/init/leg_init.h"
+#include "stack/ble/controller/ll/init/ext_init.h"
 
 
+#include "stack/ble/controller/ial/ial.h"
+#include "stack/ble/controller/ll/iso/iso.h"
 
-/*********************************************************/
-//Remove when file merge to SDK //
-#include "ble_stack.h"
-#include "ll/ll_stack.h"
-#include "ll/acl_conn/acl_stack.h"
-#include "ll/adv/adv_stack.h"
-#include "ll/scan/scan_stack.h"
-#include "ll/init/init_stack.h"
-#include "ial/ial_stack.h"
-#include "ll/iso/iso_stack.h"
-#include "whitelist/whitelist_stack.h"
-#include "csa/csa_stack.h"
-#include "phy/phy_stack.h"
+#include "stack/ble/controller/ll/iso/bis.h"
+#include "stack/ble/controller/ll/iso/bis_bcst.h"
+#include "stack/ble/controller/ll/iso/bis_sync.h"
+#include "stack/ble/controller/ll/iso/cis.h"
+#include "stack/ble/controller/ll/iso/cis_master.h"
+#include "stack/ble/controller/ll/iso/cis_slave.h"
 
-#include "ble_config.h"
-#include "debug.h"
-#include "trace.h"
-/*********************************************************/
+
+#include "stack/ble/controller/whitelist/whitelist.h"
+
+#include "stack/ble/controller/csa/csa.h"
+
+#include "stack/ble/controller/phy/phy.h"
+#include "stack/ble/controller/phy/phy_test.h"
+
+#include "stack/ble/controller/crypt/aes_ccm.h"
+#include "stack/ble/controller/crypt/le_crypto.h"
+
+
 
 #endif /* BLE_H_ */

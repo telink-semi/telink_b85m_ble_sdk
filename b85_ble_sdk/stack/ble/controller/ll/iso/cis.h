@@ -47,7 +47,7 @@
 #define CIS_H_
 
 
-#include "stack/ble/crypt/aes_ccm.h"
+#include "stack/ble/controller/crypt/aes_ccm.h"
 
 /******************************* Macro & Enumeration & Structure Definition for Stack Begin, user can not use!!!!  *****/
 
@@ -78,12 +78,6 @@
 #define			CIS_FLOW_CIS_SYNC_SUCCESS						BIT(6)
 #define			CIS_FLOW_CIS_SYNC_FAIL							BIT(7)
 
-
-
-
-#define			CIS_DEBUG_EN									1
-#define 		CIS_ERR_DEBUG(x)								do{irq_disable();write_reg32(0x40000, (x));while(1);}while(0)
-//#define 		CIS_ERR_DEBUG(x)
 
 
 

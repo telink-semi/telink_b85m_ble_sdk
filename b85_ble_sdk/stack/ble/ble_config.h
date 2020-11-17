@@ -59,7 +59,7 @@
 
 
 #ifndef SECURE_CONNECTION_ENABLE
-#define SECURE_CONNECTION_ENABLE							1  //TODO: flash SMP_PARMA read by API
+#define SECURE_CONNECTION_ENABLE							0  //TODO: flash SMP_PARMA read by API
 #endif
 
 
@@ -156,4 +156,10 @@
 #ifndef L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN
 #define L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN						0
 #endif
+
+
+#ifndef HCI_NEW_FIFO_FEATURE_ENABLE
+#define HCI_NEW_FIFO_FEATURE_ENABLE									0
+#endif
+
 

@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	tl_common.h
+ * @file	ll.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,27 +43,114 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
+#ifndef LL_H_
+#define LL_H_
 
-#pragma once
 
 
-#include "common/types.h"
-#include "common/bit.h"
-#include "common/utility.h"
+/**
+ * @brief	Telink defined LinkLayer Event Callback
+ */
+typedef void (*blt_event_callback_t)(u8 e, u8 *p, int n);
 
-#include "vendor/common/user_config.h"
-#include "config.h"
+#define 		BLT_EV_MAX_NUM						10
 
-#include "common/string.h"
+#define			BLT_EV_FLAG_ADV						0
+#define			BLT_EV_FLAG_ADV_DURATION_TIMEOUT	1
+#define			BLT_EV_FLAG_SCAN_RSP				2
+#define			BLT_EV_FLAG_LL_REJECT_IND		    3
+#define			BLT_EV_FLAG_RX_DATA_ABANDOM			4
+#define			BLT_EV_FLAG_GPIO_EARLY_WAKEUP		5
+#define			BLT_EV_FLAG_SUSPEND_ENTER			6
+#define			BLT_EV_FLAG_SUSPEND_EXIT			7
 
-#include "common/myudb.h"
 
-#include "application/print/u_printf.h"
 
-#include "vendor/common/blt_common.h"
-#include "vendor/common/blt_fw_sign.h"
-#include "vendor/common/blt_led.h"
-#include "vendor/common/blt_soft_timer.h"
-#include "vendor/common/custom_pair.h"
-#include "vendor/common/device_manage.h"
-#include "vendor/common/flash_fw_check.h"
+
+
+typedef enum{
+	LL_FEATURE_ENABLE	= 1,
+	LL_FEATURE_DISABLE  = 0,
+}ll_feature_value_t;
+
+
+
+
+
+/**
+ * @brief	Telink defined LinkLayer Event Callback
+ * @param	none
+ * @param	none
+ * @return	none
+ */
+void 		blc_ll_registerTelinkControllerEventCallback (u8 e, blt_event_callback_t p);
+
+/**
+ * @brief	irq_handler for BLE stack, process system tick interrupt and RF interrupt
+ * @param	none
+ * @return	none
+ */
+void 		blc_sdk_irq_handler(void);
+
+/**
+ * @brief   main_loop for BLE stack, process data and event
+ * @param	none
+ * @return	none
+ */
+void 		blc_sdk_main_loop (void);
+
+
+
+/**
+ * @brief      for user to initialize MCU
+ * @param	   none
+ * @return     none
+ */
+void 		blc_ll_initBasicMCU (void);
+
+
+
+/**
+ * @brief      for user to initialize link layer Standby state
+ * @param	   none
+ * @return     none
+ */
+void 		blc_ll_initStandby_module (u8 *public_adr);
+
+
+/**
+ * @brief      this function is used to read MAC address
+ * @param[in]  *addr -  The address where the read value(MAC address) prepare to write.
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t   blc_ll_readBDAddr(u8 *addr);
+
+
+/**
+ * @brief      this function is used to set the LE Random Device Address in the Controller
+ * @param[in]  *randomAddr -  Random Device Address
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t 	blc_ll_setRandomAddr(u8 *randomAddr);
+
+
+
+
+/**
+ * @brief      this function is used by the Host to specify a channel classification based on its local information,
+ *             only the master role is valid.
+ * @param[in]  bit_number - Bit position in the FeatureSet.
+ * @param[in]  bit_value - refer to the struct "ll_feature_value_t".
+ * @return     status, 0x00:  succeed
+ * 			           other: failed
+ */
+ble_sts_t	blc_hci_le_setHostFeature(u8 bit_number, ll_feature_value_t bit_value);
+
+
+
+
+
+
+#endif /* LL_H_ */

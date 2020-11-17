@@ -47,8 +47,6 @@
 #define BLE_SMP_H_
 
 #include "stack/ble/ble_common.h"
-#include "stack/ble/smp/smp.h"
-
 
 
 /** @addtogroup SMP first pairing or connecting back definition

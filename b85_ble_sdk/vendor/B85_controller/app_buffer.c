@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	main.c
+ * @file	app_buffer.c
  *
  * @brief	This is the source file for BLE SDK
  *
@@ -46,95 +46,81 @@
 #include "tl_common.h"
 #include "drivers.h"
 #include "stack/ble/ble.h"
+
+
 #include "app.h"
-#include "hci_tr.h"
+#include "app_buffer.h"
 
 
-/**
- * @brief   IRQ handler
- * @param   none.
- * @return  none.
- */
-_attribute_ram_code_ void irq_handler(void)
-{
-    DBG_CHN15_HIGH;
 
-	blc_sdk_irq_handler ();
 
-#if (HCI_ACCESS==HCI_USE_UART)
-  #if HCI_TR_EN
-	HCI_Tr_IRQHandler();
-  #else
-	unsigned char irqS = dma_chn_irq_status_get();
-    if(irqS & FLD_DMA_CHN_UART_RX)	//rx
-    {
-    	dma_chn_irq_status_clr(FLD_DMA_CHN_UART_RX);
-    	//printf("rx irq\n");
+/********************* USB_DEBUG_LOG FIFO allocation, Begin *******************************/
 
-    	u8* w = hci_rx_fifo.p + (hci_rx_fifo.wptr & (hci_rx_fifo.num-1)) * hci_rx_fifo.size;
-    	if(w[0]!=0)
-    	{
-    		my_fifo_next(&hci_rx_fifo);
-    		u8* p = hci_rx_fifo.p + (hci_rx_fifo.wptr & (hci_rx_fifo.num-1)) * hci_rx_fifo.size;
-    		reg_dma_uart_rx_addr = (u16)((u32)p);  //switch uart RX dma address
-    	}
-    }
-
-    if(irqS & FLD_DMA_CHN_UART_TX)	//tx
-    {
-    	//printf("tx irq\n");
-    	dma_chn_irq_status_clr(FLD_DMA_CHN_UART_TX);
-    }
-  #endif
+#if (APP_DUMP_EN)
+	MYFIFO_INIT_IRAM(print_fifo, 288, 32);
 #endif
 
-	DBG_CHN15_LOW;
-}
+/******************** USB_DEBUG_LOG FIFO allocation, End ***********************************/
 
-/**
- * @brief		This is main function
- * @param[in]	none
- * @return      none
+
+
+
+/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
+
+//_attribute_data_retention_
+u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
+
+/*Note: different connections have their own TX FIFO, master and slave set independently
+ * Tx FIFO size = Extra_Len(10) + then align 4bytes
  */
-_attribute_ram_code_ int main(void)
-{
+//_attribute_data_retention_
+u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
 
-#if(MCU_CORE_TYPE == MCU_CORE_825x)
-	cpu_wakeup_init();
-#elif(MCU_CORE_TYPE == MCU_CORE_827x)
-	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+//_attribute_data_retention_
+u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL_SLAVE_TX_FIFO_NUM * SLAVE_MAX_NUM] = {0};
+
+/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
+
+
+
+/***************************** HCI TX & RX data FIFO allocation, Begin *********************************************/
+#if (HCI_NEW_FIFO_FEATURE_ENABLE)
+
+//_attribute_data_retention_
+u8	app_hci_rxfifo[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};
+//_attribute_data_retention_
+u8	app_hci_txfifo[HCI_TX_FIFO_SIZE * HCI_TX_FIFO_NUM] = {0};
+//_attribute_data_retention_
+u8	app_hci_rxAclfifo[HCI_RX_ACL_FIFO_SIZE * HCI_RX_ACL_FIFO_NUM] = {0};
+#else
+//_attribute_data_retention_
+							u8 		 	hci_rxfifo_b[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};
+_attribute_data_retention_	my_fifo_t	hci_rxfifo = {
+												HCI_RX_FIFO_SIZE,
+												HCI_RX_FIFO_NUM,
+												0,
+												0,
+												hci_rxfifo_b,};
+
+//_attribute_data_retention_
+							u8 		 	hci_txfifo_b[HCI_TX_FIFO_SIZE * HCI_TX_FIFO_NUM] = {0};
+_attribute_data_retention_	my_fifo_t	hci_txfifo = {
+												HCI_TX_FIFO_SIZE,
+												HCI_TX_FIFO_NUM,
+												0,
+												0,
+												hci_txfifo_b,};
 #endif
-
-	/* detect if MCU is wake_up from deep retention mode */
-	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();
-
-	
-	clock_init(SYS_CLK_TYPE);
-
-	rf_drv_init(RF_MODE_BLE_1M);
-
-	gpio_init(!deepRetWakeUp);
-
-	/* load customized freq_offset cap value. */
-	blc_app_loadCustomizedParameters();  //note: to be tested
-
-	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
-		user_init_deepRetn ();
-	}
-	else{ //MCU power_on or wake_up from deepSleep mode
-		/* read flash size only in power_on or deepSleep */
-		blc_readFlashSize_autoConfigCustomFlashSector();
-		user_init_normal ();
-	}
+/****************************** HCI TX & RX data FIFO allocation, ENd *********************************************/
 
 
-	irq_enable();
 
-	while(1)
-	{
-		main_loop ();
-	}
-	return 0;
-}
+
+
+
+
+
+
+
 
 
