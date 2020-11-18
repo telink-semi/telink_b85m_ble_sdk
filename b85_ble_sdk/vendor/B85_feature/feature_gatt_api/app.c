@@ -560,9 +560,9 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 ///////////////////////////////////////////
 
 /**
- * @brief      use initialization
- * @param[in]  none.
- * @return     none.
+ * @brief		user initialization when MCU power on or wake_up from deepSleep mode
+ * @param[in]	none
+ * @return      none
  */
 void user_init_normal(void)
 {
@@ -572,8 +572,8 @@ void user_init_normal(void)
 
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
 
-	/* for 1M Flash, flash_sector_mac_address equals to 0xFF000
-	 * for 2M Flash, flash_sector_mac_address equals to 0x1FF000 */
+	/* for 512K Flash, flash_sector_mac_address equals to 0x76000
+	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
@@ -700,6 +700,11 @@ void user_init_normal(void)
 
 
 
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_deepRetn(void)
 {
 

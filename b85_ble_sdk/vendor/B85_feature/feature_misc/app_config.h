@@ -57,13 +57,14 @@
 
 #define MASTER_MAX_NUM								4
 #define SLAVE_MAX_NUM								4
+#define MASTER_SLAVE_MAX_NUM						(MASTER_MAX_NUM+SLAVE_MAX_NUM)
 
 
 
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define BLE_SLAVE_SMP_ENABLE						0   //1 for smp,  0 no security
-#define BLE_MASTER_SMP_ENABLE						0  //1 for smp,  0 no security
+#define BLE_MASTER_SMP_ENABLE						0   //1 for smp,  0 no security
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define UI_LED_ENABLE								1
@@ -105,38 +106,38 @@
 		/**
 		 *  @brief  Normal keyboard map
 		 */
-		#define	KB_MAP_NORMAL					{	{CR_VOL_DN,		BTN_PAIR},	 \
-													{CR_VOL_UP,		BTN_UNPAIR}, }
+		#define		KB_MAP_NORMAL	{	{CR_VOL_UP,	CR_VOL_DN} ,	 \
+										{BTN_PAIR,	BTN_UNPAIR},     }
 
 
 
 		//////////////////// KEY CONFIG (EVK board) ///////////////////////////
-		#define	KB_DRIVE_PINS 					{GPIO_PB2, GPIO_PB3}
-		#define	KB_SCAN_PINS					{GPIO_PB4, GPIO_PB5}
+		#define  KB_DRIVE_PINS  {GPIO_PB4, GPIO_PB5}
+		#define  KB_SCAN_PINS   {GPIO_PB2, GPIO_PB3}
 
 		//drive pin as gpio
-		#define	PB2_FUNC						AS_GPIO
-		#define	PB3_FUNC						AS_GPIO
+		#define	PB4_FUNC				AS_GPIO
+		#define	PB5_FUNC				AS_GPIO
 
 		//drive pin need 100K pulldown
-		#define	PULL_WAKEUP_SRC_PB2				MATRIX_ROW_PULL
-		#define	PULL_WAKEUP_SRC_PB3				MATRIX_ROW_PULL
+		#define	PULL_WAKEUP_SRC_PB4		MATRIX_ROW_PULL
+		#define	PULL_WAKEUP_SRC_PB5		MATRIX_ROW_PULL
 
 		//drive pin open input to read gpio wakeup level
-		#define PB2_INPUT_ENABLE				1
-		#define PB3_INPUT_ENABLE				1
+		#define PB4_INPUT_ENABLE		1
+		#define PB5_INPUT_ENABLE		1
 
 		//scan pin as gpio
-		#define	PB4_FUNC						AS_GPIO
-		#define	PB5_FUNC						AS_GPIO
+		#define	PB2_FUNC				AS_GPIO
+		#define	PB3_FUNC				AS_GPIO
 
 		//scan  pin need 10K pullup
-		#define	PULL_WAKEUP_SRC_PB4				MATRIX_COL_PULL
-		#define	PULL_WAKEUP_SRC_PB5				MATRIX_COL_PULL
+		#define	PULL_WAKEUP_SRC_PB2		MATRIX_COL_PULL
+		#define	PULL_WAKEUP_SRC_PB3		MATRIX_COL_PULL
 
 		//scan pin open input to read gpio level
-		#define PB4_INPUT_ENABLE				1
-		#define PB5_INPUT_ENABLE				1
+		#define PB2_INPUT_ENABLE		1
+		#define PB3_INPUT_ENABLE		1
 #endif
 
 
@@ -146,28 +147,34 @@
 	/**
 	 *  @brief  Definition gpio for led
 	 */
-	#define	GPIO_LED_RED					GPIO_PD5
-	#define	GPIO_LED_WHITE					GPIO_PD4
-	#define	GPIO_LED_GREEN					GPIO_PD3
-	#define	GPIO_LED_BLUE					GPIO_PD2
+	#define	GPIO_LED_BLUE			GPIO_PD2
+	#define	GPIO_LED_GREEN			GPIO_PD3
+	#define	GPIO_LED_WHITE			GPIO_PD4
+	#define	GPIO_LED_RED			GPIO_PD5
 
-	#define LED_ON_LEVAL 						1 		//gpio output high voltage to turn on led
 
-	#define PD2_FUNC						AS_GPIO
-	#define PD3_FUNC						AS_GPIO
-	#define PD4_FUNC						AS_GPIO
-	#define PD5_FUNC						AS_GPIO
+	#define LED_ON_LEVAL 			1 		//gpio output high voltage to turn on led
 
-	#define	PD2_OUTPUT_ENABLE				1
-	#define	PD3_OUTPUT_ENABLE				1
-	#define PD4_OUTPUT_ENABLE				1
-	#define	PD5_OUTPUT_ENABLE				1
+	#define PD2_FUNC				AS_GPIO
+	#define PD3_FUNC				AS_GPIO
+	#define PD4_FUNC				AS_GPIO
+	#define PD5_FUNC				AS_GPIO
+
+	#define	PD2_OUTPUT_ENABLE		1
+	#define	PD3_OUTPUT_ENABLE		1
+	#define PD4_OUTPUT_ENABLE		1
+	#define	PD5_OUTPUT_ENABLE		1
+
 #endif
 
 
 
+
+
+
+
 /////////////////// Clock  /////////////////////////////////
-#define SYS_CLK_TYPE  								SYS_CLK_32M_Crystal
+#define	SYS_CLK_TYPE										SYS_CLK_32M_Crystal
 
 #if(SYS_CLK_TYPE == SYS_CLK_32M_Crystal)
 	#define CLOCK_SYS_CLOCK_HZ  							32000000
@@ -181,11 +188,9 @@ enum{
 	CLOCK_SYS_CLOCK_1US = (CLOCK_SYS_CLOCK_1S / 1000000),
 };
 
-/////////////////// watchdog  //////////////////////////////
-#define MODULE_WATCHDOG_ENABLE		0
-#define WATCHDOG_INIT_TIMEOUT		500  //ms
 
 
+/////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
 #if (UART_PRINT_DEBUG_ENABLE)
 	//the baud rate should not bigger than 1M(system timer clock is constant 16M)
 	#define PRINT_BAUD_RATE             		1000000//1M baud rate,should Not bigger than 1Mb/s
@@ -195,6 +200,10 @@ enum{
 	#define PA0_DATA_OUT                     	1 //must
 	#include "application/print/u_printf.h"
 #endif
+
+
+
+
 
 #if(DEBUG_GPIO_ENABLE)
 

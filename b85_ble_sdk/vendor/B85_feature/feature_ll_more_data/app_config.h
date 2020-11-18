@@ -61,6 +61,7 @@
 
 
 
+
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						1   //1 for smp,  0 no security
@@ -79,28 +80,15 @@
   blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
   First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.  */
 #if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
-	//if flash 512K
-//	#define FLASH_ADR_SMP_PAIRING					0x78000
-//	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
-	//if flash 1M
-	#define FLASH_ADR_SMP_PAIRING					0xFA000
+	#define FLASH_ADR_SMP_PAIRING					0x78000
 	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
 #endif
 
 /*If Master SMP disable, 0x7C000~0x7CFFF 1 sector is for paring information storage */
 #if (!BLE_MASTER_SMP_ENABLE)
-//	#define FLASH_ADR_CUSTOM_PAIRING         		0x7C000
-//	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     		4096
-	#define FLASH_ADR_CUSTOM_PAIRING         		0xF8000
+	#define FLASH_ADR_CUSTOM_PAIRING         		0x7C000
 	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     		4096
 #endif
-
-
-
-
-
-
-
 
 
 
@@ -363,4 +351,5 @@ enum{
 
 
 #include "../../common/default_config.h"
+
 #endif

@@ -404,8 +404,11 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 
 
 
-
-///////////////////////////////////////////
+/**
+ * @brief		user initialization when MCU power on or wake_up from deepSleep mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_normal(void)
 {
 	/* random number generator must be initiated here( in the beginning of user_init_nromal).
@@ -539,7 +542,11 @@ void user_init_normal(void)
 }
 
 
-
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_deepRetn(void)
 {
 

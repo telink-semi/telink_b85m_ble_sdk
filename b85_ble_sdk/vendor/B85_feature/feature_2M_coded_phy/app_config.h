@@ -64,7 +64,7 @@
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define BLE_SLAVE_SMP_ENABLE						0   //1 for smp,  0 no security
-#define BLE_MASTER_SMP_ENABLE						0  //1 for smp,  0 no security
+#define BLE_MASTER_SMP_ENABLE						0   //1 for smp,  0 no security
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define UI_LED_ENABLE								1
@@ -95,7 +95,7 @@
 
 
 #if (UI_KEYBOARD_ENABLE)   // if test pure power, kyeScan GPIO setting all disabled
-		//---------------  KeyMatrix PC2/PC0/PC3/PC1 -----------------------------
+		//---------------  KeyMatrix PB2/PB3/PB4/PB5 -----------------------------
 		#define	MATRIX_ROW_PULL					PM_PIN_PULLDOWN_100K
 		#define	MATRIX_COL_PULL					PM_PIN_PULLUP_10K
 

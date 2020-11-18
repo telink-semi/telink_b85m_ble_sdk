@@ -187,7 +187,7 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 
 /**
- * @brief      BLE Disonnection event handler
+ * @brief      BLE Disconnection event handler
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
@@ -425,9 +425,9 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 ///////////////////////////////////////////
 
 /**
- * @brief      use initialization
- * @param[in]  none.
- * @return     none.
+ * @brief		user initialization when MCU power on or wake_up from deepSleep mode
+ * @param[in]	none
+ * @return      none
  */
 void user_init_normal(void)
 {
@@ -572,6 +572,11 @@ void user_init_normal(void)
 
 
 
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_deepRetn(void)
 {
 

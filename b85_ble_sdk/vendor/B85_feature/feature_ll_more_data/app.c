@@ -796,9 +796,9 @@ int my_client_2_server_write_callback(u16 connHandle, void * p)
 ///////////////////////////////////////////
 
 /**
- * @brief      use initialization
- * @param[in]  none.
- * @return     none.
+ * @brief		user initialization when MCU power on or wake_up from deepSleep mode
+ * @param[in]	none
+ * @return      none
  */
 void user_init_normal(void)
 {
@@ -926,6 +926,11 @@ void user_init_normal(void)
 
 
 
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_deepRetn(void)
 {
 

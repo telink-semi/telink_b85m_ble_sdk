@@ -58,7 +58,7 @@
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						1   //1 for smp,  0 no security
-#define BLE_MASTER_SIMPLE_SDP_ENABLE				1  //simple service discovery for BLE master
+#define BLE_MASTER_SIMPLE_SDP_ENABLE				1   //simple service discovery for BLE master
 #define BLE_SLAVE_OTA_ENABLE						0	//local device firmware updated by peer device(BLE master)
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
@@ -67,14 +67,14 @@
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
 #define DEBUG_GPIO_ENABLE							1
-#define UART_PRINT_DEBUG_ENABLE                     1  //printf
+#define UART_PRINT_DEBUG_ENABLE                     0  //printf
 #define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			1
 
 
 ///////////////////// Flash Sector Usage Configuration for 512K Flash //////////////////////////
 /*If Slave or Master SMP enable, default 0x78000~0x7BFFF (4 sector, 16K) is used for SMP pairing
   information storage, it is set in BLE stack library, same as initialization below:
-  blc_smp_configParingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
+  blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
   First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.  */
 #if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
 	#define FLASH_ADR_SMP_PAIRING					0x78000

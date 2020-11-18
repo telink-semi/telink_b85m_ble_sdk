@@ -59,7 +59,6 @@
 #define ACL_RX_FIFO_SIZE		64
 #define ACL_RX_FIFO_NUM			8
 
-
 #define ACL_SLAVE_TX_FIFO_SIZE		48
 #define ACL_SLAVE_TX_FIFO_NUM		8  //Different process for different MCU: kite&vulture 8 and eagle 9.
 
