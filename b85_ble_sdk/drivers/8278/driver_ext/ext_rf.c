@@ -54,7 +54,7 @@
 #define 	RF_RX_SHORT_MODE_EN				1
 
 
-
+_attribute_data_retention_ signed char ble_txPowerLevel = 0; /* <<TX Power Level>>: -127 to +127 dBm */
 
 
 

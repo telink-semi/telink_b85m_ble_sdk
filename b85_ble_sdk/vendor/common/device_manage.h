@@ -48,7 +48,8 @@
 
 
 #include "vendor/common/user_config.h"
-
+#include "stack/ble/ble_common.h"
+#include "stack/ble/hci/hci_event.h"
 
 #ifndef MASTER_MAX_NUM
 #define MASTER_MAX_NUM         						4
@@ -56,26 +57,6 @@
 
 #ifndef SLAVE_MAX_NUM
 #define SLAVE_MAX_NUM     							4
-#endif
-
-#ifndef BLE_MASTER_SIMPLE_SDP_ENABLE
-#define BLE_MASTER_SIMPLE_SDP_ENABLE				0
-#endif
-
-
-
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-	#ifndef PEER_SLAVE_USE_RPA_EN
-	#define PEER_SLAVE_USE_RPA_EN					0	//peer slave device use RPA(resolvable private address)
-	#endif
-
-	#ifndef FLASH_SDP_ATT_ADRRESS
-	#define FLASH_SDP_ATT_ADRRESS                	0xF6000    //for master: store peer slave device's ATT handle
-	#endif
-
-	#ifndef FLASH_SDP_ATT_MAX_SIZE
-	#define FLASH_SDP_ATT_MAX_SIZE				 	(2*4096)   //8K flash for ATT HANLDE storage
-	#endif
 #endif
 
 
@@ -113,22 +94,17 @@ typedef struct {
 typedef struct
 {
 	u16 	conn_handle;
+	u8		conn_role;				// 0: master; 1: slave
 	u8 		conn_state;				// 1: connect;  0: disconnect
-	u8		char_handle_valid;      // 1: peer device's attHandle is available;   0: peer device's attHandle not available
 
-	u8		rsvd[4];  				//just for debug, 16 byte aligned, convenient to see
+	u8		char_handle_valid;      // 1: peer device's attHandle is available;   0: peer device's attHandle not available
+	u8		rsvd[3];  				// for 4 Byte align
 
 	u8		peer_adrType;
 	u8		peer_addr[6];
 	u8		peer_RPA;         //RPA: resolvable private address
-	//rpa_addr_t *pPeer_RPA;    //only when peer  mac_address is RPA, this pointer is useful
 
-#if 0   //for local multi_mac_address
-	u8		local_adrType;
-	u8		local_addr[6];
-	u8		local_RPA;        //RPA: resolvable private address
-	//rpa_addr_t *pLocal_RPA;   //only when local mac_address is RPA, this pointer is useful
-#endif
+	//rpa_addr_t *pPeer_RPA;    //only when peer  mac_address is RPA, this pointer is useful
 
 	u16		char_handle[CHAR_HANDLE_MAX];
 
@@ -149,13 +125,11 @@ extern int	conn_slave_num;
  */
 int 	dev_char_info_insert (dev_char_info_t* dev_char_info);
 
-/**
- * @brief       Used for add peer device service ATThandle.
- * @param[in]   dev_char_info       - Pointer point to data buffer.
- * @return      0: success
- *              1: failed
- */
-int 	dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info);
+
+
+
+int 	dev_char_info_insert_by_conn_event(hci_le_connectionCompleteEvt_t* pConnEvt);
+
 
 /**
  * @brief       Used for delete device information from conn_dev_list by connHandle
@@ -220,6 +194,19 @@ dev_char_info_t* 	dev_char_info_search_by_local_mac (u8 adr_type, u8* addr);
 bool	dev_char_info_is_connection_state_by_conn_handle(u16 connhandle);
 
 
+
+/**
+ * @brief       Get ACL connection role by connection handle.
+ * @param[in]   connhandle       - connection handle.
+ * @return      0: LL_ROLE_MASTER
+ * 				1: LL_ROLE_SLAVE
+ * 				2: connection handle invalid
+ */
+int dev_char_get_conn_role_by_connhandle (u16 connhandle);
+
+
+
+
 #if 0
 static inline u16 	dev_char_info_get_conn_handle_by_slave_index (int slave_index)
 {
@@ -244,65 +231,17 @@ static inline u16 	dev_char_info_get_conn_handle_by_master_index (int master_ind
 
 
 
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-
-#define ATT_BOND_MARK 		0x5A
-#define ATT_ERASE_MARK		0x00
 
 
-typedef struct{
-	u8	flag;
-	u8	adr_type;
-	u8	addr[6];
-
-	u8	rsvd[8];  //very important: 16 byte aligned, to avoid different flash page write for a sequence data
-
-#if (PEER_SLAVE_USE_RPA_EN)
-	u8  irk[16];   //TODO: if peer device mac_adress is RPA(resolvable private address), IRK will be used
-#endif
-
-	u16	char_handle[CHAR_HANDLE_MAX];
-}dev_att_t;
 
 
 /**
- * @brief       Use for store peer device att handle to flash.
- * @param[in]   dev_char_info    Pointer point to peer device ATT handle info.
- * @return      0: failed
- *             !0: return falsh address
- */
-int		dev_char_info_store_peer_att_handle(dev_char_info_t* dev_char_info);
-
-/**
- * @brief       Get peer device att handle info by peer address
- * @param[in]   adr_type         address type
- * @param[in]   addr             Pointer point to peer address buffer
- * @param[out]  dev_att          Pointer point to dev_att_t
- * @return      0: failed
- *             !0: return falsh address
- */
-int		dev_char_info_search_peer_att_handle_by_peer_mac(u8 adr_type, u8* addr, dev_att_t * dev_att);
-
-
-/**
- * @brief       Delete peer device att handle info by peer address
- * @param[in]   adr_type         address type
- * @param[in]   addr             Pointer point to peer address buffer
+ * @brief       Used for add peer device service ATThandle.
+ * @param[in]   dev_char_info       - Pointer point to data buffer.
  * @return      0: success
- *              1: not find
+ *              1: failed
  */
-int		dev_char_info_delete_peer_att_handle_by_peer_mac(u8 addrType, u8 *addr);
-
-#endif
-
-
-
-
-
-
-
-
-
+int 	dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info);
 
 
 

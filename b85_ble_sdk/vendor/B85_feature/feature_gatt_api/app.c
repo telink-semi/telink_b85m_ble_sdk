@@ -273,32 +273,22 @@ int app_le_adv_report_event_handle(u8 *p)
  */
 int app_le_connection_complete_event_handle(u8 *p)
 {
-	event_connection_complete_t *pCon = (event_connection_complete_t *)p;
+	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
 
-	if(pCon->status == BLE_SUCCESS){
+	if(pConnEvt->status == BLE_SUCCESS){
 
-		dev_char_info_t cur_conn_device;
-		memset(&cur_conn_device, 0, sizeof(dev_char_info_t));
+		dev_char_info_insert_by_conn_event(pConnEvt);
 
-		//save current connect address type and address and conn_handle
-		cur_conn_device.conn_handle = pCon->handle;
-		cur_conn_device.peer_adrType = pCon->peer_adr_type;
-		memcpy(cur_conn_device.peer_addr, pCon->mac, 6);
-
-
-		dev_char_info_insert( &cur_conn_device );
-
-
-		if( pCon->handle & BLM_CONN_HANDLE ) // master connection handle, process SMP and SDP
+		if( pConnEvt->role == LL_ROLE_MASTER ) // master role, process SMP and SDP if necessary
 		{
 			#if (BLE_MASTER_SMP_ENABLE)
-				master_smp_pending = pCon->handle; // this connection need SMP
+				master_smp_pending = pConnEvt->connHandle; // this connection need SMP
 			#else
 				//manual pairing, device match, add this device to slave mac table
-				if(blm_manPair.manual_pair && blm_manPair.mac_type == pCon->peer_adr_type && !memcmp(blm_manPair.mac, pCon->mac, 6)){
+				if(blm_manPair.manual_pair && blm_manPair.mac_type == pConnEvt->peerAddrType && !memcmp(blm_manPair.mac, pConnEvt->peerAddr, 6)){
 					blm_manPair.manual_pair = 0;
 
-					user_tbl_slave_mac_add(pCon->peer_adr_type, pCon->mac);
+					user_tbl_slave_mac_add(pConnEvt->peerAddrType, pConnEvt->peerAddr);
 				}
 			#endif
 		}
@@ -437,7 +427,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 		#if (BLE_MASTER_SMP_ENABLE)
 			gap_smp_pairingFailEvt_t *p = (gap_smp_pairingFailEvt_t *)para;
 
-			if( p->connHandle & BLM_CONN_HANDLE){  //master connection
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
 				if(master_smp_pending == p->connHandle){
 					master_smp_pending = 0;
 				}
@@ -457,7 +447,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 		#if (BLE_MASTER_SMP_ENABLE)
 			gap_smp_connEncDoneEvt_t* p = (gap_smp_connEncDoneEvt_t*)para;
 
-			if( p->connHandle & BLM_CONN_HANDLE){  //master connection
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
 
 				if(master_smp_pending == p->connHandle){
 					master_smp_pending = 0;
@@ -506,7 +496,7 @@ u8 A_attRspPkt[200];
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
 
-	if( connHandle & BLM_CONN_HANDLE)   //GATT data for Master
+	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
 		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
 		switch(pAtt->opcode)
@@ -579,15 +569,7 @@ void user_init_normal(void)
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
 
 
-	// Fifo initialization function should be called before  blc_ll_initAclConnection_module()
-	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
-	/* ACL Master TX FIFO */
-	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
-	/* ACL Slave TX FIFO */
-	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
-
-	//////////// Controller Initialization  Begin /////////////////////////
+	//////////// LinkLayer Initialization  Begin /////////////////////////
 	blc_ll_initBasicMCU();
 
 	blc_ll_initStandby_module(mac_public);						   //mandatory
@@ -606,6 +588,16 @@ void user_init_normal(void)
 
 	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
 
+	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
+
+	/* all ACL connection share same RX FIFO */
+	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
+	/* ACL Master TX FIFO */
+	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
+	/* ACL Slave TX FIFO */
+	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
+
+
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
 
 	#if (MCU_CORE_TYPE == MCU_CORE_825x)
@@ -614,7 +606,7 @@ void user_init_normal(void)
 		rf_set_power_level_index (RF_POWER_P3p50dBm);
 	#endif
 
-	//////////// Controller Initialization  End /////////////////////////
+	//////////// LinkLayer Initialization  End /////////////////////////
 
 
 
@@ -631,6 +623,13 @@ void user_init_normal(void)
 									|	HCI_LE_EVT_MASK_ADVERTISING_REPORT \
 									|   HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE);
 
+
+	u8 check_status = blc_controller_check_appBufferInitialization();
+	if(check_status != BLE_SUCCESS){
+		/* here user should set some log to know which application buffer incorrect*/
+		write_log32(check_status);
+		while(1);
+	}
 	//////////// HCI Initialization  End /////////////////////////
 
 
@@ -682,7 +681,7 @@ void user_init_normal(void)
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
 	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(1);  //ADV enable
+	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
 	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);

@@ -63,27 +63,25 @@
 
 #define TEST_WHITELIST									4
 
-//smp test
 #define TEST_SMP_SECURITY								5
 
-#define TEST_GATT_API                                   6
+#define TEST_GATT_API									6
 
-#define TEST_EXTENDED_ADVERTISING						40		//  Extended ADV demo
+#define TEST_EXT_ADV									7   //  Extended ADV demo
 
-#define TEST_EXTENDED_SCAN								50
+#define TEST_EXT_SCAN									8   //  Extended Scan demo
 
-#define TEST_PERIODIC_ADVERTISING						60
+#define TEST_PER_ADV									9   //  Periodic ADV demo
 
-#define	TEST_BIS_BROADCAST								70
 
-#define	TEST_BIS_SYNC									80
+#define TEST_OTA										20
 
 #define TEST_MISC_FUNC									190
 
 #define TEST_FEATURE_BACKUP								200
 
 
-#define FEATURE_TEST_MODE								TEST_FEATURE_BACKUP
+#define FEATURE_TEST_MODE								TEST_LL_MD//TEST_FEATURE_BACKUP
 
 
 

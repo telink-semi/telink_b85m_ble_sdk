@@ -52,6 +52,7 @@
 #include "drivers/8278/s7816.h"
 #include "drivers/8278/qdec.h"
 #include "drivers/8278/lpc.h"
+#include "drivers/8278/pke.h"
 
 
 

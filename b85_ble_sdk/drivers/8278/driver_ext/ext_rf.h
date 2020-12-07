@@ -47,22 +47,12 @@
 #ifndef DRIVERS_8278_EXT_RF_H_
 #define DRIVERS_8278_EXT_RF_H_
 
+extern signed char ble_txPowerLevel;
 
 #define	RF_BLE_PACKET_VALIDITY_CHECK(p)		(RF_BLE_PACKET_LENGTH_OK(p) && RF_BLE_PACKET_CRC_OK(p))
+#define rf_tx_packet_dma_len(len)           (len)
 
-/* Different process for different MCU: ******************************************/
-/*
- * While rf rx dma fifo is moving data,audio dma fifo is also moving data.
- * The rx fifo dma length may not be updated, instead, write to other ram addresses.
- * Result in ble disconnection.
- * Need to write rx dma write_num_en 0,And use the new crc verification method.
- */
-#ifndef FIX_RF_DMA_REWRITE
-#define FIX_RF_DMA_REWRITE					0 //Kite/Vulture not have this HW problem,Eagle A0 must open it
-#endif
-/**********************************************************************************/
-
-#define reg_rf_ll_ctrl3			REG_ADDR8(0xf16)
+#define reg_rf_ll_ctrl3				REG_ADDR8(0xf16)
 enum{
 	FLD_RF_R_TX_EN_DLY_EN         =	BIT(0),
 	FLD_RF_R_PLL_RESET_EN         =	BIT(1),
@@ -70,7 +60,7 @@ enum{
 	FLD_RF_R_PLL_EN_MAN           =	BIT(3),
 	FLD_RF_R_T_TX_EN_DLY          =	BIT_RNG(4,7),
 };
-#define reg_rf_ll_cmd			REG_ADDR8(0xf00)
+#define reg_rf_ll_cmd				REG_ADDR8(0xf00)
 enum{
 	FLD_RF_R_CMD                 =	BIT_RNG(0,3),
 	FLD_RF_R_STOP                =	0,
@@ -85,22 +75,22 @@ enum{
 	FLD_RF_R_CMD_TRIG            =  BIT(7),
 };
 
-#define	STOP_RF_STATE_MACHINE	(reg_rf_ll_cmd = 0x80 )
+#define	STOP_RF_STATE_MACHINE		(reg_rf_ll_cmd = 0x80 )
 //t_cmd_schedule[0:31]
-#define reg_rf_ll_cmd_sch 		REG_ADDR32(0xf18)
+#define reg_rf_ll_cmd_sch 			REG_ADDR32(0xf18)
 
 //#define reg_rf_ll_pid_l			REG_ADDR8(0xf22)
 enum{
 	FLD_RF_SN = 		BIT(0),
 };
 
-#define reg_rf_ll_pid_l			REG_ADDR8(0xf22)
+#define reg_rf_ll_pid_l				REG_ADDR8(0xf22)
 enum{
 	FLD_RF_NESN	=       BIT(4),
 };
 
-#define reg_rf_ll_pid_h			REG_ADDR8(0xf23)
-#define reg_rf_rx_1st_timeout	REG_ADDR32(0xf28) ///vulture single SDK not defined. compare with regiter table. vulture is same as kite.
+#define reg_rf_ll_pid_h				REG_ADDR8(0xf23)
+#define reg_rf_rx_1st_timeout		REG_ADDR32(0xf28) ///vulture single SDK not defined. compare with regiter table. vulture is same as kite.
 #define reg_rf_ll_cmd_schedule   	reg_rf_ll_cmd_sch //REG_ADDR32(0xf18)
 #define reg_rf_ll_rx_fst_timeout	reg_rf_rx_1st_timeout //REG_ADDR32(0xf28)
 

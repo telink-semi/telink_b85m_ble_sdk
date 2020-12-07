@@ -76,9 +76,6 @@ void proc_keyboard (u8 e, u8 *p, int n);
 void proc_master_role_unpair(void);
 
 
-
+#endif //end of FEATURE_TEST_MODE == xxx
 
 #endif /* APP_UI_H_ */
-
-#endif
-

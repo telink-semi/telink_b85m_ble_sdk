@@ -48,7 +48,7 @@
 #include "ext_rf.h"
 
 
-
+_attribute_data_retention_ signed char ble_txPowerLevel = 0; /* <<TX Power Level>>: -127 to +127 dBm */
 
 
 

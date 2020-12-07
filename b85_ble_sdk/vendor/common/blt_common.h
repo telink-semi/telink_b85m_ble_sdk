@@ -96,7 +96,7 @@
 
 
 
-
+extern const u8 vendor_OtaUUID[];
 extern u32 flash_sector_mac_address;
 extern u32 flash_sector_calibration;
 

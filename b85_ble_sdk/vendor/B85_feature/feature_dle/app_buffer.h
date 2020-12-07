@@ -58,25 +58,41 @@
 
 /********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
 
-
-//CONN Rx fifo size
-#define ACL_RX_MAX_DLE				(251)
-#define ACL_RX_FIFO_SIZE			ACL_DLE_RX_FIFO_SIZE(ACL_RX_MAX_DLE)
+/**
+ * @brief	ACL RX buffer size & number
+ *  		ACL RX buffer is shared by all connections to hold LinkLayer RF RX data.
+ * usage limitation for ACL_RX_FIFO_SIZE:
+ * 1. should be greater than or equal to (connMaxRxOctets + 21)
+ * 2. should be be an integer multiple of 16 (16 Byte align)
+ * 3. user can use formula:  size = CAL_LL_ACL_RX_FIFO_SIZE(connMaxRxOctets)
+ * usage limitation for ACL_RX_FIFO_NUM:
+ * 1. must be: 2^n, (power of 2)
+ * 2. at least 4; recommended value: 8, 16
+ */
+#define ACL_CONN_MAX_RX_OCTETS		(251)
+#define ACL_RX_FIFO_SIZE			CAL_LL_ACL_RX_FIFO_SIZE(ACL_CONN_MAX_RX_OCTETS)
 #define ACL_RX_FIFO_NUM				(8)
 
-//slave tx fifo size
-#define ACL_SLAVE_TX_MAX_DLE		(251)
+/**
+ * @brief	ACL TX buffer size & number
+ *  		ACL MASTER TX buffer is shared by all master connections to hold LinkLayer RF TX data.
+*			ACL SLAVE  TX buffer is shared by all slave  connections to hold LinkLayer RF TX data.
+ * usage limitation for ACL_MASTER_TX_FIFO_SIZE & ACL_SLAVE_TX_FIFO_SIZE:
+ * 1. should be greater than or equal to (connMaxTxOctets + 10)
+ * 2. should be be an integer multiple of 16 (16 Byte align)
+ * 3. user can use formula:  size = CAL_LL_ACL_TX_FIFO_SIZE(connMaxTxOctets)
+ * usage limitation for ACL_MASTER_TX_FIFO_NUM & ACL_SLAVE_TX_FIFO_NUM:
+ * 1. must be: (2^n), (power of 2, then add 1)
+ * 2. at least 8; recommended value: 8, 16, 32; other value not allowed.
+ */
+#define ACL_SLAVE_MAX_TX_OCTETS		(251)
+#define ACL_SLAVE_TX_FIFO_SIZE		CAL_LL_ACL_TX_FIFO_SIZE(ACL_SLAVE_MAX_TX_OCTETS)
+#define ACL_SLAVE_TX_FIFO_NUM		(8) //different from eagle. 2^n
 
-#define ACL_SLAVE_TX_FIFO_SIZE		ACL_DLE_TX_FIFO_SIZE(ACL_SLAVE_TX_MAX_DLE)
-#define ACL_SLAVE_TX_FIFO_NUM		(8)
 
-
-
-//master tx fifo size
-#define ACL_MASTER_TX_MAX_DLE		(251)
-
-#define ACL_MASTER_TX_FIFO_SIZE		ACL_DLE_TX_FIFO_SIZE(ACL_MASTER_TX_MAX_DLE)
-#define ACL_MASTER_TX_FIFO_NUM		(8)
+#define ACL_MASTER_MAX_TX_OCTETS	(251)
+#define ACL_MASTER_TX_FIFO_SIZE		CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)
+#define ACL_MASTER_TX_FIFO_NUM		(8) //different from eagle. 2^n
 
 extern	u8	app_acl_rxfifo[];
 extern	u8	app_acl_mstTxfifo[];

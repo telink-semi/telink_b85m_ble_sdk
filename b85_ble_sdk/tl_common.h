@@ -66,4 +66,5 @@
 #include "vendor/common/blt_soft_timer.h"
 #include "vendor/common/custom_pair.h"
 #include "vendor/common/device_manage.h"
+#include "vendor/common/simple_sdp.h"
 #include "vendor/common/flash_fw_check.h"

@@ -47,7 +47,7 @@
 #define CIS_H_
 
 
-#include "stack/ble/controller/crypt/aes_ccm.h"
+#include "algorithm/aes_ccm/aes_ccm.h"
 
 /******************************* Macro & Enumeration & Structure Definition for Stack Begin, user can not use!!!!  *****/
 

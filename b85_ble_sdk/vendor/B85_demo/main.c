@@ -71,15 +71,16 @@ _attribute_ram_code_ void irq_handler(void)
  */
 _attribute_ram_code_ int main(void)
 {
+	blc_pm_select_internal_32k_crystal();
 
-#if(MCU_CORE_TYPE == MCU_CORE_825x)
-	cpu_wakeup_init();
-#elif(MCU_CORE_TYPE == MCU_CORE_827x)
-	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
-#endif
+	#if(MCU_CORE_TYPE == MCU_CORE_825x)
+		cpu_wakeup_init();
+	#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+		cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+	#endif
 
 	/* detect if MCU is wake_up from deep retention mode */
-	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();
+	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();  //MCU deep retention wakeUp
 
 	
 	clock_init(SYS_CLK_TYPE);
@@ -89,7 +90,7 @@ _attribute_ram_code_ int main(void)
 	gpio_init(!deepRetWakeUp);
 
 	/* load customized freq_offset cap value. */
-	blc_app_loadCustomizedParameters();  //note: to be tested
+	blc_app_loadCustomizedParameters();
 
 	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
 		user_init_deepRetn ();

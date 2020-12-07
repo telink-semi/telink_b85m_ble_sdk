@@ -69,18 +69,14 @@
 	#include "feature_l2cap_conn_param_update/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_SMP_SECURITY)
 	#include "feature_smp_security/app_config.h"
+#elif (FEATURE_TEST_MODE == TEST_EXT_ADV)
+	#include "feature_ext_adv/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_MISC_FUNC)
 	#include "feature_misc/app_config.h"
+#elif (FEATURE_TEST_MODE == TEST_OTA)
+	#include "feature_ota/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_FEATURE_BACKUP)
 	#include "feature_backup/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_EXTENDED_ADVERTISING)
-	#include "feature_extended_adv/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_PERIODIC_ADVERTISING)
-	#include "feature_periodic_adv/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_EXTENDED_SCAN)
-	#include "feature_extended_scan/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_BIS_BROADCAST)
-	#include "feature_bis_broadcast/app_config.h"
 #endif
 
 

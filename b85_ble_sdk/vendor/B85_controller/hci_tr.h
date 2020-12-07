@@ -47,15 +47,28 @@
 #ifndef HCI_TR_H_
 #define HCI_TR_H_
 
-#include "common/types.h"
-#include "common/utility.h"
+#include "hci_tr_api.h"
+#include "drivers.h"
+#include "hci_tr_h4.h"
 
-#define HCI_TR_EN    1
+inline void HCI_Tr_TimeInit(u16 ms)
+{
+	timer0_set_mode(TIMER_MODE_SYSCLK, 0, ms * 1000* 32);
+#if !HCI_H4_DMA_MODE_EN
+	reg_tmr_ctrl |= BIT(0);
+#endif
+}
 
+inline void HCI_Tr_TimeEnable(void)
+{
+	reg_tmr0_tick = 0;
+	reg_tmr_ctrl |= BIT(0);
+}
 
-void HCI_Tr_Init(my_fifo_t *pRxFifo);
-
-void HCI_Tr_IRQHandler(void);
-
+inline void HCI_Tr_TimeDisable(void)
+{
+	reg_tmr0_tick = 0;
+	reg_tmr_ctrl &= ~BIT(0);
+}
 
 #endif /* HCI_TR_H_ */

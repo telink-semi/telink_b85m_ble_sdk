@@ -276,6 +276,7 @@ void 	blc_smp_setSecurityParameters_slave(bonding_mode_t  bond_mode, int MITM_en
 
 /**
  * @brief      This function is used to set TK by OOB method.
+ * param[in]   connHandle - Current ACL connection handle.
  * @param[in]  oobData - TK's value, size: 16 byte.
  * @return     none.
  */
@@ -303,7 +304,7 @@ void    blc_smp_setNumericComparisonResult(u16 connHandle, bool YES_or_NO);   //
 
 /**
  * @brief      This function is used to check if the pairing is busy.
- * @param[in]  none.
+ * @param[in]  connHandle - Current ACL connection handle.
  * @return     1:is pair busy
  * 			   0:isn't pair busy
  */
@@ -312,7 +313,7 @@ int 	blc_smp_isPairingBusy(u16 connHandle);
 
 /**
  * @brief      This function is used to check whether the PinCode needs to be input.
- * @param[in]  none.
+ * @param[in]  connHandle - Current ACL connection handle.
  * @return     1: Need to enter PinCode
  * 			   0: No need to enter PinCode
  */
@@ -321,7 +322,7 @@ u8      blc_smp_isWaitingToSetPasskeyEntry(u16 connHandle);
 
 /**
  * @brief      This function is used to check whether it is needed to confirm NC YES/NO.
- * @param[in]  none.
+ * @param[in]  connHandle - Current ACL connection handle.
  * @return     1: Need to confirm NC YES/NO
  * 			   0: No need to confirm NC YES/NO
  */

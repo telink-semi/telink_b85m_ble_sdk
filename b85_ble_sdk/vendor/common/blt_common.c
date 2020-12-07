@@ -50,6 +50,8 @@
 #include "stack/ble/ble.h"
 
 
+const  u8 vendor_OtaUUID[16]	= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
+
 
 _attribute_data_retention_	u32 flash_sector_mac_address = CFG_ADR_MAC_512K_FLASH;			//default flash is 512K
 _attribute_data_retention_	u32 flash_sector_calibration = CFG_ADR_CALIBRATION_512K_FLASH;	//default flash is 512K

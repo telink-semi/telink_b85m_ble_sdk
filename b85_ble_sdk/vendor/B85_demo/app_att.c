@@ -106,7 +106,7 @@ static u16 serviceChangeVal[2] = {0};
 
 static u8 serviceChangeCCC[2] = {0,0};
 
-static const u8 my_devName[] = {'B','8','5','_','d','e','m','o'};
+static const u8 my_devName[] = {'B','8','5','_','D','e','m','o'};
 
 static const u8 my_PnPtrs [] = {0x02, 0x8a, 0x24, 0x66, 0x82, 0x01, 0x00};
 
@@ -380,7 +380,7 @@ static const u8 my_OtaCharVal[19] = {
 	TELINK_SPP_DATA_OTA,
 };
 
-int module_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
+int spp_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
 {
 	u8 len = p->l2capLen - 3;
 	if(len > 0)
@@ -388,11 +388,6 @@ int module_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
 
 	}
 
-	return 0;
-}
-
-int otaMyWrite(u16 connHandle, void * p)
-{
 	return 0;
 }
 
@@ -493,7 +488,7 @@ static const attribute_t my_Attributes[] = {
 	{0,ATT_PERMISSIONS_RDWR,2,2,(u8*)&clientCharacterCfgUUID,(u8*)(&SppDataServer2ClientDataCCC)},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSPPS2CDescriptor),(u8*)&userdesc_UUID,(u8*)(&TelinkSPPS2CDescriptor)},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSppDataClient2ServerCharVal),(u8*)(&my_characterUUID), 		(u8*)(TelinkSppDataClient2ServerCharVal), 0},				//prop
-	{0,ATT_PERMISSIONS_RDWR,16,sizeof(SppDataClient2ServerData),(u8*)(&TelinkSppDataClient2ServerUUID), (u8*)(SppDataClient2ServerData), (att_readwrite_callback_t)&module_onReceiveData},	//value
+	{0,ATT_PERMISSIONS_RDWR,16,sizeof(SppDataClient2ServerData),(u8*)(&TelinkSppDataClient2ServerUUID), (u8*)(SppDataClient2ServerData), (att_readwrite_callback_t)&spp_onReceiveData},	//value
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSPPC2SDescriptor),(u8*)&userdesc_UUID,(u8*)(&TelinkSPPC2SDescriptor)},
 
 
@@ -501,7 +496,7 @@ static const attribute_t my_Attributes[] = {
 	// 0036 - 0039
 	{4,ATT_PERMISSIONS_READ, 2,16,(u8*)(&my_primaryServiceUUID), 	(u8*)(&my_OtaServiceUUID), 0},
 	{0,ATT_PERMISSIONS_READ, 2, sizeof(my_OtaCharVal),(u8*)(&my_characterUUID), (u8*)(my_OtaCharVal), 0},				//prop
-	{0,ATT_PERMISSIONS_RDWR,16,sizeof(my_OtaData),(u8*)(&my_OtaUUID),	(&my_OtaData), &otaMyWrite, &otaRead},			//value
+	{0,ATT_PERMISSIONS_RDWR,16,sizeof(my_OtaData),(u8*)(&my_OtaUUID),	(&my_OtaData), &otaWrite, NULL},			//value
 	{0,ATT_PERMISSIONS_READ, 2,sizeof (my_OtaName),(u8*)(&userdesc_UUID), (u8*)(my_OtaName), 0},
 
 };
@@ -540,311 +535,9 @@ void	my_gatt_init (void)
 
 ////////////////////////////////////////// master-role ATT concerned ///////////////////////////////////////////////
 
-main_service_t		main_service = 0;
 
 
 
-
-
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-
-extern int	master_sdp_pending;
-extern dev_char_info_t  cur_master_conn_device;
-
-/**
- * @brief   SDP handler.
- *          !!! Note: This is a simple SDP processing implemented by telink.
- * @param   none.
- * @return  none.
- */
-void app_service_discovery (void)
-{
-	att_db_uuid16_t 	db16[ATT_DB_UUID16_NUM];
-	att_db_uuid128_t 	db128[ATT_DB_UUID128_NUM];
-	memset (db16, 0, ATT_DB_UUID16_NUM * sizeof (att_db_uuid16_t));
-	memset (db128, 0, ATT_DB_UUID128_NUM * sizeof (att_db_uuid128_t));
-
-	if ( master_sdp_pending && host_att_discoveryService (master_sdp_pending, db16, ATT_DB_UUID16_NUM, db128, ATT_DB_UUID128_NUM) == BLE_SUCCESS)	// service discovery OK
-	{
-		cur_master_conn_device.char_handle[2] = blm_att_findHandleOfUuid128 (db128, my_OtaUUID);			//OTA
-		cur_master_conn_device.char_handle[3] = blm_att_findHandleOfUuid16 (db16, CHARACTERISTIC_UUID_HID_REPORT,
-					HID_REPORT_ID_CONSUME_CONTROL_INPUT | (HID_REPORT_TYPE_INPUT<<8));		//consume report(media key report)
-		cur_master_conn_device.char_handle[4] = blm_att_findHandleOfUuid16 (db16, CHARACTERISTIC_UUID_HID_REPORT,
-					HID_REPORT_ID_KEYBOARD_INPUT | (HID_REPORT_TYPE_INPUT<<8));				//normal key report
-		//cur_master_conn_device.char_handle[6] = blm_att_findHandleOfUuid128 (db128, TelinkSppDataServer2ClientUUID);		//BLE Module, SPP Server to Client
-		//cur_master_conn_device.char_handle[7] = blm_att_findHandleOfUuid128 (db128, TelinkSppDataClient2ServerUUID);		//BLE Module, SPP Client to Server
-
-		/* add the peer device att_handle value to conn_dev_list after service discovery is correctly finished */
-		dev_char_info_add_peer_att_handle(&cur_master_conn_device);
-
-		/* peer device att_handle value store in flash */
-		dev_char_info_store_peer_att_handle(&cur_master_conn_device);
-
-		my_dump_str_data(APP_DUMP_SDP_EN,"OTA handle", (u8*)&cur_master_conn_device.char_handle[2], 2);
-		my_dump_str_data(APP_DUMP_SDP_EN,"CMKEY handle", (u8*)&cur_master_conn_device.char_handle[3], 2);
-		my_dump_str_data(APP_DUMP_SDP_EN,"KBKEY handle", (u8*)&cur_master_conn_device.char_handle[4], 2);
-	}
-
-	master_sdp_pending = 0;  //service discovery finish
-}
-
-/**
- * @brief       This function is used to register SDP handler.
- * @param[in]   p       - Pointer point to SDP handler.
- * @return      none.
- */
-void app_register_service (void *p)
-{
-	main_service = p;
-}
-
-
-
-
-
-
-
-
-
-
-u8	*p_att_response = 0;
-
-volatile u32	host_att_req_busy = 0;
-
-/**
- * @brief       This function is used to process ATT packets related to SDP
- * @param[in]   connHandle  - connection handle
- * @param[in]   p           - Pointer point to ATT data buffer.
- * @return
- */
-int host_att_client_handler (u16 connHandle, u8 *p)
-{
-	att_readByTypeRsp_t *p_rsp = (att_readByTypeRsp_t *) p;
-	if (p_att_response)
-	{
-		if ((connHandle & 7) == (host_att_req_busy & 7) && p_rsp->chanId == 0x04 &&
-			(p_rsp->opcode == 0x01 || p_rsp->opcode == ((host_att_req_busy >> 16) | 1)))
-		{
-			memcpy (p_att_response, p, 32);
-			host_att_req_busy = 0;
-		}
-	}
-	return 0;
-}
-
-typedef int (*host_att_idle_func_t) (void);
-host_att_idle_func_t host_att_idle_func = 0;
-
-/**
- * @brief       This function is used to register ble stack mainloop function.
- * @param[in]   p           - Pointer point to ble stack mainloop function.
- * @return
- */
-int host_att_register_idle_func (void *p)
-{
-	if (host_att_idle_func)
-		return 1;
-
-	host_att_idle_func = p;
-	return 0;
-}
-
-int host_att_response ()
-{
-	return host_att_req_busy == 0;
-}
-
-
-int host_att_service_wait_event (u16 handle, u8 *p, u32 timeout)
-{
-	host_att_req_busy = handle | (p[6] << 16);
-	p_att_response = p;
-
-	u32 t = clock_time ();
-	while (!clock_time_exceed (t, timeout))
-	{
-		if (host_att_response ())
-		{
-			return 0;
-		}
-		if (host_att_idle_func)
-		{
-			if (host_att_idle_func ())
-			{
-				break;
-			}
-		}
-	}
-	return 1;
-}
-
-//Gaoqiu add ------------------------------------------------------------------
-int app_char_discovery(u8* reslut, u16 connHandle, u16 startAttHandle, u16 endAttHandle, u8*uuid, u8 uuidLen)
-{
-	blc_gatt_pushReadByTypeRequest(connHandle, startAttHandle, endAttHandle, uuid, uuidLen);
-
-	return host_att_service_wait_event(connHandle, reslut, 1000000);
-}
-
-int app_read_char_value(u8* reslut, u16 connHandle, u16 attHandle)
-{
-	blc_gatt_pushReadRequest(connHandle, attHandle);
-
-	return host_att_service_wait_event(connHandle, reslut, 1000000);
-}
-
-int app_find_char_info(u8* reslut, u16 connHandle, u16 startAttHandle, u16 endAttHandle)
-{
-	blc_gatt_pushFindInformationRequest(connHandle, startAttHandle, endAttHandle);
-
-	return host_att_service_wait_event(connHandle, reslut, 1000000);
-}
-
-
-u16 blm_att_findHandleOfUuid16 (att_db_uuid16_t *p, u16 uuid, u16 ref)
-{
-	for (int i=0; i<p->num; i++)
-	{
-		if (p[i].uuid == uuid && p[i].ref == ref)
-		{
-			return p[i].handle;
-		}
-	}
-	return 0;
-}
-
-u16 blm_att_findHandleOfUuid128 (att_db_uuid128_t *p, const u8 * uuid)
-{
-	for (int i=0; i<p->num; i++)
-	{
-		if (memcmp (p[i].uuid, uuid, 16) == 0)
-		{
-			return p[i].handle;
-		}
-	}
-	return 0;
-}
-
-
-ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16, att_db_uuid128_t *p128, int n128)
-{
-	att_db_uuid16_t *ps16 = p16;
-	att_db_uuid128_t *ps128 = p128;
-	int i16 = 0;
-	int i128 = 0;
-
-	ps16->num = 0;
-	ps128->num = 0;
-
-	// char discovery: att_read_by_type
-    // hid discovery: att_find_info
-	u8  dat[32];
-	u16 s = 1;
-	u16 uuid = GATT_UUID_CHARACTER;
-	do {
-		dat[6] = ATT_OP_READ_BY_TYPE_REQ;
-		if (app_char_discovery(dat, handle, s, 0xffff, (u8 *)&uuid, 2)) // 1s
-		{
-			return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
-		}
-
-		// process response data
-		att_readByTypeRsp_t *p_rsp = (att_readByTypeRsp_t *) dat;
-		if (p_rsp->opcode != ATT_OP_READ_BY_TYPE_RSP)
-		{
-			break;
-		}
-
-		if (p_rsp->datalen == 21)		//uuid128
-		{
-			s = p_rsp->data[3] + p_rsp->data[4] * 256;
-			if (i128 < n128)
-			{
-				p128->property = p_rsp->data[2];
-				p128->handle = s;
-				memcpy (p128->uuid, p_rsp->data + 5, 16);
-				i128++;
-				p128++;
-			}
-		}
-		else if (p_rsp->datalen == 7) //uuid16
-		{
-			u8 *pd = p_rsp->data;
-			while (p_rsp->l2capLen > 7)
-			{
-				s = pd[3] + pd[4] * 256;
-				if (i16 < n16)
-				{
-					p16->property = pd[2];
-					p16->handle = s;
-					p16->uuid = pd[5] | (pd[6] << 8);
-					p16->ref = 0;
-					i16 ++;
-					p16++;
-				}
-				p_rsp->l2capLen -= 7;
-				pd += 7;
-			}
-		}
-	} while (1);
-
-	ps16->num = i16;
-	ps128->num = i128;
-
-	//--------- use att_find_info to find the reference property for hid ----------
-	p16 = ps16;
-	for (int i=0; i<i16; i++)
-	{
-		if (p16->uuid == CHARACTERISTIC_UUID_HID_REPORT)		//find reference
-		{
-			dat[6] = ATT_OP_FIND_INFORMATION_REQ;
-			if (app_find_char_info(dat, handle, p16->handle, 0xffff)) // 1s
-			{
-				return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
-			}
-
-			att_findInfoRsp_t *p_rsp = (att_findInfoRsp_t *) dat;
-			if (p_rsp->opcode == ATT_OP_FIND_INFO_RSP && p_rsp->format == 1)
-			{
-				int n = p_rsp->l2capLen - 2;
-				u8 *pd = p_rsp->data;
-				while (n > 0)
-				{
-					if ((pd[2]==U16_LO(GATT_UUID_CHARACTER) && pd[3]==U16_HI(GATT_UUID_CHARACTER)) ||
-						(pd[2]==U16_LO(GATT_UUID_PRIMARY_SERVICE) && pd[3]==U16_HI(GATT_UUID_PRIMARY_SERVICE))	)
-					{
-						break;
-					}
-
-					if (pd[2]==U16_LO(GATT_UUID_REPORT_REF) && pd[3]==U16_HI(GATT_UUID_REPORT_REF))
-					{
-					    //-----------		read attribute ----------------
-						dat[6] = ATT_OP_READ_REQ;
-						if(app_read_char_value(dat, handle, pd[0])){
-							return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
-						}
-
-						att_readRsp_t *pr = (att_readRsp_t *) dat;
-						if (pr->opcode == ATT_OP_READ_RSP)
-						{
-							p16->ref = pr->value[0] | (pr->value[1] << 8);
-						}
-
-						break;
-					}
-					n -= 4;
-					pd += 4;
-				}
-			}
-		} //----- end for if CHARACTERISTIC_UUID_HID_REPORT
-
-		p16++;
-	}
-
-	return  BLE_SUCCESS;
-}
-
-#endif    //end of BLE_MASTER_SIMPLE_SDP_ENABLE
 
 
 

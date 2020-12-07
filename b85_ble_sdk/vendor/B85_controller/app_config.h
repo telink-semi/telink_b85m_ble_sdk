@@ -200,7 +200,7 @@ enum{
 	#define GPIO_CHN4							GPIO_PA2
 	#define GPIO_CHN5							GPIO_PA3
 	#define GPIO_CHN6							GPIO_PA4
-	#define GPIO_CHN7							GPIO_PB0
+	#define GPIO_CHN7							GPIO_PB2
 	#define GPIO_CHN8							GPIO_PC0
 	#define GPIO_CHN9							GPIO_PC1
 	#define GPIO_CHN10							GPIO_PC2
@@ -217,7 +217,7 @@ enum{
 	#define PA2_OUTPUT_ENABLE					1
 	#define PA3_OUTPUT_ENABLE					1
 	#define PA4_OUTPUT_ENABLE					1
-	#define PB0_OUTPUT_ENABLE					1
+	#define PB2_OUTPUT_ENABLE					1
 	#define PC0_OUTPUT_ENABLE					1
 	#define PC1_OUTPUT_ENABLE					1
 	#define PC2_OUTPUT_ENABLE					1

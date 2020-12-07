@@ -53,30 +53,22 @@
 
 
 
-
-/********************* USB_DEBUG_LOG FIFO allocation, Begin *******************************/
-
-#if (APP_DUMP_EN)
-	MYFIFO_INIT_IRAM(print_fifo, 288, 32);
-#endif
-
-/******************** USB_DEBUG_LOG FIFO allocation, End ***********************************/
-
-
-
-
 /********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
 
-//_attribute_data_retention_
+/**
+ * @brief	ACL RX buffer. size & number defined in app_buffer.h
+ * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
+ * if either ACl connection master role or ACl connection slave role is e used.
+ */
 u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
 
-/*Note: different connections have their own TX FIFO, master and slave set independently
- * Tx FIFO size = Extra_Len(10) + then align 4bytes
- */
-//_attribute_data_retention_
-u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
 
-//_attribute_data_retention_
+/**
+ * @brief	ACL TX buffer. size & number defined in app_buffer.h
+ *  ACL MASTER TX buffer should be defined only when ACl connection master role is used.
+ *  ACL SLAVE  TX buffer should be defined only when ACl connection slave role is used.
+ */
+u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
 u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL_SLAVE_TX_FIFO_NUM * SLAVE_MAX_NUM] = {0};
 
 /******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
@@ -87,11 +79,11 @@ u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL_SLAVE_TX_FIFO_NUM * SLAVE_MAX_
 #if (HCI_NEW_FIFO_FEATURE_ENABLE)
 
 //_attribute_data_retention_
-u8	app_hci_rxfifo[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};
+u8	app_bltHci_rxfifo[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};
 //_attribute_data_retention_
-u8	app_hci_txfifo[HCI_TX_FIFO_SIZE * HCI_TX_FIFO_NUM] = {0};
+u8	app_bltHci_txfifo[HCI_TX_FIFO_SIZE * HCI_TX_FIFO_NUM] = {0};
 //_attribute_data_retention_
-u8	app_hci_rxAclfifo[HCI_RX_ACL_FIFO_SIZE * HCI_RX_ACL_FIFO_NUM] = {0};
+u8	app_hci_aclDataFifo[HCI_ACL_DATA_FIFO_SIZE * HCI_ACL_DATA_FIFO_NUM] = {0};
 #else
 //_attribute_data_retention_
 							u8 		 	hci_rxfifo_b[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};

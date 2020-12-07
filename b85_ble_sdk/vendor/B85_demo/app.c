@@ -56,10 +56,10 @@
 
 
 int	master_smp_pending = 0; 		// SMP: security & encryption;
-int	master_sdp_pending = 0;			// SDP: service discovery
 
 
-dev_char_info_t cur_master_conn_device;
+
+
 
 const u8	tbl_advData[] = {
 	 0x09, 0x09, 'B','8','5','_','d','e','m','o',
@@ -101,9 +101,16 @@ int app_le_adv_report_event_handle(u8 *p)
 	#endif
 
 	/*********************** Master Create connection demo: Key press or ADV pair packet triggers pair  ********************/
-	if(master_smp_pending || master_sdp_pending){ 	 //if previous connection SMP & SDP not finish, can not create a new connection
+	if(master_smp_pending){ 	 //if previous connection SMP not finish, can not create a new connection
 		return 1;
 	}
+
+#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+	if(master_sdp_pending){ 	 //if previous connection SDP not finish, can not create a new connection
+		return 1;
+	}
+#endif
+
 	if (master_disconnect_connhandle){ //one master connection is in un_pair disconnection flow, do not create a new one
 		return 1;
 	}
@@ -166,58 +173,51 @@ int app_le_adv_report_event_handle(u8 *p)
  */
 int app_le_connection_complete_event_handle(u8 *p)
 {
-	event_connection_complete_t *pCon = (event_connection_complete_t *)p;
+	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
 
-	if(pCon->status == BLE_SUCCESS){
-		my_dump_str_data(APP_DUMP_EN, "conn complete", &pCon->handle, 12);
+	if(pConnEvt->status == BLE_SUCCESS){
+		my_dump_str_data(APP_DUMP_EN, "conn complete", &pConnEvt->connHandle, 12);
 
-		dev_char_info_t cur_conn_device;
-		memset(&cur_conn_device, 0, sizeof(dev_char_info_t));
+		dev_char_info_insert_by_conn_event(pConnEvt);
 
-		/* save current connect address type, address and conn_handle */
-		cur_conn_device.conn_handle = pCon->handle;
-		cur_conn_device.peer_adrType = pCon->peer_adr_type;
-		memcpy(cur_conn_device.peer_addr, pCon->mac, 6);
-		dev_char_info_insert( &cur_conn_device );
-
-		if( pCon->handle & BLM_CONN_HANDLE ) // master connection handle, process SMP and SDP
+		if( pConnEvt->role == LL_ROLE_MASTER ) // master role, process SMP and SDP if necessary
 		{
 			#if (BLE_MASTER_SMP_ENABLE)
-				master_smp_pending = pCon->handle; // this connection need SMP
+				master_smp_pending = pConnEvt->connHandle; // this connection need SMP
 			#else
 				//manual pairing, device match, add this device to slave mac table
-				if(blm_manPair.manual_pair && blm_manPair.mac_type == pCon->peer_adr_type && !memcmp(blm_manPair.mac, pCon->mac, 6)){
+				if(blm_manPair.manual_pair && blm_manPair.mac_type == pConnEvt->peerAddrType && !memcmp(blm_manPair.mac, pConnEvt->peerAddr, 6)){
 					blm_manPair.manual_pair = 0;
-					user_tbl_slave_mac_add(pCon->peer_adr_type, pCon->mac);
+					user_tbl_slave_mac_add(pConnEvt->peerAddrType, pConnEvt->peerAddr);
 				}
 			#endif
 
 
 
 			#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-				memset(&cur_master_conn_device, 0, sizeof(dev_char_info_t));
-				cur_master_conn_device.conn_handle = pCon->handle;
-				cur_master_conn_device.peer_adrType = pCon->peer_adr_type;
-				memcpy(cur_master_conn_device.peer_addr, pCon->mac, 6);
+				memset(&cur_sdp_device, 0, sizeof(dev_char_info_t));
+				cur_sdp_device.conn_handle = pConnEvt->connHandle;
+				cur_sdp_device.peer_adrType = pConnEvt->peerAddrType;
+				memcpy(cur_sdp_device.peer_addr, pConnEvt->peerAddr, 6);
 
 				u8	temp_buff[sizeof(dev_att_t)];
 				dev_att_t *pdev_att = (dev_att_t *)temp_buff;
 
 				/* att_handle search in flash, if success, load char_handle directly from flash, no need SDP again */
-				if( dev_char_info_search_peer_att_handle_by_peer_mac(pCon->peer_adr_type, pCon->mac, pdev_att) ){
-					//cur_master_conn_device.char_handle[1] = 									//Speaker
-					cur_master_conn_device.char_handle[2] = pdev_att->char_handle[2];			//OTA
-					cur_master_conn_device.char_handle[3] = pdev_att->char_handle[3];			//consume report
-					cur_master_conn_device.char_handle[4] = pdev_att->char_handle[4];			//normal key report
-					//cur_master_conn_device.char_handle[6] =									//BLE Module, SPP Server to Client
-					//cur_master_conn_device.char_handle[7] =									//BLE Module, SPP Client to Server
+				if( dev_char_info_search_peer_att_handle_by_peer_mac(pConnEvt->peerAddrType, pConnEvt->peerAddr, pdev_att) ){
+					//cur_sdp_device.char_handle[1] = 									//Speaker
+					cur_sdp_device.char_handle[2] = pdev_att->char_handle[2];			//OTA
+					cur_sdp_device.char_handle[3] = pdev_att->char_handle[3];			//consume report
+					cur_sdp_device.char_handle[4] = pdev_att->char_handle[4];			//normal key report
+					//cur_sdp_device.char_handle[6] =									//BLE Module, SPP Server to Client
+					//cur_sdp_device.char_handle[7] =									//BLE Module, SPP Client to Server
 
 					/* add the peer device att_handle value to conn_dev_list */
-					dev_char_info_add_peer_att_handle(&cur_master_conn_device);
+					dev_char_info_add_peer_att_handle(&cur_sdp_device);
 				}
 				else
 				{
-					master_sdp_pending = pCon->handle;  // mark this connection need SDP
+					master_sdp_pending = pConnEvt->connHandle;  // mark this connection need SDP
 
 					#if (BLE_MASTER_SMP_ENABLE)
 						 //service discovery initiated after SMP done, trigger it in "GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE" event callBack.
@@ -284,6 +284,22 @@ int 	app_disconnect_event_handle(u8 *p)
 }
 
 
+/**
+ * @brief      BLE Connection update complete event handler
+ * @param[in]  p         Pointer point to event parameter buffer.
+ * @return
+ */
+int app_le_connection_update_complete_event_handle(u8 *p)
+{
+	hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
+
+	if(pUpt->status == BLE_SUCCESS){
+//		u32 display_data = pUpt->connHandle<<16 | pUpt->connInterval;
+//		my_dump_str_data(APP_DUMP_EN, "update complete event", &display_data, 4);
+	}
+
+	return 0;
+}
 
 //////////////////////////////////////////////////////////
 // event call back
@@ -325,7 +341,7 @@ int app_controller_event_callback (u32 h, u8 *p, int n)
 			//------hci le event: le connection update complete event-------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE)	// connection update
 			{
-
+				app_le_connection_update_complete_event_handle(p);
 			}
 		}
 	}
@@ -368,7 +384,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 		#if (BLE_MASTER_SMP_ENABLE)
 			gap_smp_pairingFailEvt_t *p = (gap_smp_pairingFailEvt_t *)para;
 
-			if( p->connHandle & BLM_CONN_HANDLE){  //master connection
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
 				if(master_smp_pending == p->connHandle){
 					master_smp_pending = 0;
 				}
@@ -387,7 +403,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 		{
 			gap_smp_connEncDoneEvt_t* p = (gap_smp_connEncDoneEvt_t*)para;
 		#if (BLE_MASTER_SMP_ENABLE)
-			if( p->connHandle & BLM_CONN_HANDLE){  //master connection
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
 
 				if(master_smp_pending == p->connHandle){
 					master_smp_pending = 0;
@@ -462,7 +478,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
 
-	if( connHandle & BLM_CONN_HANDLE)   //GATT data for Master
+	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER )   //GATT data for Master
 	{
 			#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 				if(master_sdp_pending == connHandle ){  //ATT service discovery is ongoing on this conn_handle
@@ -478,7 +494,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 			{
 				//-------	user process ------------------------------------------------
 				rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
-				u16 attHandle = pAtt->handle0 | pAtt->handle1<<8;
+				u16 attHandle = pAtt->handle;
 
 				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
 				{
@@ -549,9 +565,9 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 ///////////////////////////////////////////
 
 /**
- * @brief      use initialization
- * @param[in]  none.
- * @return     none.
+ * @brief		user initialization when MCU power on or wake_up from deepSleep mode
+ * @param[in]	none
+ * @return      none
  */
 void user_init_normal(void)
 {
@@ -573,16 +589,7 @@ void user_init_normal(void)
 #endif
 
 
-
-	// Fifo initialization function should be called before  blc_ll_initAclConnection_module()
-	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
-	/* ACL Master TX FIFO */
-	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
-	/* ACL Slave TX FIFO */
-	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
-
-	//////////// Controller Initialization  Begin /////////////////////////
+	//////////// LinkLayer Initialization  Begin /////////////////////////
 	blc_ll_initBasicMCU();
 
 	blc_ll_initStandby_module(mac_public);						   //mandatory
@@ -598,19 +605,27 @@ void user_init_normal(void)
 	blc_ll_initAclSlaveRole_module();
 
 
-
 	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
+
+	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
+
+	/* all ACL connection share same RX FIFO */
+	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
+	/* ACL Master TX FIFO */
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
+	/* ACL Slave TX FIFO */
+	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
 
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
 
 
-#if (MCU_CORE_TYPE == MCU_CORE_825x)
-	rf_set_power_level_index (RF_POWER_P3p01dBm);
-#else
-	rf_set_power_level_index (RF_POWER_P3p50dBm);
-#endif
+	#if (MCU_CORE_TYPE == MCU_CORE_825x)
+		rf_set_power_level_index (RF_POWER_P3p01dBm);
+	#else
+		rf_set_power_level_index (RF_POWER_P3p50dBm);
+	#endif
 
-	//////////// Controller Initialization  End /////////////////////////
+	//////////// LinkLayer Initialization  End /////////////////////////
 
 
 
@@ -627,6 +642,13 @@ void user_init_normal(void)
 									|	HCI_LE_EVT_MASK_ADVERTISING_REPORT \
 									|   HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE);
 
+
+	u8 check_status = blc_controller_check_appBufferInitialization();
+	if(check_status != BLE_SUCCESS){
+		/* here user should set some log to know which application buffer incorrect*/
+		write_log32(0x88880000 | check_status);
+		while(1);
+	}
 	//////////// HCI Initialization  End /////////////////////////
 
 
@@ -680,19 +702,21 @@ void user_init_normal(void)
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
 	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(1);  //ADV enable
+	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
 	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if (BLE_SLAVE_OTA_ENABLE)
-	////////////////// OTA relative ////////////////////////
-	bls_ota_clearNewFwDataArea(); //must
-	bls_ota_registerStartCmdCb(app_enter_ota_mode);
-	bls_ota_registerResultIndicateCb(app_debug_ota_result);  //debug
-#endif
+
+	#if (BLE_OTA_SERVER_ENABLE)
+		blc_ota_setNewFirmwwareStorageAddress(MULTI_BOOT_ADDR_0x40000);
+
+		/* OTA module initialization must be called after "blc_ota_setNewFirmwwareStorageAddress"(if used), and before any other OTA API.*/
+		blc_ota_initOtaServer_module();
+		blc_ota_setOtaProcessTimeout(200);
+	#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 	my_dump_str_data(APP_DUMP_EN,"user init end", 0, 0);
@@ -707,7 +731,11 @@ void user_init_normal(void)
 
 
 
-
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_deepRetn(void)
 {
 
@@ -757,11 +785,7 @@ void main_loop (void)
 {
 	main_idle_loop ();
 
-	if (main_service)
-	{
-		main_service ();
-		main_service = 0;
-	}
+	simple_sdp_loop ();
 }
 
 

@@ -56,21 +56,6 @@ extern	int master_disconnect_connhandle;
 extern	int master_auto_connect;
 extern	int user_manual_pairing;
 
-/**
- * @brief   when device receive CMD_OTA_START(0xff01),if register CALLBACK otaStartCb,
- *          it will run here.
- * @param   none.
- * @return  none.
- */
-void app_enter_ota_mode(void);
-
-/**
- * @brief       no matter whether the OTA result is successful or fail.
- *              if register CALLBACK otaResIndicateCb,code will run here to tell user the OTA result.
- * @param[in]   result    OTA result:success or fail(different reason)
- * @return      none
- */
-void app_debug_ota_result(int result);
 
 /**
  * @brief      keyboard task handler

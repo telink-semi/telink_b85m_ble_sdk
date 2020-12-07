@@ -46,7 +46,7 @@
 #ifndef HCI_EVENT_H_
 #define HCI_EVENT_H_
 
-#include "stack/ble/hci/hci.h"
+//#include "stack/ble/hci/hci.h"
 #include "stack/ble/ble_common.h"
 #include "stack/ble/controller/ll/iso/bis.h"
 
@@ -54,7 +54,7 @@
  *  @brief  Definition for general HCI event packet
  */
 typedef struct {
-	hci_type_t type;
+	u8	 	   type;
 	u8         eventCode;
 	u8         paraLen;
 	u8         parameters[1];
@@ -88,7 +88,7 @@ typedef struct {
 
 
 typedef struct {
-	hci_type_t type;
+	u8		   type;
 	u8         eventCode;
 	u8         paraLen;
 	u8         subEventCode;
@@ -148,25 +148,12 @@ typedef struct {
  *  @brief  Event Parameters for "7.7.65.1 LE Connection Complete event"
  */
 typedef struct {
-	u8	subcode;
-	u8	status;
-	u16	handle;
-	u8	role;
-	u8	peer_adr_type;
-	u8	mac[6];
-	u16	interval;
-	u16	latency;
-	u16	timeout;
-	u8	accuracy;
-} event_connection_complete_t;  //TODO, replace it
-
-typedef struct {
 	u8         subEventCode;
 	u8         status;
 	u16        connHandle;
 	u8         role;
 	u8         peerAddrType;
-	u8         peerAddr[BLE_ADDR_LEN];
+	u8         peerAddr[6];
 	u16        connInterval;
 	u16        slaveLatency;
 	u16        supervisionTimeout;
@@ -574,8 +561,8 @@ void hci_le_data_len_update_evt(u16 connhandle,u16 effTxOctets, u16 effRxOctets,
 
 
 int hci_le_longTermKeyRequest_evt(u16 connHandle, u8* random, u16 ediv, u8* result);
-int hci_le_readLocalP256KeyComplete_evt(u8* localP256Key, u8* result);
-int hci_le_generateDHKeyComplete_evt(u8* DHkey,  u8* result);
+int hci_le_readLocalP256KeyComplete_evt(u8* localP256Key, u8 status);
+int hci_le_generateDHKeyComplete_evt(u8* DHkey, u8 status);
 int hci_le_encryptChange_evt(u16 connhandle,  u8 encrypt_en);
 int hci_le_encryptKeyRefresh_evt(u16 connhandle);
 

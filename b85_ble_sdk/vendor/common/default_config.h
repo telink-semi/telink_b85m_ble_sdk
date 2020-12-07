@@ -68,11 +68,6 @@
 
 
 
-#ifndef WATCHDOG_INIT_TIMEOUT
-#define WATCHDOG_INIT_TIMEOUT		200		//  in ms
-#endif
-
-
 #ifndef PM_DEEPSLEEP_RETENTION_ENABLE
 #define PM_DEEPSLEEP_RETENTION_ENABLE	0
 #endif

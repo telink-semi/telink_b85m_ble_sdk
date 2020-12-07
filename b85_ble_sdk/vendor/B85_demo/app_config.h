@@ -58,15 +58,15 @@
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						1   //1 for smp,  0 no security
-#define BLE_MASTER_SIMPLE_SDP_ENABLE				1   //simple service discovery for BLE master
-#define BLE_SLAVE_OTA_ENABLE						0	//local device firmware updated by peer device(BLE master)
+#define BLE_MASTER_SIMPLE_SDP_ENABLE				1  //simple service discovery for BLE master
+#define BLE_OTA_SERVER_ENABLE						1
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define UI_LED_ENABLE								1
 #define	UI_KEYBOARD_ENABLE							1
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
-#define DEBUG_GPIO_ENABLE							1
+#define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
 #define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			1
 
@@ -77,6 +77,7 @@
   blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
   First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.  */
 #if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+	//if flash 512K
 	#define FLASH_ADR_SMP_PAIRING					0x78000
 	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
 #endif
@@ -90,6 +91,7 @@
 /*If Master simple SDP enable, 0x7D000~0x7EFFF 2 sector is used to store peer slave
  * device's ATT handle*/
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+	//if flash 512K
 	#define FLASH_SDP_ATT_ADRRESS                	0x7D000    //for master: store peer slave device's ATT handle
 	#define FLASH_SDP_ATT_MAX_SIZE				 	(2*4096)   //8K flash for ATT HANLDE storage
 #endif

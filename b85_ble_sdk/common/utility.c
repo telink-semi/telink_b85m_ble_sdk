@@ -177,7 +177,6 @@ u8 * my_fifo_get (my_fifo_t *f)
 	return 0;
 }
 
-
 /**
  * fls - find last (most-significant) bit set
  * @x: the word to search

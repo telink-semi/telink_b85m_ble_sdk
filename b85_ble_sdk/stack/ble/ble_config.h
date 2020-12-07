@@ -56,14 +56,6 @@
 
 
 ///////////////////  Feature ////////////////////////////
-
-
-#ifndef SECURE_CONNECTION_ENABLE
-#define SECURE_CONNECTION_ENABLE							0  //TODO: flash SMP_PARMA read by API
-#endif
-
-
-
 #ifndef		LL_MULTI_SLAVE_MAC_ENABLE
 #define		LL_MULTI_SLAVE_MAC_ENABLE				    	0
 #endif
@@ -105,7 +97,7 @@
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING
-#define LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING					0
+#define LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING					1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING
@@ -159,7 +151,17 @@
 
 
 #ifndef HCI_NEW_FIFO_FEATURE_ENABLE
-#define HCI_NEW_FIFO_FEATURE_ENABLE									0
+#define HCI_NEW_FIFO_FEATURE_ENABLE									1
+#endif
+
+
+#ifndef L2CAP_DATA_2_HCI_DATA_BUFFER_ENABLE
+#define L2CAP_DATA_2_HCI_DATA_BUFFER_ENABLE							0  //just for debug
+#endif
+
+
+#ifndef BLE_OTA_ENABLE
+#define BLE_OTA_ENABLE												1
 #endif
 
 

@@ -52,24 +52,69 @@
 
 #if (FEATURE_TEST_MODE == TEST_MISC_FUNC)
 
+/**
+ * @brief	connMaxRxOctets
+ * refer to BLE SPEC "4.5.10 Data PDU length management" & "2.4.2.21 LL_LENGTH_REQ and LL_LENGTH_RSP"
+ * usage limitation:
+ * 1. should be in range of 27 ~ 251
+ */
+#define ACL_CONN_MAX_RX_OCTETS			27
+
+
+/**
+ * @brief	connMaxTxOctets
+ * refer to BLE SPEC "4.5.10 Data PDU length management" & "2.4.2.21 LL_LENGTH_REQ and LL_LENGTH_RSP"
+ *  in this SDK, we separate this value into 2 parts: slaveMaxTxOctets and masterMaxTxOctets,
+ *  for purpose to save some SRAM costed by when slave and master use different connMaxTxOctets.
+ * usage limitation:
+ * 1. slaveMaxTxOctets and masterMaxTxOctets should be in range of 27 ~ 251
+ */
+#define ACL_MASTER_MAX_TX_OCTETS		27
+#define ACL_SLAVE_MAX_TX_OCTETS			27
 
 
 
-/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
-#define ACL_RX_FIFO_SIZE		64
-#define ACL_RX_FIFO_NUM			8
 
-#define ACL_SLAVE_TX_FIFO_SIZE		48
-#define ACL_SLAVE_TX_FIFO_NUM		8  //Different process for different MCU: kite&vulture 8 and eagle 9.
+/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin ************************************************/
+/**
+ * @brief	ACL RX buffer size & number
+ *  		ACL RX buffer is shared by all connections to hold LinkLayer RF RX data.
+ * usage limitation for ACL_RX_FIFO_SIZE:
+ * 1. should be greater than or equal to (connMaxRxOctets + 21)
+ * 2. should be be an integer multiple of 16 (16 Byte align)
+ * 3. user can use formula:  size = CAL_LL_ACL_RX_FIFO_SIZE(connMaxRxOctets)
+ * usage limitation for ACL_RX_FIFO_NUM:
+ * 1. must be: 2^n, (power of 2)
+ * 2. at least 4; recommended value: 8, 16
+ */
+#define ACL_RX_FIFO_SIZE				64  // ACL_CONN_MAX_RX_OCTETS + 21, then 16 Byte align
+#define ACL_RX_FIFO_NUM					8	// must be: 2^n
 
-#define ACL_MASTER_TX_FIFO_SIZE		48
-#define ACL_MASTER_TX_FIFO_NUM		8  //Different process for different MCU: kite&vulture 8 and eagle 9.
+
+/**
+ * @brief	ACL TX buffer size & number
+ *  		ACL MASTER TX buffer is shared by all master connections to hold LinkLayer RF TX data.
+*			ACL SLAVE  TX buffer is shared by all slave  connections to hold LinkLayer RF TX data.
+ * usage limitation for ACL_MASTER_TX_FIFO_SIZE & ACL_SLAVE_TX_FIFO_SIZE:
+ * 1. should be greater than or equal to (connMaxTxOctets + 10)
+ * 2. should be be an integer multiple of 16 (16 Byte align)
+ * 3. user can use formula:  size = CAL_LL_ACL_TX_FIFO_SIZE(connMaxTxOctets)
+ * usage limitation for ACL_MASTER_TX_FIFO_NUM & ACL_SLAVE_TX_FIFO_NUM:
+ * 1. must be: (2^n), (power of 2, then add 1)
+ * 2. at least 8; recommended value: 8, 16, 32; other value not allowed.
+ */
+#define ACL_MASTER_TX_FIFO_SIZE			48	// ACL_MASTER_MAX_TX_OCTETS + 10, then 16 Byte align
+#define ACL_MASTER_TX_FIFO_NUM			8   //different from eagle. 2^n
+#define ACL_SLAVE_TX_FIFO_SIZE			48  // ACL_MASTER_MAX_TX_OCTETS + 10, then 16 Byte align
+#define ACL_SLAVE_TX_FIFO_NUM			8   //different from eagle. 2^n
+
+
+
 
 extern	u8	app_acl_rxfifo[];
 extern	u8	app_acl_mstTxfifo[];
 extern	u8	app_acl_slvTxfifo[];
-
-/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
+/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***************************************************/
 
 
 
@@ -78,7 +123,7 @@ extern	u8	app_acl_slvTxfifo[];
 /*Note:
  * MTU Buff size = Extra_Len(10)+ ATT_MTU_MAX(23) then align 4bytes
  */
-#define	MTU_M_BUFF_SIZE_MAX		ATT_ALLIGN4_DMA_BUFF(23)
+#define	MTU_M_BUFF_SIZE_MAX			ATT_ALLIGN4_DMA_BUFF(23)
 
 
 /** if support LE Secure Connections, L2CAP buffer must >= 76.[65+10,align 4bytes] */

@@ -47,7 +47,7 @@
 #include "drivers.h"
 #include "stack/ble/ble.h"
 #include "app.h"
-#include "hci_tr.h"
+#include "hci_tr_api.h"
 
 
 /**
@@ -61,31 +61,8 @@ _attribute_ram_code_ void irq_handler(void)
 
 	blc_sdk_irq_handler ();
 
-#if (HCI_ACCESS==HCI_USE_UART)
-  #if HCI_TR_EN
+#if HCI_TR_EN
 	HCI_Tr_IRQHandler();
-  #else
-	unsigned char irqS = dma_chn_irq_status_get();
-    if(irqS & FLD_DMA_CHN_UART_RX)	//rx
-    {
-    	dma_chn_irq_status_clr(FLD_DMA_CHN_UART_RX);
-    	//printf("rx irq\n");
-		
-		u8* w = hci_rxfifo.p + (hci_rxfifo.wptr & (hci_rxfifo.num-1)) * hci_rxfifo.size;
-    	if(w[0]!=0)
-    	{
-    		my_fifo_next(&hci_rxfifo);
-    		u8* p = hci_rxfifo.p + (hci_rxfifo.wptr & (hci_rxfifo.num-1)) * hci_rxfifo.size;
-    		reg_dma_uart_rx_addr = (u16)((u32)p);  //switch uart RX dma address
-    	}
-    }
-
-    if(irqS & FLD_DMA_CHN_UART_TX)	//tx
-    {
-    	//printf("tx irq\n");
-    	dma_chn_irq_status_clr(FLD_DMA_CHN_UART_TX);
-    }
-  #endif
 #endif
 
 	DBG_CHN15_LOW;

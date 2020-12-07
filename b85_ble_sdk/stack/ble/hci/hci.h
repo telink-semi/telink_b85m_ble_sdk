@@ -80,11 +80,24 @@ typedef int (*blc_hci_app_handler_t) (unsigned char *p);
 extern	blc_hci_rx_handler_t	blc_hci_rx_handler;
 extern	blc_hci_tx_handler_t	blc_hci_tx_handler;
 
-extern 	my_fifo_t	hci_rxfifo;
-extern 	my_fifo_t	hci_txfifo;
-extern  my_fifo_t	hci_rxAclfifo;
+
 
 extern  my_fifo_t	hci_tx_iso_fifo;
+
+typedef	struct {
+	u32		size;
+	u8		num;
+	u8		mask;
+	u8		wptr;
+	u8		rptr;
+	u8*		p;
+}hci_fifo_t;
+
+u8*  hci_fifo_wptr (hci_fifo_t *f);
+u8*  hci_fifo_wptr_v2 (hci_fifo_t *f);
+u8*  hci_fifo_get (hci_fifo_t *f);
+void hci_fifo_pop (hci_fifo_t *f);
+void hci_fifo_next (hci_fifo_t *f);
 
 
 /**
@@ -180,7 +193,7 @@ ble_sts_t 	blc_ll_initHciRxFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
  * @return     status, 0x00:  succeed
  * 					   other: failed
  */
-ble_sts_t 	blc_ll_initHciRxAclFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
+ble_sts_t 	blc_ll_initHciAclDataFifo(u8 *pAclbuf, int fifo_size, int fifo_number);
 
 
 /**

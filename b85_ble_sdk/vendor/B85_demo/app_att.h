@@ -184,70 +184,6 @@ void my_gatt_init (void);
 
 ///////////////////////////////////// master-role ATT client HANDLER define ///////////////////////////////////////
 
-typedef void (*main_service_t) (void);
-extern main_service_t		main_service;
-
-
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-
-#define		ATT_DB_UUID16_NUM		20
-#define		ATT_DB_UUID128_NUM		8
-
-typedef struct {
-	u8	num;
-	u8	property;
-	u16	handle;
-	u16	uuid;
-	u16 ref;
-} att_db_uuid16_t;			//8-byte
-
-
-typedef struct {
-	u8	num;
-	u8	property;
-	u16	handle;
-	u8	uuid[16];
-} att_db_uuid128_t;			//20-byte
-
-
-
-u16 blm_att_findHandleOfUuid16 (att_db_uuid16_t *p, u16 uuid, u16 ref);
-u16 blm_att_findHandleOfUuid128 (att_db_uuid128_t *p, const u8 * uuid);
-
-ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16, att_db_uuid128_t *p128, int n128);
-
-
-/**
- * @brief   SDP handler.
- *          !!! Note: This is a simple SDP processing implemented by telink.
- * @param   none.
- * @return  none.
- */
-void 	app_service_discovery (void);
-
-/**
- * @brief       This function is used to register SDP handler.
- * @param[in]   p       - Pointer point to SDP handler.
- * @return      none.
- */
-void 	app_register_service (void *p);
-
-/**
- * @brief       This function is used to process ATT packets related to SDP
- * @param[in]   connHandle  - connection handle
- * @param[in]   p           - Pointer point to ATT data buffer.
- * @return      no used
- */
-int 	host_att_client_handler (u16 connHandle, u8 *p);
-
-/**
- * @brief       This function is used to register ble stack mainloop function.
- * @param[in]   p           - Pointer point to ble stack mainloop function.
- * @return
- */
-int 	host_att_register_idle_func (void *p);
-#endif
-
 /**
  * @brief       This function is used to send keyboard HID report by USB.
  * @param[in]   conn     - connection handle
@@ -263,14 +199,6 @@ void	att_keyboard (u16 conn, u8 *p);
  * @return
  */
 void	att_keyboard_media (u16 conn, u8 *p);
-
-/**
- * @brief       This function is used to send audio data by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_mic (u16 conn, u8 *p);
 
 
 #endif /* BLM_ATT_H_ */

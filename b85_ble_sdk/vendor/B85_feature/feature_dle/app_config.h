@@ -72,7 +72,7 @@
 #define	UI_KEYBOARD_ENABLE							1
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
-#define DEBUG_GPIO_ENABLE							0
+#define DEBUG_GPIO_ENABLE							1
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
 
 ///////////////////// Flash Sector Usage Configuration for 512K Flash //////////////////////////

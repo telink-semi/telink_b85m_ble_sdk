@@ -55,7 +55,6 @@
 #include "stack/ble/hci/hci_const.h"
 #include "stack/ble/hci/hci_cmd.h"
 #include "stack/ble/hci/hci_event.h"
-#include "stack/ble/hci/usb_desc.h"
 
 #include "stack/ble/controller/ll/ll.h"
 
@@ -97,8 +96,9 @@
 #include "stack/ble/controller/phy/phy.h"
 #include "stack/ble/controller/phy/phy_test.h"
 
-#include "stack/ble/controller/crypt/aes_ccm.h"
-#include "stack/ble/controller/crypt/le_crypto.h"
+
+#include "algorithm/ecc/ecc_ll.h"
+#include "algorithm/aes_ccm/aes_ccm.h"
 
 
 

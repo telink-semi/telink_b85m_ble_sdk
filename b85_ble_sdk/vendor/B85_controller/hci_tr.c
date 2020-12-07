@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	hci_tr.c
+ * @file	hci_tr.c --- h4
  *
  * @brief	This is the source file for BLE SDK
  *
@@ -43,246 +43,152 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
-
 #include "hci_tr.h"
-#include "drivers.h"
-#include "stack/ble/hci/hci.h"
+#include "hci_tr_def.h"
+#include "hci_tr_h4.h"
+#include "hci_tr_h5.h"
+#include "hci_tr_api.h"
+#include "hci_slip.h"
+#include "hci_h5.h"
+#include "stack/ble/controller/ble_controller.h"
 
-//#define DEBUG
-
-#ifdef DEBUG
-/*!  Debug */
-#define DBG_CHN0_PIN GPIO_PD0
-#define DBG_CHN1_PIN GPIO_PD1
-#define DBG_CHN2_PIN GPIO_PD6
-#define DBG_CHN3_PIN GPIO_PD7
-#define DBG_CHN4_PIN GPIO_PA2
-#define DBG_CHN5_PIN GPIO_PA3
-
-#define COUNTOF(x)  (sizeof((x))/sizeof((x)[0]))
-
-#define DBG_CHN0_TOG  gpio_toggle(DBG_CHN0_PIN);
-#define DBG_CHN1_TOG  gpio_toggle(DBG_CHN1_PIN);
-#define DBG_CHN2_TOG  gpio_toggle(DBG_CHN2_PIN);
-#define DBG_CHN3_TOG  gpio_toggle(DBG_CHN3_PIN);
-#define DBG_CHN4_TOG  gpio_toggle(DBG_CHN4_PIN);
-#define DBG_CHN5_TOG  gpio_toggle(DBG_CHN5_PIN);
-#endif
-
-/*!  HCI Transmit Type */
-#define HCI_TR_TYPE_NONE      0x00
-#define HCI_TR_TYPE_CMD       0x01
-#define HCI_TR_TYPE_ACL       0x02
-#define HCI_TR_TYPE_SCO       0x03
-#define HCI_TR_TYPE_EVENT     0x04
-
-
-/*! HCI Transmit State */
-enum{
-	HCI_TR_STATE_INIT   = 0x00,
-	HCI_TR_STATE_IDLE   = 0x01,
-	HCI_TR_STATE_RCVING = 0x02,
-	HCI_TR_STATE_RCVED  = 0x03,
-	HCI_TR_STATE_ERR    = 0x04,
-};
-
-/*!  HCI Transmit main control block */
-typedef struct{
-	u8            *pCurRxBuf;
-	u16            rxCnt;
-	u16            frameHeadLen;
-	u16            paramLen;
-	u8             trState;
-	u8             trType;
-	my_fifo_t      *rxFifo;
-}HciTrCB_t;
-
-HciTrCB_t hciTrCb;
-
-void HCI_Tr_TimeInit(u16 ms)
+/**
+ * @brief : HCI transport initializaiton.
+ * @param : none.
+ * @param : none.
+ */
+void HCI_Tr_Init(void)
 {
-	timer0_set_mode(TIMER_MODE_SYSCLK, 0, ms * 1000* 32);
-	//reg_tmr_ctrl |= BIT(0);
-}
+#if HCI_TR_MODE == HCI_TR_H4
+	HCI_Tr_H4Init(&bltHci_rxfifo);
 
-static void HCI_Tr_TimeEnable(void)
-{
-	reg_tmr0_tick = 0;
-	reg_tmr_ctrl |= BIT(0);
-}
+#elif HCI_TR_MODE == HCI_TR_H5
+	HCI_Tr_H5Init();
+	HCI_Slip_Init();
+	HCI_H5_Init(&bltHci_rxfifo, &bltHci_txfifo);
 
-static void HCI_Tr_TimeDisable(void)
-{
-	reg_tmr0_tick = 0;
-	reg_tmr_ctrl &= ~BIT(0);
-}
+#elif HCI_TR_MODE == HCI_TR_USB
+	//TODO:
 
-void HCI_Tr_Init(my_fifo_t *pRxFifo)
-{
-	hciTrCb.rxFifo = pRxFifo;
-
-	hciTrCb.pCurRxBuf = NULL;
-	hciTrCb.rxCnt = 0;
-
-	hciTrCb.frameHeadLen = 0;
-	hciTrCb.paramLen = 0;
-
-	hciTrCb.trState = HCI_TR_STATE_INIT;
-	hciTrCb.trType = HCI_TR_TYPE_NONE;
-
-	HCI_Tr_TimeInit(1);
-
-#ifdef DEBUG
-	u16 debugPin[] = {DBG_CHN0_PIN, DBG_CHN1_PIN, DBG_CHN2_PIN, DBG_CHN3_PIN,
-			          DBG_CHN4_PIN, DBG_CHN5_PIN};
-	for(int i=0 ;i<COUNTOF(debugPin); i++)
-	{
-		gpio_set_func(debugPin[i], AS_GPIO);
-		gpio_set_input_en(debugPin[i], 0);
-		gpio_set_output_en(debugPin[i], 1);
-	}
 #endif
 }
 
-u8 rxIndex = 0;
-static u8 HCI_Tr_ReceiveByte(void)
+/**
+ * @brief : HCI transport main loop.
+ * @param : none.
+ * @param : none.
+ */
+void HCI_Tr_Poll(void)
 {
-	u8 data = REG_ADDR8(0x90 + rxIndex);
-	rxIndex++;
-	rxIndex = rxIndex & 0x03;
-	return data;
+#if HCI_TR_MODE == HCI_TR_H4
+	HCI_Tr_H4RxHandler();
+
+#elif HCI_TR_MODE == HCI_TR_H5
+	HCI_Tr_H5RxHandler();
+	HCI_H5_Poll();
+
+#elif HCI_TR_MODE == HCI_TR_USB
+	//TODO:
+
+#endif
 }
 
-_attribute_ram_code_
-void HCI_Tr_RxHandler(void)
-{
-	u8 res = HCI_Tr_ReceiveByte();
-
-	my_fifo_t *pFifo = hciTrCb.rxFifo;
-
-	switch(hciTrCb.trState)
-	{
-	case HCI_TR_STATE_INIT:
-		hciTrCb.trState = HCI_TR_STATE_IDLE;
-		break;
-
-	case HCI_TR_STATE_IDLE:
-	{
-		HCI_Tr_TimeEnable();
-		hciTrCb.trType = HCI_TR_TYPE_NONE;
-		hciTrCb.rxCnt = 0;
-
-		switch(res)
-		{
-		case HCI_TR_TYPE_CMD:
-			hciTrCb.frameHeadLen = 3;
-			break;
-		case HCI_TR_TYPE_ACL:
-			hciTrCb.frameHeadLen = 4;
-			break;
-		case HCI_TR_TYPE_EVENT:
-			hciTrCb.frameHeadLen = 2;
-			break;
-		default:
-			hciTrCb.frameHeadLen = 0;
-			return;
-		}
-
-		if( pFifo->wptr - pFifo->rptr >= pFifo->num){
-			return; //have no memory.
-		}
-
-		hciTrCb.pCurRxBuf = my_fifo_wptr(pFifo);
-		hciTrCb.pCurRxBuf[hciTrCb.rxCnt++] = res;
-
-		hciTrCb.trType   = res;
-		hciTrCb.paramLen = 0;
-		hciTrCb.trState  = HCI_TR_STATE_RCVING;
-		break;
-	}
-	case HCI_TR_STATE_RCVING:
-	{
-		HCI_Tr_TimeEnable();
-
-		hciTrCb.pCurRxBuf[hciTrCb.rxCnt++] = res;
-
-		if(hciTrCb.frameHeadLen == hciTrCb.rxCnt - 1)
-		{
-			u8 *p = NULL;
-			if(hciTrCb.trType == HCI_TR_TYPE_ACL){
-				p = hciTrCb.pCurRxBuf + hciTrCb.rxCnt - 2;
-				hciTrCb.paramLen = (p[1]<<8) + p[0];
-			}
-			else if(hciTrCb.trType == HCI_TR_TYPE_CMD || hciTrCb.trType == HCI_TR_TYPE_EVENT){
-				p = hciTrCb.pCurRxBuf + hciTrCb.rxCnt - 1;
-				hciTrCb.paramLen = p[0];
-			}
-			else{
-				/* We will never be here */
-				hciTrCb.paramLen = 0xff00;
-				hciTrCb.trState = HCI_TR_STATE_IDLE;
-				HCI_Tr_TimeDisable();
-			}
-
-			if(hciTrCb.paramLen == 0){
-				my_fifo_next(pFifo);
-				hciTrCb.trState = HCI_TR_STATE_IDLE;
-				HCI_Tr_TimeDisable();
-				break;
-			}
-			else if(hciTrCb.paramLen + hciTrCb.rxCnt > hciTrCb.rxFifo->size){
-				hciTrCb.trState = HCI_TR_STATE_IDLE;
-				HCI_Tr_TimeDisable();
-				break;
-			}
-		}
-
-		if(hciTrCb.paramLen != 0)
-		{
-			if(hciTrCb.rxCnt == 1 + hciTrCb.frameHeadLen + hciTrCb.paramLen){
-				my_fifo_next(pFifo);
-				hciTrCb.trState = HCI_TR_STATE_IDLE;
-				HCI_Tr_TimeDisable();
-			}
-			else if(hciTrCb.rxCnt > 1 + hciTrCb.frameHeadLen + hciTrCb.paramLen){
-				hciTrCb.trState = HCI_TR_STATE_IDLE;
-				HCI_Tr_TimeDisable();
-			}
-		}
-		break;
-	}
-
-	case HCI_TR_STATE_ERR:
-
-	default:
-		hciTrCb.trState = HCI_TR_STATE_IDLE;
-		HCI_Tr_TimeDisable();
-		break;
-	}
-}
-
+/**
+ * @brief : HCI IRQ handler.
+ * @param : none.
+ * @param : none.
+ */
 _attribute_ram_code_
 void HCI_Tr_IRQHandler(void)
 {
-	/* UART Normal Rx IRQ */
-	if(REG_ADDR8(0x9d) & 0x08)
-	{
-		REG_ADDR8(0x9d) = 0x08;
+#if HCI_TR_MODE == HCI_TR_H4
+	HCI_Tr_H4IRQHandler();
 
-		HCI_Tr_RxHandler();
-	}
+#elif HCI_TR_MODE == HCI_TR_H5
+	HCI_Tr_H5IRQHandler();
 
-	/* UART DMA Tx IRQ */
-	if(reg_dma_irq_status & BIT(1)) {
-		reg_dma_irq_status = BIT(1);//clear
-	}
+#elif HCI_TR_MODE == HCI_TR_USB
+	//TODO:
 
-	/* Timer timeout IRQ */
-	if(reg_tmr_sta & BIT(0)){
-		reg_tmr_sta = BIT(0);
-		HCI_Tr_TimeDisable();
-		hciTrCb.trState = HCI_TR_STATE_IDLE;
-	}
+#endif
 }
+
+/**
+ * @brief : HCI rx handler call-back.
+ * @param : none.
+ * @param : none.
+ */
+int HCI_Tr_RxHandlerCback(void)
+{
+#if HCI_TR_MODE == HCI_TR_H4 || HCI_TR_MODE == HCI_TR_H5
+	if(bltHci_rxfifo.wptr == bltHci_rxfifo.rptr){
+		return 0;//have no data
+	}
+
+	u8 *p = hci_fifo_get(&bltHci_rxfifo);
+	if(p)
+	{
+	#if(UI_LED_ENABLE)
+		gpio_toggle(GPIO_LED_RED);
+	#endif
+
+		blc_hci_handler(&p[0], 0);//the second parameter is not used.
+		hci_fifo_pop(&bltHci_rxfifo);
+		return 1;
+	}
+#elif HCI_TR_MODE == HCI_TR_USB
+	//TODO:
+
+#endif
+	return 0;
+}
+
+/**
+ * @brief : HCI tx handler call-back.
+ * @param : none.
+ * @param : none.
+ */
+int HCI_Tr_TxHandlerCback(void)
+{
+#if HCI_TR_MODE == HCI_TR_H4
+	static u8 uartTxBuf[4 + HCI_TX_FIFO_SIZE] = {0}; //[!!important]
+	if(bltHci_txfifo.wptr == bltHci_txfifo.rptr){
+		return 0;//have no data
+	}
+
+	if(uart_tx_is_busy()){
+		return 0;
+	}
+
+    u8 *pBuf = uartTxBuf;
+    u8 *p = hci_fifo_get(&bltHci_txfifo);
+	if(p)
+	{
+		u32 len = 0;
+		BSTREAM_TO_UINT16(len, p);
+		UINT32_TO_BSTREAM(pBuf, len);
+
+		ASSERT(len <= HCI_TX_FIFO_SIZE, HCI_TR_ERR_TR_TX_BUF);
+
+		memcpy(pBuf, p, len);
+		if(uart_dma_send(uartTxBuf))
+		{
+		#if(UI_LED_ENABLE)
+			gpio_toggle(GPIO_LED_GREEN);
+		#endif
+			hci_fifo_pop (&bltHci_txfifo);
+			return 1;
+		}
+	}
+
+#elif HCI_TR_MODE == HCI_TR_H5
+	//TX handle has been taken over by H5 protocol.
+
+#elif HCI_TR_MODE == HCI_TR_USB
+	//TODO:
+
+#endif
+	return 0;
+}
+
 

@@ -84,6 +84,7 @@ _attribute_ram_code_ int main(void)
 	/* detect if MCU is wake_up from deep retention mode */
 	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();  //MCU deep retention wakeUp
 
+	
 	clock_init(SYS_CLK_TYPE);
 
 	rf_drv_init(RF_MODE_BLE_1M);
@@ -99,8 +100,9 @@ _attribute_ram_code_ int main(void)
 	else{ //MCU power_on or wake_up from deepSleep mode
 		/* read flash size only in power_on or deepSleep */
 		blc_readFlashSize_autoConfigCustomFlashSector();
-		user_init_normal();
+		user_init_normal ();
 	}
+
 
 	irq_enable();
 

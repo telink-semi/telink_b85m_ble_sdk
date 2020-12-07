@@ -57,12 +57,12 @@
 #include "hci/hci_const.h"
 #include "hci/hci_cmd.h"
 #include "hci/hci_event.h"
-#include "hci/usb_desc.h"
 
-#include "service/ble_ll_ota.h"
+#include "service/ota/ota.h"
+#include "service/ota/ota_server.h"
 #include "service/device_information.h"
 #include "service/hids.h"
-
+#include "service/uuid.h"
 
 
 

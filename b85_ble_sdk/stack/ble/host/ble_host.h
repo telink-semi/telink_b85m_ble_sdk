@@ -55,11 +55,11 @@
 
 
 #include "stack/ble/host/attr/att.h"
-#include "stack/ble/host/attr/gatt_uuid.h"
 #include "stack/ble/host/attr/gatt.h"
 
 
 #include "stack/ble/host/smp/smp.h"
+#include "stack/ble/host/smp/smp_alg.h"
 #include "stack/ble/host/smp/smp_storage.h"
 
 #include "stack/ble/host/gap/gap.h"

@@ -431,8 +431,7 @@ typedef struct{
 	u16	l2capLen;
 	u16	chanId;
 	u8  opcode;
-	u8  handle0;
-	u8  handle1;
+	u16  handle;
 	u8	dat[20];
 }rf_packet_att_t;
 
@@ -694,6 +693,16 @@ typedef struct{
 	u8  datalen;
 	u8  data[1];			// character_handle / property / value_handle / value
 }rf_packet_att_readByTypeRsp_t;
+
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u8  datalen;
+	u8  data[1];			// character_handle / property / value_handle / value
+}rf_packet_att_data_readByTypeRsp_t;
 
 typedef struct{
 	u32 dma_len;

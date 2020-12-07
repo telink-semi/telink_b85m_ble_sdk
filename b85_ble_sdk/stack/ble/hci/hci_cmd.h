@@ -356,7 +356,16 @@ typedef enum{
 
 
 
-
+/**
+ *  @brief  Return Parameters for "7.8.46 LE Read Maximum Data Length command"
+ */
+typedef struct {
+	u8         status;
+	u16        support_max_tx_oct;
+	u16        support_max_tx_time;
+	u16        support_max_rx_oct;
+	u16        support_max_rx_time;
+} hci_le_readMaxDataLengthCmd_retParam_t;
 
 
 
@@ -451,7 +460,6 @@ typedef enum{
 	ADV_HANDLE0		= 0x00,
 	ADV_HANDLE1		= 0x01,
 	ADV_HANDLE2		= 0x02,
-	ADV_HANDLE3		= 0x03,
 }adv_handle_t;
 
 

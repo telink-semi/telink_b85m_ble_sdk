@@ -192,7 +192,19 @@ bool  		blc_ll_isAclConnEstablished(u16 connHandle);
  * @return     status, 0x00 :  succeed
  * 					   other: failed
  */
-ble_sts_t blc_ll_sendDateLengthExtendReq (u16 connHandle,  u16 maxTxOct);
+ble_sts_t 	blc_ll_sendDateLengthExtendReq (u16 connHandle,  u16 maxTxOct);
+
+
+/**
+ * @brief      set ACL data length for Master and Slave.
+ * @param[in]  maxRxOct - ACL max RX Oct.
+ * @param[in]  maxTxOct_master - ACL master max TX Oct
+ * @param[in]  maxTxOct_slave - ACL slave max TX Oct
+ * @return     status, 0x00 :  succeed
+ * 					   other: failed
+ */
+ble_sts_t	blc_ll_setAclConnMaxOctetsNumber(u8 maxRxOct, u8 maxTxOct_master, u8 maxTxOct_slave);
+
 
 
 #endif /* LLMS_CONN_H_ */

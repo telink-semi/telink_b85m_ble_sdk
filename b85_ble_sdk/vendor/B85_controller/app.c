@@ -50,7 +50,7 @@
 
 #include "app_buffer.h"
 
-#include "hci_tr.h"
+#include "hci_tr_api.h"
 
 
 
@@ -78,71 +78,20 @@ const u8	tbl_scanRsp [] = {
 /////////////////////////////////////blc_register_hci_handler for spp//////////////////////////////
 int rx_from_uart_cb (void)//UART data send to Master,we will handler the data as CMD or DATA
 {
-	if(my_fifo_get(&hci_rxfifo) == 0)
-	{
-		return 0;
-	}
-
-	u8* p = my_fifo_get(&hci_rxfifo);
-
-	u16 rx_len = *(u16*)p; //dma len use 2 byte should be sufficient
-
-	if (rx_len)
-	{
-	#if (UI_LED_ENABLE)
-		gpio_toggle(GPIO_LED_RED);
-	#endif
-
-		//printf("Rx form UART\n");
-	#if HCI_TR_EN
-		blc_hci_handler(&p[0], rx_len - 4);
-	#else
-		blc_hci_handler(&p[4], rx_len - 4);
-	#endif
-
-		my_fifo_pop(&hci_rxfifo);
-
-		return 1;
-	}
-
+#if HCI_TR_EN
+	return HCI_Tr_RxHandlerCback();
+#else
 	return 0;
+#endif
 }
 
-uart_data_t T_txdata_buf;
 int tx_to_uart_cb (void)
 {
-	u8 *p = NULL;
-
-	static u32 txLoopTick;
-	if(clock_time_exceed(txLoopTick, 8000)){  //Tx task loop period interval: 8000us
-		txLoopTick = clock_time();
-	}
-	else{
-		return 0;
-	}
-
-	p = my_fifo_get (&hci_txfifo);
-
-
-	if (p && !uart_tx_is_busy ())
-	{
-		memcpy(&T_txdata_buf.data, p + 2, p[0]+p[1]*256);
-		T_txdata_buf.len = p[0]+p[1]*256 ;
-		//printf("Tx to UART\n");
-		if (uart_dma_send((u8 *)(&T_txdata_buf)))
-		{
-		#if (UI_LED_ENABLE)
-			gpio_toggle(GPIO_LED_GREEN);
-		#endif
-
-			my_fifo_pop (&hci_txfifo);
-
-			return 1;
-		}
-	}
-
-
+#if HCI_TR_EN
+	return HCI_Tr_TxHandlerCback();
+#else
 	return 0;
+#endif
 }
 
 ///////////////////////////////////////////
@@ -172,14 +121,6 @@ void user_init_normal(void)
 #endif
 
 
-	// Fifo initialization function should be called before  blc_ll_initAclConnection_module()
-	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{ while(1); }
-	/* ACL Master TX FIFO */
-	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
-	/* ACL Slave TX FIFO */
-	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
-
 	//////////// Controller Initialization  Begin /////////////////////////
 	blc_ll_initBasicMCU();
 
@@ -199,6 +140,16 @@ void user_init_normal(void)
 
 	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
 
+	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
+
+	// Fifo initialization function should be called before  blc_ll_initAclConnection_module()
+	/* all ACL connection share same RX FIFO */
+	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
+	/* ACL Master TX FIFO */
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
+	/* ACL Slave TX FIFO */
+	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
+
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
 
 
@@ -214,11 +165,11 @@ void user_init_normal(void)
 	//////////// HCI Initialization  Begin /////////////////////////
 #if (HCI_NEW_FIFO_FEATURE_ENABLE)
 	/* HCI RX FIFO */
-	if(blc_ll_initHciRxFifo(app_hci_rxfifo, HCI_RX_FIFO_SIZE, HCI_RX_FIFO_NUM) != BLE_SUCCESS)	{ BLMS_ERR_DEBUG(DBG_HCI_FIFO, 0xCC110222); while(1); }
+	blc_ll_initHciRxFifo(app_bltHci_rxfifo, HCI_RX_FIFO_SIZE, HCI_RX_FIFO_NUM);
 	/* HCI TX FIFO */
-	if(blc_ll_initHciTxFifo(app_hci_txfifo, HCI_TX_FIFO_SIZE, HCI_TX_FIFO_NUM) != BLE_SUCCESS) { BLMS_ERR_DEBUG(DBG_HCI_FIFO, 0xCC110224)while(1); }
+	blc_ll_initHciTxFifo(app_bltHci_txfifo, HCI_TX_FIFO_SIZE, HCI_TX_FIFO_NUM);
 	/* HCI RX ACL FIFO */
-	if(blc_ll_initHciRxAclFifo(app_hci_rxAclfifo, HCI_RX_ACL_FIFO_SIZE, HCI_RX_ACL_FIFO_NUM) != BLE_SUCCESS)	{ BLMS_ERR_DEBUG(DBG_HCI_FIFO, 0xCC110226);while(1); }
+	blc_ll_initHciAclDataFifo(app_hci_aclDataFifo, HCI_ACL_DATA_FIFO_SIZE, HCI_ACL_DATA_FIFO_NUM);
 #endif
 	
 	/* HCI Data && Event */
@@ -230,6 +181,14 @@ void user_init_normal(void)
 	//bluetooth low energy(LE) event, all enable
 	blc_hci_le_setEventMask_cmd( 0xFFFFFFFF );
 	blc_hci_le_setEventMask_2_cmd( 0x7FFFFFFF );
+
+
+	u8 check_status = blc_controller_check_appBufferInitialization();
+	if(check_status != BLE_SUCCESS){
+		/* here user should set some log to know which application buffer incorrect*/
+		write_log32(0x88880000 | check_status);
+		while(1);
+	}
 
 
 	////// ADV and Scan CONFIG  //////////
@@ -244,62 +203,19 @@ void user_init_normal(void)
 #endif
 
 	////////////////// SPP initialization ///////////////////////////////////
-	#if (HCI_ACCESS==HCI_USE_USB)
-		usb_bulk_drv_init (0);
-		blc_register_hci_handler (blc_hci_rx_from_usb, blc_hci_tx_to_usb);
+#if HCI_TR_EN
+	HCI_Tr_Init();
+	blc_register_hci_handler(rx_from_uart_cb, tx_to_uart_cb);
+#endif
 
-		usb_dp_pullup_en (1);  //open USB enum
-	#else ///(HCI_ACCESS == HCI_USE_UART)
-		//note: dma addr must be set first before any other uart initialization!
-		uart_recbuff_init((u8*)hci_rxfifo.p, (u16)hci_rxfifo.size);
-		uart_gpio_set(UART_TX_PB1, UART_RX_PB0);
-		uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
-
-		#if (MCU_CORE_TYPE == MCU_CORE_825x)
-			//baud rate: 115200
-			#if   (CLOCK_SYS_CLOCK_HZ == 16000000)
-				uart_init(9, 13, PARITY_NONE, STOP_BIT_ONE);
-			#elif (CLOCK_SYS_CLOCK_HZ == 24000000)
-				uart_init(12, 15, PARITY_NONE, STOP_BIT_ONE);
-			#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
-				uart_init(30, 8, PARITY_NONE, STOP_BIT_ONE);//uart_init_baudrate();
-			#elif (CLOCK_SYS_CLOCK_HZ == 48000000)
-				uart_init(25, 15, PARITY_NONE, STOP_BIT_ONE);
-			#endif
-		#else ///8278 use 1000000 for xiaomi project.
-			//baud rate: 1000000
-			#if   (CLOCK_SYS_CLOCK_HZ == 16000000)
-				uart_init(0, 15, PARITY_NONE, STOP_BIT_ONE);
-			#elif (CLOCK_SYS_CLOCK_HZ == 24000000)
-				uart_init(1, 11, PARITY_NONE, STOP_BIT_ONE);
-			#elif (CLOCK_SYS_CLOCK_HZ == 32000000)
-				uart_init(1, 15, PARITY_NONE, STOP_BIT_ONE);//uart_init_baudrate();
-			#elif (CLOCK_SYS_CLOCK_HZ == 48000000)
-				uart_init(2, 15, PARITY_NONE, STOP_BIT_ONE);
-			#endif
-		#endif
-
-		#if HCI_TR_EN
-			uart_dma_enable(0, 1); 	                    //UART data in hardware buffer moved by DMA, so we need enable them first
-			irq_set_mask(FLD_IRQ_DMA_EN);
-			dma_chn_irq_enable(FLD_DMA_CHN_UART_TX, 1); //UART RX/TX DMA IRQ enable
-			uart_irq_enable(1, 0);  	                //UART RX/TX IRQ no need, disable them
-			uart_ndma_irq_triglevel(1,1);
-
-			HCI_Tr_Init(&hci_rxfifo);
-		#else
-			uart_dma_enable(1, 1); 	//UART data in hardware buffer moved by DMA, so we need enable them first
-			irq_set_mask(FLD_IRQ_DMA_EN);
-			dma_chn_irq_enable(FLD_DMA_CHN_UART_RX | FLD_DMA_CHN_UART_TX, 1);   	//UART RX/TX DMA IRQ enable
-			uart_irq_enable(0, 0);  	//UART RX/TX IRQ no need, disable them
-		#endif
-
-		blc_register_hci_handler(rx_from_uart_cb, tx_to_uart_cb);				//customized uart handler
-	#endif
 	////////////////// End SPP initialization ///////////////////////////////////
 }
 
-
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
 void user_init_deepRetn(void)
 {
 
@@ -308,6 +224,10 @@ void user_init_deepRetn(void)
 
 void main_loop (void)
 {
+#if HCI_TR_EN
+	HCI_Tr_Poll();
+#endif
+
 	////////////////////////////////////// BLE entry /////////////////////////////////
 	blc_sdk_main_loop();
 

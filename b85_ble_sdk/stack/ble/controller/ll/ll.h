@@ -149,8 +149,14 @@ ble_sts_t 	blc_ll_setRandomAddr(u8 *randomAddr);
 ble_sts_t	blc_hci_le_setHostFeature(u8 bit_number, ll_feature_value_t bit_value);
 
 
-
-
+/**
+ * @brief      this function is used check if any controller buffer initialized by application incorrect.
+ * 			   attention: this function must be called at the end of BLE LinkLayer Initialization.
+ * @param	   none
+ * @return     status, 0x00:  succeed, no buffer error
+ * 					   other: buffer error code
+ */
+ble_sts_t	blc_controller_check_appBufferInitialization(void);
 
 
 #endif /* LL_H_ */

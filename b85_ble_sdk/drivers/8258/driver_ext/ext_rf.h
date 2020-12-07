@@ -48,20 +48,10 @@
 
 #include "tl_common.h"
 
+extern signed char ble_txPowerLevel;
+
 #define	RF_BLE_PACKET_VALIDITY_CHECK(p)		(RF_BLE_PACKET_LENGTH_OK(p) && RF_BLE_PACKET_CRC_OK(p))
-
-/* Different process for different MCU: ******************************************/
-/*
- * While rf rx dma fifo is moving data,audio dma fifo is also moving data.
- * The rx fifo dma length may not be updated, instead, write to other ram addresses.
- * Result in ble disconnection.
- * Need to write rx dma write_num_en 0,And use the new crc verification method.
- */
-#ifndef FIX_RF_DMA_REWRITE
-#define FIX_RF_DMA_REWRITE					0 //Kite/Vulture not have this HW problem,Eagle A0 must open it
-#endif
-/**********************************************************************************/
-
+#define rf_tx_packet_dma_len(len)           (len)
 
 #define reg_rf_ll_ctrl3			REG_ADDR8(0xf16)
 enum{

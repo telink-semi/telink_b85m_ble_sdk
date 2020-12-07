@@ -58,7 +58,7 @@
  * @param[in]	none
  * @return      none
  */
-void user_init_normal();
+void user_init_normal(void);
 
 
 /**

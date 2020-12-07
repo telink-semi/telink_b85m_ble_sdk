@@ -201,14 +201,6 @@ void	att_keyboard (u16 conn, u8 *p);
  */
 void	att_keyboard_media (u16 conn, u8 *p);
 
-/**
- * @brief       This function is used to send audio data by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_mic (u16 conn, u8 *p);
-
 
 #endif /* BLM_ATT_H_ */
 

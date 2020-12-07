@@ -64,3 +64,6 @@
 #include "drivers/8258/driver_ext/ext_pm.h"
 #include "drivers/8258/driver_ext/ext_misc.h"
 #endif
+
+
+#define write_log32(err_code)   write_reg32(0x40000, err_code) //write_sram32

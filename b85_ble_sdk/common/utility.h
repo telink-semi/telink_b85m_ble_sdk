@@ -222,10 +222,10 @@ typedef	struct {
 }	my_fifo_t;
 
 void my_fifo_init (my_fifo_t *f, int s, u8 n, u8 *p);
-u8* my_fifo_wptr (my_fifo_t *f);
-u8* my_fifo_wptr_v2 (my_fifo_t *f);
+u8*  my_fifo_wptr (my_fifo_t *f);
+u8*  my_fifo_wptr_v2 (my_fifo_t *f);
 void my_fifo_next (my_fifo_t *f);
-int my_fifo_push (my_fifo_t *f, u8 *p, int n);
+int  my_fifo_push (my_fifo_t *f, u8 *p, int n);
 void my_fifo_pop (my_fifo_t *f);
 u8 * my_fifo_get (my_fifo_t *f);
 
@@ -239,14 +239,21 @@ u8 * my_fifo_get (my_fifo_t *f);
 #define		DATA_LENGTH_ALLIGN4(n)				((n + 3) / 4 * 4)
 
 
-/*DLE Tx buffer len = DMA(4) + Header(2) + DLE + MIC(4) = DLE + 10*/
-#define 	ACL_DLE_TX_FIFO_SIZE(n)				(((n+10) + 15) / 16 *16)
+/*LL ACL RX buffer len = maxRxOct + 21, then 16 Byte align*/
+#define 	CAL_LL_ACL_RX_FIFO_SIZE(maxRxOct)	(((maxRxOct+21) + 15) / 16 *16)
 
-/*DLE RX buffer len = DMA(4) + Header(2) + DLE + MIC(4) + CRC(3) + ExtraInfor(8)  = DLE + 21*/
-#define 	ACL_DLE_RX_FIFO_SIZE(n)				(((n+10) + 21) / 16 *16)
+
+/*LL ACL TX buffer len = maxTxOct + 10, then 16 Byte align*/
+#define 	CAL_LL_ACL_TX_FIFO_SIZE(maxTxOct)	(((maxTxOct+10) + 15) / 16 *16)
+
+
 
 /*HCI TX RX buffer len = uart_fifo+ dma 4byte */
 #define 	HCI_FIFO_SIZE(n)					(((n+2+4) + 15) / 16 *16)
+
+
+/*HCI ACL DATA buffer len = LE_ACL_Data_Packet_Length + 4, pkt_len is integer multiple of 4, so result is 4 Byte align */
+#define 	CALCULATE_HCI_ACL_DATA_FIFO_SIZE(pkt_len)					(pkt_len+4)
 
 												/*
 												 * DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(8B)
@@ -271,14 +278,3 @@ u8 * my_fifo_get (my_fifo_t *f);
 #define		IAL_SDU_ALLIGN4_BUFF(n) 			(((n + 16) + 3) / 4 * 4)
 
 #define		HCI_ISO_ALLIGN4_BUFF(n)				(((n + 4) + 3) / 4 * 4) //DMA len 4
-
-
-
-typedef	struct {
-	u16		fifo_size;
-	u8		fifo_num;
-	u8		conn_num;
-	u8		*p;
-}	multi_conn_fifo_t;
-
-#define		MULTI_CONN_FIFO_INIT(name,fifo_size,fifo_num,conn_num)		u8 name##_b[fifo_size*fifo_num*conn_num]={0}; multi_conn_fifo_t name = {fifo_size,fifo_num,conn_num, name##_b}

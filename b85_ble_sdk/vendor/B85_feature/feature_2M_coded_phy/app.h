@@ -47,16 +47,17 @@
 #ifndef VENDOR_APP_H_
 #define VENDOR_APP_H_
 
-
 #include "app_config.h"
 
 #if (FEATURE_TEST_MODE == TEST_2M_CODED_PHY_CONNECTION)
+
 /**
  * @brief		user initialization when MCU power on or wake_up from deepSleep mode
  * @param[in]	none
  * @return      none
  */
 void user_init_normal(void);
+
 
 /**
  * @brief		user initialization when MCU wake_up from deepSleep_retention mode
