@@ -99,7 +99,7 @@
 
 #include "algorithm/ecc/ecc_ll.h"
 #include "algorithm/aes_ccm/aes_ccm.h"
-
+#include "stack/ble/ble_config.h"
 
 
 #endif /* BLE_H_ */

@@ -93,6 +93,12 @@ typedef	struct {
 	u8*		p;
 }hci_fifo_t;
 
+
+extern 	hci_fifo_t	bltHci_rxfifo;
+extern 	hci_fifo_t	bltHci_txfifo;
+extern  hci_fifo_t	bltHci_rxAclfifo;
+
+
 u8*  hci_fifo_wptr (hci_fifo_t *f);
 u8*  hci_fifo_wptr_v2 (hci_fifo_t *f);
 u8*  hci_fifo_get (hci_fifo_t *f);
