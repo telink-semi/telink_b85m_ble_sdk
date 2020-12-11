@@ -75,9 +75,9 @@
 #define	UI_KEYBOARD_ENABLE							1
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
-#define DEBUG_GPIO_ENABLE							1
+#define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
-#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			1
+#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			0
 
 #define APP_DEFAULT_HID_BATTERY_OTA_ATTRIBUTE_TABLE			1
 

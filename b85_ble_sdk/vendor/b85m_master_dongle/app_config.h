@@ -87,7 +87,7 @@
 #define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
 
-#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			1//1
+#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			0
 
 
 

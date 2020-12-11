@@ -76,8 +76,9 @@
 #define	UI_KEYBOARD_ENABLE							1
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
-#define DEBUG_GPIO_ENABLE							1
+#define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
+#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			0
 
 ///////////////////// Flash Sector Usage Configuration for 512K Flash //////////////////////////
 /*If Slave or Master SMP enable, default 0x78000~0x7BFFF (4 sector, 16K) is used for SMP pairing

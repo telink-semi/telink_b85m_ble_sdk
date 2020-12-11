@@ -102,7 +102,7 @@ u8 my_devNameCharVal[5] = {
 
 #define TEST_API  TEST_READ_BY_GROUP_TYPE_REQ
 
-#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN     0
+
 
 /** --------------------NOTE---------------------------------------------------
  * the feature test need hardware and firmware follow:
