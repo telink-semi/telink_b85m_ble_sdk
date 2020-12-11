@@ -112,7 +112,8 @@ static inline void blc_app_setExternalCrystalCapEnable(u8  en)
 {
 	blt_miscParam.ext_cap_en = en;
 
-	analog_write_reg8(0x8a,analog_read_reg8(0x8a)|0x80);//close internal cap
+//	analog_write_reg8(0x8a,analog_read_reg8(0x8a)|0x80);//close internal cap
+	analog_write(0x8a,analog_read(0x8a)|0x80);
 
 }
 
@@ -132,7 +133,8 @@ static inline void blc_app_loadCustomizedParameters(void)
 		 if(flash_sector_calibration){
 			 u8 cap_frqoft = *(unsigned char*) (flash_sector_calibration + CALIB_OFFSET_CAP_INFO);
 			 if( cap_frqoft != 0xff ){
-				 analog_write_reg8(0x8A, (analog_read_reg8(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
+//				 analog_write_reg8(0x8A, (analog_read_reg8(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
+				 analog_write(0x8A, (analog_read(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
 			 }
 		 }
 	 }

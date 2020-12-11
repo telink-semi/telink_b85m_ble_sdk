@@ -733,7 +733,7 @@ void usb_handle_ctl_ep_status() {
 
 u8 usb_has_suspend_irq = 0;
 u8  usb_just_wakeup_from_suspend = 1;
-extern u8 rf_channel;
+//extern u8 rf_channel;
 int usb_suspend_check(void){
 	return 0;
 }

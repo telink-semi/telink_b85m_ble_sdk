@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	usb.h
+ * @file	feature_config.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,62 +43,49 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-
-#pragma once
-
-
-#include "tl_common.h"
-#include "drivers.h"
-#include "usbdesc.h"
-
-/* Enable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-enum {
-    //  3000 ms
-	USB_TIME_BEFORE_ALLOW_SUSPEND = (3000*1000),
-};
-
-enum {
-	USB_IRQ_SETUP_REQ = 0,
-	USB_IRQ_DATA_REQ,
-};
+#ifndef FEATURE_CONFIG_H_
+#define FEATURE_CONFIG_H_
 
 
-// telink usb report ctrl command. used mixed with USB_AUD_PLAY_PAUSE...
-enum{
-	USB_REPORT_NO_EVENT		= 0xf0,
-	USB_REPORT_RELEASE 		= 0xff,
-};
 
-#if (USB_MIC_ENABLE)
-extern u8 usb_alt_intf[USB_INTF_MAX];
-static inline int usb_mic_is_enable(){
-	return usb_alt_intf[USB_INTF_MIC];
-}
-#endif
 
-void usb_handle_irq(void);
 
-extern u8 usb_just_wakeup_from_suspend;
-extern u8 usb_has_suspend_irq;
-extern u8 edp_toggle[8];
+/////////////////// TEST FEATURE SELECTION /////////////////////////////////
 
-void usb_init();
 
-#ifndef		USB_SOFTWARE_CRC_CHECK
-#define		USB_SOFTWARE_CRC_CHECK		0
-#endif
 
-#define MS_VENDORCODE            'T'    //This must match the char after the "MSFT100"
-#define STRING_MSFT              L"MSFT100T"
+//ble link layer test
+#define	TEST_LL_MD										1   //link layer more data
 
-#define MS_OS_DESCRIPTOR_ENABLE        0
+#define TEST_LL_DLE										2   //link layer Data Length Extension
 
-/* Disable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-}
-#endif
+#define TEST_2M_CODED_PHY_CONNECTION					3
 
+#define TEST_WHITELIST									4
+
+#define TEST_SMP_SECURITY								5
+
+#define TEST_GATT_API									6
+
+#define TEST_EXT_ADV									7   //  Extended ADV demo
+
+#define TEST_EXT_SCAN									8   //  Extended Scan demo
+
+#define TEST_PER_ADV									9   //  Periodic ADV demo
+
+
+#define TEST_OTA										20
+
+#define TEST_MISC_FUNC									190
+
+#define TEST_FEATURE_BACKUP								200
+
+
+#define FEATURE_TEST_MODE								TEST_FEATURE_BACKUP
+
+
+
+
+
+
+#endif /* FEATURE_CONFIG_H_ */

@@ -49,9 +49,9 @@
 #if(__PROJECT_8258_M1S1__ )
 	#include "vendor/8258_m1s1_demo/app_config.h"
 #elif(__PROJECT_8258_CONTROLLER__ )
-	#include "vendor/B85_controller/app_config.h"
+	#include "vendor/b85m_controller/app_config.h"
 #elif(__PROJECT_8278_CONTROLLER__)
-	#include "vendor/B85_controller/app_config.h"
+	#include "vendor/b85m_controller/app_config.h"
 #elif(__PROJECT_8258_HIGHER_TESTER__ )
 	#include "vendor/8258_higher_tester/app_config.h"
 #elif(__PROJECT_8258_LOWER_TESTER__ )
@@ -61,17 +61,21 @@
 #elif(__PROJECT_8258_CIS_SLAVE__ )
 	#include "vendor/8258_cis_slave/app_config.h"
 #elif(__PROJECT_8258_INTERNAL_TEST__ )
-	#include "vendor/B85_internal_test/app_config.h"
+	#include "vendor/b85m_internal_test/app_config.h"
 #elif(__PROJECT_8278_INTERNAL_TEST__ )
-	#include "vendor/B85_internal_test/app_config.h"
+	#include "vendor/b85m_internal_test/app_config.h"
 #elif(__PROJECT_8258_DEMO__ )
-	#include "vendor/B85_demo/app_config.h"
+	#include "vendor/b85m_demo/app_config.h"
 #elif(__PROJECT_8278_DEMO__ )
-	#include "vendor/B85_demo/app_config.h"
+	#include "vendor/b85m_demo/app_config.h"
 #elif(__PROJECT_8278_FEATURE_TEST__ )
-	#include "vendor/B85_feature/app_config.h"
+	#include "vendor/b85m_feature/app_config.h"
 #elif(__PROJECT_8258_FEATURE_TEST__ )
-	#include "vendor/B85_feature/app_config.h"
+	#include "vendor/b85m_feature/app_config.h"
+#elif(__PROJECT_8258_MASTER_DONGLE__)
+	#include "vendor/b85m_master_dongle/app_config.h"
+#elif(__PROJECT_8278_MASTER_DONGLE__)
+	#include "vendor/b85m_master_dongle/app_config.h"
 #else
 	#include "vendor/common/default_config.h"
 #endif

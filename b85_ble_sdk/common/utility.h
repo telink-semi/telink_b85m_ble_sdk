@@ -239,8 +239,9 @@ u8 * my_fifo_get (my_fifo_t *f);
 #define		DATA_LENGTH_ALLIGN4(n)				((n + 3) / 4 * 4)
 
 
-/*LL ACL RX buffer len = maxRxOct + 21, then 16 Byte align*/
-#define 	CAL_LL_ACL_RX_FIFO_SIZE(maxRxOct)	(((maxRxOct+21) + 15) / 16 *16)
+/*LL ACL RX buffer len = maxRxOct + 22, then 16 Byte align*/
+//actually +21.The purpose of +22 is to deal with extreme situations. Due to DMA design,at least one byte buffer can not be unusable.
+#define 	CAL_LL_ACL_RX_FIFO_SIZE(maxRxOct)	(((maxRxOct+22) + 15) / 16 *16)
 
 
 /*LL ACL TX buffer len = maxTxOct + 10, then 16 Byte align*/

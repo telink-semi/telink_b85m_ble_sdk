@@ -103,6 +103,15 @@ _attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len,
  */
 _attribute_ram_code_ void flash_read_mid(unsigned char *buf);
 
+/**
+ * @brief 		 This function serves to read flash mid and uid,and check the correctness of mid and uid.
+ * @param[out]   flash_mid - Flash Manufacturer ID
+ * @param[out]   flash_uid - Flash Unique ID
+ * @return       0:error 1:ok
+
+ */
+int flash_read_mid_uid_with_check( unsigned int *flash_mid ,unsigned char *flash_uid);
+
 /* according to your appliaction */
 #if 0
 /**
@@ -187,14 +196,7 @@ void flash_read_mid(unsigned char *buf);
  * @return    none.
  */
 void flash_read_uid(unsigned char idcmd,unsigned char *buf);
-/**
- * @brief 		 This function serves to read flash mid and uid,and check the correctness of mid and uid.
- * @param[out]   flash_mid - Flash Manufacturer ID
- * @param[out]   flash_uid - Flash Unique ID
- * @return       0:error 1:ok
 
- */
-int flash_read_mid_uid_with_check( unsigned int *flash_mid ,unsigned char *flash_uid);
 /**
  * @brief This function serves to protect data for flash.
  * @param[in]   type - flash type include GD,Puya and XTX

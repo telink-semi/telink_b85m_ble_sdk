@@ -89,29 +89,8 @@
  */
 dev_char_info_t	conn_dev_list[DEVICE_CHAR_INFO_MAX_NUM];
 
-/*
- * Special Design: when a device connection terminate, e.g. device index is 1, we will not only remove conn_dev_list[1],
- * 				   but also copy conn_dev_list[2] (assume that this device is in connection state) to conn_dev_list[1],
- * 				   			copy conn_dev_list[3] (assume that this device is in connection state) to conn_dev_list[2],
- * 				   			......
- *
- * So for 4 master 4 slave demo, the relationship between device in connection state and conn_master_num/conn_slave_num is as follows:
- *
- * 			conn_master_num	   					device in connection state
- *
- * 				   1		  						conn_dev_list[0]
- * 				   2								conn_dev_list[0]/conn_dev_list[1]
- * 				   3								conn_dev_list[0]/conn_dev_list[1]/conn_dev_list[2]
- * 				   4								conn_dev_list[0]/conn_dev_list[1]/conn_dev_list[2]/conn_dev_list[3]
- *
- * 			conn_slave_num
- *
- * 				   1		  						conn_dev_list[4]
- * 				   2								conn_dev_list[4]/conn_dev_list[5]
- * 				   3								conn_dev_list[4]/conn_dev_list[5]/conn_dev_list[6]
- * 				   4								conn_dev_list[4]/conn_dev_list[5]/conn_dev_list[6]/conn_dev_list[7]
- *
- */
+
+
 int conn_master_num = 0;   //current master number in connection state
 int conn_slave_num = 0;    //current slave number in connection state
 
@@ -122,35 +101,39 @@ int conn_slave_num = 0;    //current slave number in connection state
 /**
  * @brief       Used for add device information to conn_dev_list.
  * @param[in]   dev_char_info       - Pointer point to data buffer.
- * @return      0: success
- *              1: failed
+ * @return      0 ~ DEVICE_CHAR_INFO_MAX_NUM - 1: new connection index, insert success
+ *              0xFF: insert failed
  */
 int dev_char_info_insert (dev_char_info_t* dev_char_info)
 {
-	int index = 100;
+	int index = INVALID_CONN_IDX;
 	if( dev_char_info->conn_role == LL_ROLE_MASTER ){  //master
-		if(conn_master_num < MASTER_MAX_NUM){
-			index = conn_master_num;
-			conn_master_num ++;
+		for(int i = 0; i < MASTER_MAX_NUM; i++){
+			if(conn_dev_list[i].conn_state == 0){
+				index = i;
+				conn_master_num ++;
+				break;
+			}
 		}
 	}
 	else if( dev_char_info->conn_role == LL_ROLE_SLAVE ){  //slave
-		if(conn_slave_num < SLAVE_MAX_NUM){
-			index = MASTER_MAX_NUM + conn_slave_num;
-			conn_slave_num ++;
+		for(int i = MASTER_MAX_NUM; i < MASTER_MAX_NUM + SLAVE_MAX_NUM; i++){
+			if(conn_dev_list[i].conn_state == 0){
+				index = i;
+				conn_slave_num ++;
+				break;
+			}
 		}
 	}
 
-	if(index < MASTER_MAX_NUM + SLAVE_MAX_NUM){
+
+
+	if(index != INVALID_CONN_IDX){
 		memcpy(&conn_dev_list[index], dev_char_info, sizeof(dev_char_info_t));
 		conn_dev_list[index].conn_state = 1;
-
-		return 0;   //success
-	}
-	else{
-		return 1;   //fail
 	}
 
+	return index;
 }
 
 
@@ -158,26 +141,32 @@ int dev_char_info_insert (dev_char_info_t* dev_char_info)
 /**
  * @brief       Used for add device information to conn_dev_list.
  * @param[in]   pConnEvt - LE connection complete event data buffer address.
- * @return      0: success
- *              1: failed
+ * @return      0 ~ DEVICE_CHAR_INFO_MAX_NUM - 1: new connection index, insert success
+ *              0xFF: insert failed
  */
 int dev_char_info_insert_by_conn_event(hci_le_connectionCompleteEvt_t* pConnEvt)
 {
-	int index = 100;
+	int index = INVALID_CONN_IDX;
 	if( pConnEvt->role == LL_ROLE_MASTER ){  //master
-		if(conn_master_num < MASTER_MAX_NUM){
-			index = conn_master_num;
-			conn_master_num ++;
+		for(int i = 0; i < MASTER_MAX_NUM; i++){
+			if(conn_dev_list[i].conn_state == 0){
+				index = i;
+				conn_master_num ++;
+				break;
+			}
 		}
 	}
 	else if( pConnEvt->role == LL_ROLE_SLAVE ){  //slave
-		if(conn_slave_num < SLAVE_MAX_NUM){
-			index = MASTER_MAX_NUM + conn_slave_num;
-			conn_slave_num ++;
+		for(int i = MASTER_MAX_NUM; i < MASTER_MAX_NUM + SLAVE_MAX_NUM; i++){
+			if(conn_dev_list[i].conn_state == 0){
+				index = i;
+				conn_slave_num ++;
+				break;
+			}
 		}
 	}
 
-	if(index < MASTER_MAX_NUM + SLAVE_MAX_NUM){
+	if(index != INVALID_CONN_IDX){
 		memset(&conn_dev_list[index], 0, sizeof(dev_char_info_t));
 
 		conn_dev_list[index].conn_handle = pConnEvt->connHandle;
@@ -185,13 +174,9 @@ int dev_char_info_insert_by_conn_event(hci_le_connectionCompleteEvt_t* pConnEvt)
 		conn_dev_list[index].conn_state = 1;
 		conn_dev_list[index].peer_adrType = pConnEvt->peerAddrType;
 		memcpy(conn_dev_list[index].peer_addr, pConnEvt->peerAddr, 6);
-
-		return 0;   //success
-	}
-	else{
-		return 1;   //fail
 	}
 
+	return index;
 }
 
 
@@ -209,22 +194,20 @@ int dev_char_info_delete_by_connhandle (u16 connhandle)
 	{
 		if(conn_dev_list[i].conn_handle == connhandle && conn_dev_list[i].conn_state)  //match
 		{
-
 			if(conn_dev_list[i].conn_role == LL_ROLE_MASTER){   //master
-				memcpy (&conn_dev_list[i], &conn_dev_list[i + 1], (conn_master_num - i - 1) * sizeof (dev_char_info_t));
 				conn_master_num --;
-				memset(&conn_dev_list[conn_master_num], 0, sizeof(dev_char_info_t));
 			}
 			else{  //slave
-				memcpy (&conn_dev_list[i], &conn_dev_list[i + 1], (conn_slave_num + MASTER_MAX_NUM - i - 1) * sizeof (dev_char_info_t));
 				conn_slave_num --;
-				memset(&conn_dev_list[conn_slave_num + MASTER_MAX_NUM], 0, sizeof(dev_char_info_t));
 			}
+
+			memset(&conn_dev_list[i], 0, sizeof(dev_char_info_t));
 
 			return 0;
 		}
 	}
-	return 1;  //no find the peer device address.
+
+	return 1;  //not find.
 }
 
 
@@ -255,15 +238,13 @@ int 	dev_char_info_delete_by_peer_mac_address (u8 adr_type, u8* addr)
 
 			if(mac_match){
 				if(conn_dev_list[i].conn_role == LL_ROLE_MASTER){   //master
-					memcpy (&conn_dev_list[i], &conn_dev_list[i + 1], (conn_master_num - i - 1) * sizeof (dev_char_info_t));
-					memset(&conn_dev_list[conn_master_num], 0, sizeof(dev_char_info_t));
 					conn_master_num --;
 				}
 				else{  //slave
-					memcpy (&conn_dev_list[i], &conn_dev_list[i + 1], (conn_slave_num + MASTER_MAX_NUM - i - 1) * sizeof (dev_char_info_t));
-					memset(&conn_dev_list[conn_slave_num + MASTER_MAX_NUM], 0, sizeof(dev_char_info_t));
 					conn_slave_num --;
 				}
+
+				memset(&conn_dev_list[i], 0, sizeof(dev_char_info_t));
 
 				return 0;
 			}
@@ -380,47 +361,23 @@ int dev_char_get_conn_role_by_connhandle (u16 connhandle)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
- * @brief       Used for add peer device service ATThandle.
- * @param[in]   dev_char_info       - Pointer point to data buffer.
- * @return      0: success
- *              1: failed
+ * @brief       Get ACL connection index by connection handle.
+ * @param[in]   connhandle       - connection handle.
+ * @return      0xFF: 	  no connection index match
+ * 				others:   connection index
  */
-int dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info)
+int dev_char_get_conn_index_by_connhandle (u16 connhandle)
 {
-	int i;
-	for(i=0; i< conn_master_num; i++){
-		if( conn_dev_list[i].conn_handle == dev_char_info->conn_handle){
-			break;
+	foreach (i, DEVICE_CHAR_INFO_MAX_NUM)
+	{
+		if(conn_dev_list[i].conn_handle == connhandle && conn_dev_list[i].conn_state)
+		{
+			return i;
 		}
 	}
 
-	if( i < conn_master_num){
-		for(int j=0; j<CHAR_HANDLE_MAX;  j++){
-			conn_dev_list[i].char_handle[j] = dev_char_info->char_handle[j];
-		}
-
-		conn_dev_list[i].char_handle_valid = 1;
-
-		return 0;   //success
-	}
-	else{
-		return 1;   //fail
-	}
+	return INVALID_CONN_IDX; //no connection index match
 }
+
+

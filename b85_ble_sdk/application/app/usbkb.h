@@ -48,6 +48,7 @@
 
 #include <application/usbstd/HIDClassCommon.h>
 #include <application/usbstd/HIDReportData.h>
+#include <application/keyboard/keyboard.h>
 #include "tl_common.h"
 #include "drivers.h"
 
@@ -78,9 +79,14 @@ typedef struct {
     u8 KeyCode[KEYBOARD_REPORT_KEY_MAX]; /**< Key codes of the currently pressed keys. */
 } usbkb_hid_report_t;
 
-int usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
+int  usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
 
-int usb_hid_report_fifo_proc(void);
+int  usb_hid_report_fifo_proc(void);
+
+int  usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
+void usbkb_hid_report(kb_data_t *data);
+
+void usbkb_report_consumer_key(u16 consumer_key);
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	usb.h
+ * @file	app_ui.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,62 +43,60 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-
-#pragma once
-
-
-#include "tl_common.h"
-#include "drivers.h"
-#include "usbdesc.h"
-
-/* Enable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-enum {
-    //  3000 ms
-	USB_TIME_BEFORE_ALLOW_SUSPEND = (3000*1000),
-};
-
-enum {
-	USB_IRQ_SETUP_REQ = 0,
-	USB_IRQ_DATA_REQ,
-};
+#ifndef APP_UI_H_
+#define APP_UI_H_
 
 
-// telink usb report ctrl command. used mixed with USB_AUD_PLAY_PAUSE...
-enum{
-	USB_REPORT_NO_EVENT		= 0xf0,
-	USB_REPORT_RELEASE 		= 0xff,
-};
 
-#if (USB_MIC_ENABLE)
-extern u8 usb_alt_intf[USB_INTF_MAX];
-static inline int usb_mic_is_enable(){
-	return usb_alt_intf[USB_INTF_MIC];
-}
-#endif
+extern 	int	master_pairing_enable;
+extern 	int master_unpair_enable;
 
-void usb_handle_irq(void);
+extern	int master_disconnect_connhandle;
 
-extern u8 usb_just_wakeup_from_suspend;
-extern u8 usb_has_suspend_irq;
-extern u8 edp_toggle[8];
+extern	int master_auto_connect;
+extern	int user_manual_pairing;
 
-void usb_init();
 
-#ifndef		USB_SOFTWARE_CRC_CHECK
-#define		USB_SOFTWARE_CRC_CHECK		0
-#endif
+/**
+ * @brief      keyboard task handler
+ * @param[in]  e    - event type
+ * @param[in]  p    - Pointer point to event parameter.
+ * @param[in]  n    - the length of event parameter.
+ * @return     none.
+ */
+void proc_keyboard (u8 e, u8 *p, int n);
 
-#define MS_VENDORCODE            'T'    //This must match the char after the "MSFT100"
-#define STRING_MSFT              L"MSFT100T"
+/**
+ * @brief   BLE Unpair handle for master
+ * @param   none.
+ * @return  none.
+ */
+void proc_master_role_unpair(void);
 
-#define MS_OS_DESCRIPTOR_ENABLE        0
 
-/* Disable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-}
-#endif
+/**
+ * @brief		this function is used to detect if button pressed or released.
+ * @param[in]	none
+ * @return      none
+ */
+void 	proc_button (void);
 
+
+/**
+ * @brief       This function is used to send keyboard HID report by USB.
+ * @param[in]   conn     - connection handle
+ * @param[in]   p        - Pointer point to data buffer.
+ * @return
+ */
+void	att_keyboard (u16 conn, u8 *p);
+
+/**
+ * @brief       This function is used to send consumer HID report by USB.
+ * @param[in]   conn     - connection handle
+ * @param[in]   p        - Pointer point to data buffer.
+ * @return
+ */
+void	att_keyboard_media (u16 conn, u8 *p);
+
+
+#endif /* APP_UI_H_ */

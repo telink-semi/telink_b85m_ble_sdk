@@ -57,8 +57,7 @@ u8 usb_fifo[USB_FIFO_NUM][USB_FIFO_SIZE];
 u8 usb_ff_rptr = 0;
 u8 usb_ff_wptr = 0;
 
-int usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
-void usbkb_hid_report(kb_data_t *data);
+
 
 static u8 vk_sys_map[VK_SYS_CNT] = {
 	VK_POWER_V, VK_SLEEP_V, VK_WAKEUP_V

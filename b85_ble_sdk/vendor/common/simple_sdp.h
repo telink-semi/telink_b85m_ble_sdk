@@ -167,6 +167,13 @@ void 	simple_sdp_loop (void);
 
 
 
+/**
+ * @brief       Used for add peer device service ATThandle.
+ * @param[in]   dev_char_info       - Pointer point to data buffer.
+ * @return      0: success
+ *              1: failed
+ */
+int 	dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info);
 
 /**
  * @brief       Use for store peer device att handle to flash.

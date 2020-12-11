@@ -63,6 +63,7 @@ main_service_t		main_service = 0;
 
 
 static const  u8 my_OtaUUID[16]						= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
+static const  u8 my_MicUUID[16]                     = WRAPPING_BRACES(TELINK_MIC_DATA);
 
 
 ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16, att_db_uuid128_t *p128, int n128);
@@ -96,6 +97,7 @@ void app_service_discovery (void)
 
 	if ( master_sdp_pending && host_att_discoveryService (master_sdp_pending, db16, ATT_DB_UUID16_NUM, db128, ATT_DB_UUID128_NUM) == BLE_SUCCESS)	// service discovery OK
 	{
+		cur_sdp_device.char_handle[0] = blm_att_findHandleOfUuid128 (db128, my_MicUUID);            //MIC
 		cur_sdp_device.char_handle[2] = blm_att_findHandleOfUuid128 (db128, my_OtaUUID);			//OTA
 		cur_sdp_device.char_handle[3] = blm_att_findHandleOfUuid16 (db16, CHARACTERISTIC_UUID_HID_REPORT,
 					HID_REPORT_ID_CONSUME_CONTROL_INPUT | (HID_REPORT_TYPE_INPUT<<8));		//consume report(media key report)
@@ -386,6 +388,35 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 
 
 
+/**
+ * @brief       Used for add peer device service ATThandle.
+ * @param[in]   dev_char_info       - Pointer point to data buffer.
+ * @return      0: success
+ *              1: failed
+ */
+int dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info)
+{
+	int i;
+	for(i=0; i< conn_master_num; i++){
+		if( conn_dev_list[i].conn_handle == dev_char_info->conn_handle){
+			break;
+		}
+	}
+
+	if( i < conn_master_num){
+		for(int j=0; j<CHAR_HANDLE_MAX;  j++){
+			conn_dev_list[i].char_handle[j] = dev_char_info->char_handle[j];
+		}
+
+		conn_dev_list[i].char_handle_valid = 1;
+
+		return 0;   //success
+	}
+	else{
+		return 1;   //fail
+	}
+}
+
 
 
 
@@ -421,6 +452,7 @@ int		dev_char_info_store_peer_att_handle(dev_char_info_t* pdev_char)
 //			 char_handle[5] :
 //			 char_handle[6] :  BLE Module, SPP Server to Client
 //			 char_handle[7] :  BLE Module, SPP Client to Server
+			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 0*2,  2, (u8 *)&pdev_char->char_handle[0]);   //save MIC att_handle
 			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 2*2,  2, (u8 *)&pdev_char->char_handle[2]);   //save OTA att_handle
 			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 3*2,  2, (u8 *)&pdev_char->char_handle[3]);   //save Consume Report att_handle
 			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 4*2,  2, (u8 *)&pdev_char->char_handle[4]);   //save Key Report att_handle

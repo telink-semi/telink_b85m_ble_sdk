@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	usb.h
+ * @file	main.c
  *
- * @brief	This is the header file for BLE SDK
+ * @brief	This is the source file for BLE SDK
  *
  * @author	BLE GROUP
  * @date	2020.06
@@ -43,62 +43,71 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-
-#pragma once
-
-
 #include "tl_common.h"
 #include "drivers.h"
-#include "usbdesc.h"
+#include "stack/ble/ble.h"
+#include "app_config.h"
+#include "app.h"
 
-/* Enable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-enum {
-    //  3000 ms
-	USB_TIME_BEFORE_ALLOW_SUSPEND = (3000*1000),
-};
-
-enum {
-	USB_IRQ_SETUP_REQ = 0,
-	USB_IRQ_DATA_REQ,
-};
+#if (FEATURE_TEST_MODE == TEST_OTA)
 
 
-// telink usb report ctrl command. used mixed with USB_AUD_PLAY_PAUSE...
-enum{
-	USB_REPORT_NO_EVENT		= 0xf0,
-	USB_REPORT_RELEASE 		= 0xff,
-};
+/**
+ * @brief   IRQ handler
+ * @param   none.
+ * @return  none.
+ */
+_attribute_ram_code_ void irq_handler(void)
+{
+    DBG_CHN15_HIGH;
 
-#if (USB_MIC_ENABLE)
-extern u8 usb_alt_intf[USB_INTF_MAX];
-static inline int usb_mic_is_enable(){
-	return usb_alt_intf[USB_INTF_MIC];
+	blc_sdk_irq_handler ();
+
+	DBG_CHN15_LOW;
 }
-#endif
 
-void usb_handle_irq(void);
+/**
+ * @brief		This is main function
+ * @param[in]	none
+ * @return      none
+ */
+_attribute_ram_code_ int main(void)
+{
 
-extern u8 usb_just_wakeup_from_suspend;
-extern u8 usb_has_suspend_irq;
-extern u8 edp_toggle[8];
+	#if(MCU_CORE_TYPE == MCU_CORE_825x)
+		cpu_wakeup_init();
+	#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+		cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+	#endif
 
-void usb_init();
+	/* detect if MCU is wake_up from deep retention mode */
+	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();  //MCU deep retention wakeUp
 
-#ifndef		USB_SOFTWARE_CRC_CHECK
-#define		USB_SOFTWARE_CRC_CHECK		0
-#endif
+	clock_init(SYS_CLK_TYPE);
 
-#define MS_VENDORCODE            'T'    //This must match the char after the "MSFT100"
-#define STRING_MSFT              L"MSFT100T"
+	rf_drv_init(RF_MODE_BLE_1M);
 
-#define MS_OS_DESCRIPTOR_ENABLE        0
+	gpio_init(!deepRetWakeUp);
 
-/* Disable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
+	/* load customized freq_offset cap value. */
+	blc_app_loadCustomizedParameters();
+
+	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
+		user_init_deepRetn ();
+	}
+	else{ //MCU power_on or wake_up from deepSleep mode
+		/* read flash size only in power_on or deepSleep */
+		blc_readFlashSize_autoConfigCustomFlashSector();
+		user_init_normal();
+	}
+
+	irq_enable();
+
+	while(1)
+	{
+		main_loop ();
+	}
+	return 0;
 }
-#endif
 
+#endif

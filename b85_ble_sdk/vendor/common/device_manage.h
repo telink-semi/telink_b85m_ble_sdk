@@ -61,6 +61,8 @@
 
 
 
+#define INVALID_CONN_IDX     						0xFF
+
 
 
 #define DEVICE_CHAR_INFO_MAX_NUM		(MASTER_MAX_NUM + SLAVE_MAX_NUM)    //4 master, 3 slave most
@@ -120,14 +122,19 @@ extern int	conn_slave_num;
 /**
  * @brief       Used for add device information to conn_dev_list.
  * @param[in]   dev_char_info       - Pointer point to data buffer.
- * @return      0: success
- *              1: failed
+ * @return      0 ~ DEVICE_CHAR_INFO_MAX_NUM - 1: new connection index, insert success
+ *              0xFF: insert failed
  */
 int 	dev_char_info_insert (dev_char_info_t* dev_char_info);
 
 
 
-
+/**
+ * @brief       Used for add device information to conn_dev_list.
+ * @param[in]   pConnEvt - LE connection complete event data buffer address.
+ * @return      0 ~ DEVICE_CHAR_INFO_MAX_NUM - 1: new connection index, insert success
+ *              0xFF: insert failed
+ */
 int 	dev_char_info_insert_by_conn_event(hci_le_connectionCompleteEvt_t* pConnEvt);
 
 
@@ -166,25 +173,7 @@ dev_char_info_t* 	dev_char_info_search_by_peer_mac_address (u8 adr_type, u8* add
  */
 dev_char_info_t* 	dev_char_info_search_by_connhandle (u16 connhandle);
 
-#if 0
-/**
- * @brief       Delete device information by local address.
- * @param[in]   adr_type       - peer address type.
- * @param[in]   addr           - Pointer point to peer address.
- * @return      0: success
- *              1: no find
- */
-int 	dev_char_info_delete_by_local_mac (u8 adr_type, u8* addr);
 
-/**
- * @brief       Get device information by  local device address.
- * @param[in]   adr_type       - peer address type.
- * @param[in]   addr           - Pointer point to peer address.
- * @return      0: no find
- *             !0: found
- */
-dev_char_info_t* 	dev_char_info_search_by_local_mac (u8 adr_type, u8* addr);
-#endif
 
 /**
  * @brief       Used for judge if current device conn_handle
@@ -207,41 +196,16 @@ int dev_char_get_conn_role_by_connhandle (u16 connhandle);
 
 
 
-#if 0
-static inline u16 	dev_char_info_get_conn_handle_by_slave_index (int slave_index)
-{
-	return conn_dev_list[slave_index].conn_handle;
-}
-
-
-static inline u16 	dev_char_info_get_conn_handle_by_master_index (int master_index)
-{
-	return conn_dev_list[master_index].conn_handle;
-}
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
- * @brief       Used for add peer device service ATThandle.
- * @param[in]   dev_char_info       - Pointer point to data buffer.
- * @return      0: success
- *              1: failed
+ * @brief       Get ACL connection index by connection handle.
+ * @param[in]   connhandle       - connection handle.
+ * @return      0xFF: 	  no connection index match
+ * 				others:   connection index
  */
-int 	dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info);
+int dev_char_get_conn_index_by_connhandle (u16 connhandle);
+
+
 
 
 
