@@ -43,8 +43,8 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-
-#pragma once
+#ifndef TL_COMMON_H_
+#define TL_COMMON_H_
 
 
 #include "common/types.h"
@@ -68,3 +68,4 @@
 #include "vendor/common/device_manage.h"
 #include "vendor/common/simple_sdp.h"
 #include "vendor/common/flash_fw_check.h"
+#endif /* TL_COMMON_H_ */

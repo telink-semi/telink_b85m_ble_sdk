@@ -711,8 +711,6 @@ void user_init_normal(void)
 
 
 	#if (BLE_OTA_SERVER_ENABLE)
-		blc_ota_setNewFirmwwareStorageAddress(MULTI_BOOT_ADDR_0x40000);
-
 		/* OTA module initialization must be called after "blc_ota_setNewFirmwwareStorageAddress"(if used), and before any other OTA API.*/
 		blc_ota_initOtaServer_module();
 		blc_ota_setOtaProcessTimeout(200);

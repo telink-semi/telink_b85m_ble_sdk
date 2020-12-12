@@ -288,8 +288,6 @@ void app_ota_result(int result)
 
 void app_ota_server_init(void)
 {
-	blc_ota_setNewFirmwwareStorageAddress(MULTI_BOOT_ADDR_0x40000);
-
 	/* OTA module initialization must be called after "blc_ota_setNewFirmwwareStorageAddress"(if used), and before any other OTA API.*/
 	blc_ota_initOtaServer_module();
 

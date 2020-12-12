@@ -71,6 +71,10 @@ _attribute_ram_code_ void irq_handler(void)
  */
 _attribute_ram_code_ int main(void)
 {
+	#if (BLE_OTA_SERVER_ENABLE)
+		/* OTA new firmware storage address must be called before "cpu_wakeup_init".*/
+		blc_ota_setNewFirmwwareStorageAddress(MULTI_BOOT_ADDR_0x20000);
+	#endif
 
 	#if(MCU_CORE_TYPE == MCU_CORE_825x)
 		cpu_wakeup_init();
