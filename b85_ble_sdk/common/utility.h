@@ -250,7 +250,7 @@ u8 * my_fifo_get (my_fifo_t *f);
 
 
 /*HCI TX RX buffer len = uart_fifo+ dma 4byte */
-#define 	HCI_FIFO_SIZE(n)					(((n+2+4) + 15) / 16 *16)
+#define 	HCI_FIFO_SIZE(n)					(((n+7) + 15) / 16 *16)
 
 
 /*HCI ACL DATA buffer len = LE_ACL_Data_Packet_Length + 4, pkt_len is integer multiple of 4, so result is 4 Byte align */

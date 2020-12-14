@@ -85,11 +85,13 @@ void blc_ota_initOtaServer_module(void);
 
 /**
  * @brief      This function is used to set OTA new firmware storage address on Flash.
- * @param[in]  new_fw_addr - new firmware storage address, can only choose from multiple boot address
- * 							 supported by MCU
+ * 			   note: this function must be called before "cpu_wakeup_init".
+ * @param[in]  firmware_size_k - set the firmware size. i.e. OTA erase flash size.note: unit is 1K(1024B)
+ * @param[in]  new_fw_addr - new firmware storage address, 1.choose from multiple boot address
+ * 							 supported by MCU.2.Also according to MCU flash size to select storage address.
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t blc_ota_setNewFirmwwareStorageAddress(multi_boot_addr_e new_fw_addr);
+void blc_ota_setFirmwareSizeAndBootAddr(int firmware_size_k, multi_boot_addr_e new_fw_addr);
 
 
 

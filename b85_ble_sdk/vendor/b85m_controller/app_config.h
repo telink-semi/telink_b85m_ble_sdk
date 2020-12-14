@@ -70,6 +70,7 @@
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
 #define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     1  //printf
+#define CONFIG_PAIRING_INFO_FLASH_DIS               1  //not change.
 
 
 
@@ -79,7 +80,7 @@
 		#define	MATRIX_ROW_PULL					PM_PIN_PULLDOWN_100K
 		#define	MATRIX_COL_PULL					PM_PIN_PULLUP_10K
 
-		#define	KB_LINE_HIGH_VALID				0   //dirve pin output 0 when keyscan, scanpin read 0 is valid
+		#define	KB_LINE_HIGH_VALID				0   //drive pin output 0 when keyscan, scanpin read 0 is valid
 
 		#define BTN_PAIR						0x01
 		#define BTN_UNPAIR						0x02

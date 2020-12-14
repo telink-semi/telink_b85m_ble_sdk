@@ -72,8 +72,8 @@ _attribute_ram_code_ void irq_handler(void)
 _attribute_ram_code_ int main(void)
 {
 	#if (BLE_OTA_SERVER_ENABLE)
-		/* OTA new firmware storage address must be called before "cpu_wakeup_init".*/
-		blc_ota_setNewFirmwwareStorageAddress(MULTI_BOOT_ADDR_0x20000);
+		/* set firmware size and boot address must be called before "cpu_wakeup_init".*/
+		blc_ota_setFirmwareSizeAndBootAddr(128, MULTI_BOOT_ADDR_0x20000);
 	#endif
 
 	#if(MCU_CORE_TYPE == MCU_CORE_825x)
@@ -104,7 +104,8 @@ _attribute_ram_code_ int main(void)
 		user_init_normal ();
 	}
 
-
+//	gpio_write(GPIO_LED_GREEN, 1);
+	gpio_write(GPIO_LED_RED, 1);
 	irq_enable();
 
 	while(1)

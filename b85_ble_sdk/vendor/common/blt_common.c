@@ -50,6 +50,10 @@
 #include "stack/ble/ble.h"
 
 
+#ifndef		CONFIG_PAIRING_INFO_FLASH_DIS
+#define		CONFIG_PAIRING_INFO_FLASH_DIS		0x00
+#endif
+
 const  u8 vendor_OtaUUID[16]	= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
 
 
@@ -85,8 +89,10 @@ void blc_readFlashSize_autoConfigCustomFlashSector(void)
 		//If code stop here, please check your Flash
 		while(1);
 	}
-
-
+	///
+	#if(!CONFIG_PAIRING_INFO_FLASH_DIS)
+		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	#endif
 //	flash_set_capacity(flash_cap);
 }
 

@@ -95,16 +95,17 @@
 /*If Slave or Master SMP enable, default 0x78000~0x7BFFF (4 sector, 16K) is used for SMP pairing
   information storage, it is set in BLE stack library, same as initialization below:
   blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
-  First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.  */
+  First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.
+  "blc_smp_configPairingSecurityInfoStorageAddressAndSize" has been called in "blc_readFlashSize_autoConfigCustomFlashSector".*/
 #if (BLE_MASTER_SMP_ENABLE)
 	//if flash 512K
-	#define FLASH_ADR_SMP_PAIRING					0x78000
+	#define FLASH_ADR_SMP_PAIRING					0x78000    //if flash 1M--0xFA000
 	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
 #endif
 
 /*If Master SMP disable, 0x7C000~0x7CFFF 1 sector is for paring information storage */
 #if (!BLE_MASTER_SMP_ENABLE)
-	#define FLASH_ADR_CUSTOM_PAIRING         		0x7C000
+	#define FLASH_ADR_CUSTOM_PAIRING         		0x7C000    //if flash 1M--0xF8000
 	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     		4096
 
 #endif
@@ -113,7 +114,7 @@
  * device's ATT handle*/
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 	//if flash 512K
-	#define FLASH_SDP_ATT_ADRRESS                	0x7D000    //for master: store peer slave device's ATT handle
+	#define FLASH_SDP_ATT_ADRRESS                	0x7D000    //if flash 1M--0xF6000; for master: store peer slave device's ATT handle
 	#define FLASH_SDP_ATT_MAX_SIZE				 	(2*4096)   //8K flash for ATT HANLDE storage
 #endif
 
@@ -173,7 +174,7 @@
 		#define	MATRIX_ROW_PULL					PM_PIN_PULLDOWN_100K
 		#define	MATRIX_COL_PULL					PM_PIN_PULLUP_10K
 
-		#define	KB_LINE_HIGH_VALID				0   //dirve pin output 0 when keyscan, scanpin read 0 is valid
+		#define	KB_LINE_HIGH_VALID				0   //drive pin output 0 when keyscan, scanpin read 0 is valid
 
 		#define BTN_PAIR						0x01
 		#define BTN_UNPAIR						0x02
