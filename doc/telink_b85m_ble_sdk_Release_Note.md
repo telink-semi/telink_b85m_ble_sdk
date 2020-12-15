@@ -14,6 +14,9 @@
   +  feature demo：b85m_feature
   +  only master demo：b85m_master_dongle 
 
+### BREAKING CHANGES
+* N/A
+
 
 
 ### Features
@@ -29,3 +32,6 @@
   +  controller demo: b85m_controller
   +  feature demo：b85m_feature
   +  only master demo：b85m_master_dongle 
+
+### BREAKING CHANGES
+* N/A
