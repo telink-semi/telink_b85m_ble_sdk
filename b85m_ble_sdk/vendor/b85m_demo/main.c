@@ -104,8 +104,6 @@ _attribute_ram_code_ int main(void)
 		user_init_normal ();
 	}
 
-//	gpio_write(GPIO_LED_GREEN, 1);
-	gpio_write(GPIO_LED_RED, 1);
 	irq_enable();
 
 	while(1)

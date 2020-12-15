@@ -59,7 +59,7 @@
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SIMPLE_SDP_ENABLE				1   //simple service discovery for BLE master
-#define BLE_OTA_SERVER_ENABLE						1
+#define BLE_OTA_SERVER_ENABLE						0
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define UI_LED_ENABLE								1
