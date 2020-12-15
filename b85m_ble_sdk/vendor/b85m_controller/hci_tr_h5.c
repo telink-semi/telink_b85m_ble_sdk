@@ -113,8 +113,7 @@ void HCI_Tr_H5Init(void)
 	#elif(CLOCK_SYS_CLOCK_HZ == 48000000)
 		uart_init(25, 15, PARITY_NONE, STOP_BIT_ONE);
 	#endif
-#else ///8278 use 1000000 for xiaomi project.
-	//baud rate: 1000000
+#else ///8278 baud rate: 1M(1000000)
 	#if(CLOCK_SYS_CLOCK_HZ == 16000000)
 		uart_init(0, 15, PARITY_NONE, STOP_BIT_ONE);
 	#elif(CLOCK_SYS_CLOCK_HZ == 24000000)
