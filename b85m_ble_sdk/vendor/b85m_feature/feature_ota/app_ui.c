@@ -139,10 +139,10 @@ void key_change_proc(void)
 				else if(blotaClt.ota_test_mode == 1){
 					if(conn_master_num){ //at least one connection exist
 						if(key0 == BTN_OTA_1){
-							app_key_trigger_ota_start(NEW_FW_ADDR_256K, conn_dev_list[0].conn_handle);
+							app_key_trigger_ota_start(NEW_FW_ADDR0, conn_dev_list[0].conn_handle);
 						}
 						else if(key0 == BTN_OTA_2){
-							app_key_trigger_ota_start(NEW_FW_ADDR_512K, conn_dev_list[0].conn_handle);
+							app_key_trigger_ota_start(NEW_FW_ADDR1, conn_dev_list[0].conn_handle);
 						}
 					}
 				}
@@ -288,12 +288,12 @@ void app_ota_result(int result)
 
 void app_ota_server_init(void)
 {
-	/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddr"(if used), and before any other OTA API.*/
+	/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddress"(if used), and before other OTA API.*/
 	blc_ota_initOtaServer_module();
 
 	blc_ota_registerOtaStartCmdCb(app_enter_ota_mode);
 	blc_ota_registerOtaResultIndicationCb(app_ota_result);
-	blc_ota_setOtaProcessTimeout(200);   //OTA process timeout:  20 seconds
+	blc_ota_setOtaProcessTimeout(20);   //OTA process timeout:  20 seconds
 	blc_ota_setOtaDataPacketTimeout(3); //OTA data packet interval timeout 3 seconds
 }
 

@@ -64,10 +64,7 @@ int master_connected_led_on = 0;
  */
 int AA_dbg_adv_rpt = 0;
 u32	tick_adv_rpt = 0;
-#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-	int filter_mac_enable = 0;
-	u8  filter_mac_address[6] = {};
-#endif
+
 int app_le_adv_report_event_handle(u8 *p)
 {
 	event_adv_report_t *pa = (event_adv_report_t *)p;
@@ -111,13 +108,6 @@ int app_le_adv_report_event_handle(u8 *p)
 
 	if(master_auto_connect || user_manual_pairing){
 
-		#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-			if(filter_mac_enable && memcmp(pa->mac + 3, filter_mac_address + 3, 3) != 0 ){
-				//my_dump_str_data(1,"mac drop", pa->mac, 6);
-				return 0;  //no connect
-			}
-		#endif
-
 		/* send create connection command to Controller, trigger it switch to initiating state. After this command, Controller
 		 * will scan all the ADV packets it received but not report to host, to find the specified device(mac_adr_type & mac_adr),
 		 * then send a "CONN_REQ" packet, enter to connection state and send a connection complete event
@@ -156,7 +146,6 @@ int app_le_connection_complete_event_handle(u8 *p)
 	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
 
 	if(pConnEvt->status == BLE_SUCCESS){
-		my_dump_str_data(APP_DUMP_EN, "conn complete", &pConnEvt->connHandle, 12);
 
 	#if (1)//(UI_LED_ENABLE)
 		//led show connection state
@@ -236,8 +225,6 @@ int app_le_connection_complete_event_handle(u8 *p)
 int 	app_disconnect_event_handle(u8 *p)
 {
 	event_disconnection_t	*pCon = (event_disconnection_t *)p;
-
-	my_dump_str_data(APP_DUMP_EN, "conn disconnect ", &pCon->connHandle, 2);
 
 	//terminate reason
 	if(pCon->reason == HCI_ERR_CONN_TIMEOUT){  	//connection timeout
@@ -370,7 +357,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 	switch(event)
 	{
-		case GAP_EVT_SMP_PAIRING_BEAGIN:
+		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
 
 		}
@@ -600,16 +587,8 @@ void user_init_normal(void)
 		usb_dp_pullup_en (1);  //open USB enum
 	#endif
 
-	#if (APP_DUMP_EN)
-		my_usb_init(0x120, &print_fifo);
-		usb_set_pin_en ();
-	#endif
-
-
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
 
-	/* for 1M Flash, flash_sector_mac_address equals to 0xFF000
-	 * for 2M Flash, flash_sector_mac_address equals to 0x1FF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
@@ -640,12 +619,7 @@ void user_init_normal(void)
 
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_10MS);
 
-
-	#if (MCU_CORE_TYPE == MCU_CORE_825x)
-		rf_set_power_level_index (RF_POWER_P3p01dBm);
-	#else
-		rf_set_power_level_index (RF_POWER_P3p50dBm);
-	#endif
+	rf_set_power_level_index (RF_POWER_P3dBm);
 
 	//////////// LinkLayer Initialization  End /////////////////////////
 
@@ -690,6 +664,10 @@ void user_init_normal(void)
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
+	#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	#endif
+
 	#if (0)  //Slave SMP Enable  TODO: test master SMP
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
@@ -708,7 +686,7 @@ void user_init_normal(void)
 
 	//host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
 	blc_gap_registerHostEventHandler( app_host_event_callback );
-	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEAGIN 			|  \
+	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEGIN 			|  \
 						  GAP_EVT_MASK_SMP_PAIRING_SUCCESS   		|  \
 						  GAP_EVT_MASK_SMP_PAIRING_FAIL				|  \
 						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE);
@@ -724,17 +702,6 @@ void user_init_normal(void)
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-	my_dump_str_data(APP_DUMP_EN,"user init end", 0, 0);
-
-#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-	flash_read_page(0x75000, 6, filter_mac_address);
-	if(filter_mac_address[0] != 0xFF || filter_mac_address[5] != 0xFF){
-		filter_mac_enable = 1;
-	}
-#endif
 }
 
 
@@ -798,10 +765,6 @@ int main_idle_loop (void)
 		{
 			REG_ADDR8(0x125) = BIT(0);
 		}
-	#endif
-
-	#if (APP_DUMP_EN)
-		myudb_usb_handle_irq ();
 	#endif
 
 	return 0; //must return 0 due to SDP flow

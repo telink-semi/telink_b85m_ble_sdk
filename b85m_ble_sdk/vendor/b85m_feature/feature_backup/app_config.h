@@ -49,11 +49,6 @@
 
 #if (FEATURE_TEST_MODE == TEST_FEATURE_BACKUP)
 
-#if (__PROJECT_8258_FEATURE_TEST__)
-	#define CHIP_TYPE				CHIP_TYPE_825x
-#else
-	#define CHIP_TYPE				CHIP_TYPE_827x
-#endif
 
 #define MASTER_MAX_NUM								4
 #define SLAVE_MAX_NUM								4
@@ -62,6 +57,7 @@
 
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
+#define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
 #define BLE_SLAVE_SMP_ENABLE						0   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						0   //1 for smp,  0 no security
 
@@ -73,21 +69,8 @@
 #define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
 
+
 #define APP_DEFAULT_HID_BATTERY_OTA_ATTRIBUTE_TABLE			1
-
-///////////////////// Flash Sector Usage Configuration for 512K Flash //////////////////////////
-/*If Slave or Master SMP enable, default 0x78000~0x7BFFF (4 sector, 16K) is used for SMP pairing
-  information storage, it is set in BLE stack library, same as initialization below:
-  blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
-  First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.
-  "blc_smp_configPairingSecurityInfoStorageAddressAndSize" has been called in "blc_readFlashSize_autoConfigCustomFlashSector".*/
-#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
-	#define FLASH_ADR_SMP_PAIRING					0x78000    //if flash 1M--0xFA000
-	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
-#endif
-
-
-
 
 
 
@@ -114,8 +97,8 @@
 
 
 		//////////////////// KEY CONFIG (EVK board) ///////////////////////////
-		#define  KB_DRIVE_PINS  {GPIO_PB4, GPIO_PB5}
-		#define  KB_SCAN_PINS   {GPIO_PB2, GPIO_PB3}
+		#define  KB_DRIVE_PINS  		{GPIO_PB4, GPIO_PB5}
+		#define  KB_SCAN_PINS   		{GPIO_PB2, GPIO_PB3}
 
 		//drive pin as gpio
 		#define	PB4_FUNC				AS_GPIO

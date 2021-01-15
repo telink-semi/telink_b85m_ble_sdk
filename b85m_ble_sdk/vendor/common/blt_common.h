@@ -47,39 +47,188 @@
 #define BLT_COMMON_H_
 
 #include "drivers.h"
+#include "vendor/common/user_config.h"
 
 
 
-
-//////////////////////////// Flash  Address Configuration ///////////////////////////////
-
-/**************************** 128 K Flash *****************************/
-#ifndef		CFG_ADR_MAC_128K_FLASH
-#define		CFG_ADR_MAC_128K_FLASH								0x1F000
+/**
+ * @brief	512 K Flash MAC address and calibration data area
+ */
+#if (MCU_CORE_TYPE == MCU_CORE_9518)
+	#define	CFG_ADR_MAC_512K_FLASH								0x7F000
+	#define	CFG_ADR_CALIBRATION_512K_FLASH						0x7E000
+#else
+	#define	CFG_ADR_MAC_512K_FLASH								0x76000
+	#define	CFG_ADR_CALIBRATION_512K_FLASH						0x77000
 #endif
 
-#ifndef		CFG_ADR_CALIBRATION_128K_FLASH
-#define		CFG_ADR_CALIBRATION_128K_FLASH						0x1E000
-#endif
+/**
+ * @brief	512 K Flash MAC address and calibration data area
+ */
+#define	CFG_ADR_MAC_1M_FLASH		   							0xFF000
+#define	CFG_ADR_CALIBRATION_1M_FLASH							0xFE000
 
-/**************************** 512 K Flash *****************************/
-#ifndef		CFG_ADR_MAC_512K_FLASH
-#define		CFG_ADR_MAC_512K_FLASH								0x76000
-#endif
-
-#ifndef		CFG_ADR_CALIBRATION_512K_FLASH
-#define		CFG_ADR_CALIBRATION_512K_FLASH						0x77000
-#endif
-
-/**************************** 1 M Flash *******************************/
-#ifndef		CFG_ADR_MAC_1M_FLASH
-#define		CFG_ADR_MAC_1M_FLASH		   						0xFF000
-#endif
+/**
+ * @brief	512 K Flash MAC address and calibration data area
+ */
+#define	CFG_ADR_MAC_2M_FLASH		   							0x1FF000
+#define	CFG_ADR_CALIBRATION_2M_FLASH							0x1FE000
 
 
-#ifndef		CFG_ADR_CALIBRATION_1M_FLASH
-#define		CFG_ADR_CALIBRATION_1M_FLASH						0xFE000
+
+
+
+
+
+/**
+ * @brief	Flash size type supported by this SDK
+ */
+#define		FLASH_SIZE_512K			   							0x80000
+#define		FLASH_SIZE_1M			   							0x100000
+#define		FLASH_SIZE_2M			   							0x200000
+
+
+/**
+ * @brief	Flash size default configuration(user can change in app_config.h)
+ */
+#if (MCU_CORE_TYPE == MCU_CORE_9518)
+	#ifndef		FLASH_SIZE_CONFIG
+	#define		FLASH_SIZE_CONFIG		   						FLASH_SIZE_1M
+	#endif
+#else
+	#ifndef		FLASH_SIZE_CONFIG
+	#define		FLASH_SIZE_CONFIG		   						FLASH_SIZE_512K
+	#endif
 #endif
+
+
+
+
+/**
+ * @brief	Flash using area default Configuration, user can change some of them in app_config.h
+ * 			CFG_ADR_MAC:  		  BLE MAC address stored in flash, can not change this value
+ * 			CFG_ADR_CALIBRATION:  some calibration data stored in flash, can not change this value
+ * 			FLASH_ADR_SMP_PAIRING & FLASH_SMP_PAIRING_MAX_SIZE:
+ * 									If Slave or Master SMP enable, use 16K flash for SMP pairing information storage.
+ * 									First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.
+ * 									use API blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
+ * 									to set the two value.
+ * 			FLASH_ADR_CUSTOM_PAIRING & FLASH_CUSTOM_PAIRING_MAX_SIZE:
+ * 									If master role is used but master SMP not used, use this flash area to store bonding slave information for custom pair.
+ * 			FLASH_SDP_ATT_ADRRESS & FLASH_SDP_ATT_MAX_SIZE
+ * 									If master role use service discovery, use this flash area to store some critical information of peer GATT server.
+
+ */
+#if(FLASH_SIZE_CONFIG == FLASH_SIZE_512K)
+
+	/* MAC and calibration data area */
+	#define		CFG_ADR_MAC		   								CFG_ADR_MAC_512K_FLASH			//can not change this value
+	#define		CFG_ADR_CALIBRATION		   						CFG_ADR_CALIBRATION_512K_FLASH	//can not change this value
+
+	#if (MCU_CORE_TYPE == MCU_CORE_9518)
+		//TODO
+	#else
+		/* SMP paring and key information area */
+		#ifndef FLASH_ADR_SMP_PAIRING
+		#define FLASH_ADR_SMP_PAIRING         						0x78000
+		#endif
+
+		#ifndef FLASH_SMP_PAIRING_MAX_SIZE
+		#define FLASH_SMP_PAIRING_MAX_SIZE         					(2*4096)  //normal 8K + backup 8K = 16K
+		#endif
+
+
+		/* bonding slave information for custom pair area */
+		#ifndef FLASH_ADR_CUSTOM_PAIRING
+		#define FLASH_ADR_CUSTOM_PAIRING         					0x7C000
+		#endif
+
+		#ifndef FLASH_CUSTOM_PAIRING_MAX_SIZE
+		#define FLASH_CUSTOM_PAIRING_MAX_SIZE     					4096
+		#endif
+
+
+		/* bonding slave GATT service critical information area */
+		#ifndef FLASH_SDP_ATT_ADRRESS
+		#define FLASH_SDP_ATT_ADRRESS         						0x7D000    //for master: store peer slave device's ATT handle
+		#endif
+
+		#ifndef FLASH_SDP_ATT_MAX_SIZE
+		#define FLASH_SDP_ATT_MAX_SIZE         						(2*4096)   //8K flash for ATT HANLDE storage
+		#endif
+	#endif
+
+#elif(FLASH_SIZE_CONFIG == FLASH_SIZE_1M)
+
+	/* MAC and calibration data area */
+	#define	CFG_ADR_MAC		   									CFG_ADR_MAC_1M_FLASH			//can not change this value
+	#define	CFG_ADR_CALIBRATION		   							CFG_ADR_CALIBRATION_1M_FLASH	//can not change this value
+
+	/* SMP paring and key information area */
+	#ifndef FLASH_ADR_SMP_PAIRING
+	#define FLASH_ADR_SMP_PAIRING         						0xFA000
+	#endif
+
+	#ifndef FLASH_SMP_PAIRING_MAX_SIZE
+	#define FLASH_SMP_PAIRING_MAX_SIZE         					(2*4096)  //normal 8K + backup 8K = 16K
+	#endif
+
+
+	/* bonding slave information for custom pair area */
+	#ifndef FLASH_ADR_CUSTOM_PAIRING
+	#define FLASH_ADR_CUSTOM_PAIRING         					0xF8000
+	#endif
+
+	#ifndef FLASH_CUSTOM_PAIRING_MAX_SIZE
+	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     					4096
+	#endif
+
+
+	/* bonding slave GATT service critical information area */
+	#ifndef FLASH_SDP_ATT_ADRRESS
+	#define FLASH_SDP_ATT_ADRRESS         						0xF6000    //for master: store peer slave device's ATT handle
+	#endif
+
+	#ifndef FLASH_SDP_ATT_MAX_SIZE
+	#define FLASH_SDP_ATT_MAX_SIZE         						(2*4096)   //8K flash for ATT HANLDE storage
+	#endif
+
+#elif(FLASH_SIZE_CONFIG == FLASH_SIZE_2M)
+/* MAC and calibration data area */
+	#define	CFG_ADR_MAC		   									CFG_ADR_MAC_2M_FLASH			//can not change this value
+	#define	CFG_ADR_CALIBRATION		   							CFG_ADR_CALIBRATION_2M_FLASH	//can not change this value
+
+	/* SMP paring and key information area */
+	#ifndef FLASH_ADR_SMP_PAIRING
+	#define FLASH_ADR_SMP_PAIRING         						0x1FA000
+	#endif
+
+	#ifndef FLASH_SMP_PAIRING_MAX_SIZE
+	#define FLASH_SMP_PAIRING_MAX_SIZE         					(2*4096)  //normal 8K + backup 8K = 16K
+	#endif
+
+
+	/* bonding slave information for custom pair area */
+	#ifndef FLASH_ADR_CUSTOM_PAIRING
+	#define FLASH_ADR_CUSTOM_PAIRING         					0x1F8000
+	#endif
+
+	#ifndef FLASH_CUSTOM_PAIRING_MAX_SIZE
+	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     					4096
+	#endif
+
+
+	/* bonding slave GATT service critical information area */
+	#ifndef FLASH_SDP_ATT_ADRRESS
+	#define FLASH_SDP_ATT_ADRRESS         						0x1F6000    //for master: store peer slave device's ATT handle
+	#endif
+
+	#ifndef FLASH_SDP_ATT_MAX_SIZE
+	#define FLASH_SDP_ATT_MAX_SIZE         						(2*4096)   //8K flash for ATT HANLDE storage
+	#endif
+#endif
+
+
 
 
 
@@ -111,12 +260,8 @@ extern u32 flash_sector_calibration;
 static inline void blc_app_setExternalCrystalCapEnable(u8  en)
 {
 	blt_miscParam.ext_cap_en = en;
-
-//	analog_write_reg8(0x8a,analog_read_reg8(0x8a)|0x80);//close internal cap
-	analog_write(0x8a,analog_read(0x8a)|0x80);
-
+	analog_write(0x8a, analog_read(0x8a) | 0x80);//disable internal cap
 }
-
 
 /**
  * @brief		This function is used to load customized parameters from flash sector for application
@@ -133,7 +278,6 @@ static inline void blc_app_loadCustomizedParameters(void)
 		 if(flash_sector_calibration){
 			 u8 cap_frqoft = *(unsigned char*) (flash_sector_calibration + CALIB_OFFSET_CAP_INFO);
 			 if( cap_frqoft != 0xff ){
-//				 analog_write_reg8(0x8A, (analog_read_reg8(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
 				 analog_write(0x8A, (analog_read(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
 			 }
 		 }

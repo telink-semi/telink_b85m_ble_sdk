@@ -55,6 +55,10 @@
 #define min(a,b)	((a) < (b) ? (a) : (b))
 #endif
 
+#ifndef max
+#define max(a,b)	((a) > (b) ? (a): (b))
+#endif
+
 #ifndef min2
 #define min2(a,b)	((a) < (b) ? (a) : (b))
 #endif
@@ -123,8 +127,6 @@
 #define foreach(i, n) 			for(int i = 0; i < (n); ++i)
 #define foreach_range(i, s, e) 	for(int i = (s); i < (e); ++i)
 #define foreach_arr(i, arr) 	for(int i = 0; i < ARRAY_SIZE(arr); ++i)
-//  round robbin foreach,   从上一个指定的点开始，遍历,  h 是一个静态变量或全局变量，要记住上一次的位置。h 初始值是n !!!
-#define foreach_hint(i, n, h) 	for(int i = 0, ++h, h=h<n?h:0; i < n; ++h, h=h<n?h:0)
 
 #define ARRAY_SIZE(a) 			(sizeof(a) / sizeof(*a))
 
@@ -237,45 +239,4 @@ u8 * my_fifo_get (my_fifo_t *f);
 #endif
 
 #define		DATA_LENGTH_ALLIGN4(n)				((n + 3) / 4 * 4)
-
-
-/*LL ACL RX buffer len = maxRxOct + 22, then 16 Byte align*/
-//actually +21.The purpose of +22 is to deal with extreme situations. Due to DMA design,at least one byte buffer can not be unusable.
-#define 	CAL_LL_ACL_RX_FIFO_SIZE(maxRxOct)	(((maxRxOct+22) + 15) / 16 *16)
-
-
-/*LL ACL TX buffer len = maxTxOct + 10, then 16 Byte align*/
-#define 	CAL_LL_ACL_TX_FIFO_SIZE(maxTxOct)	(((maxTxOct+10) + 15) / 16 *16)
-
-
-
-/*HCI TX RX buffer len = uart_fifo+ dma 4byte */
-#define 	HCI_FIFO_SIZE(n)					(((n+7) + 15) / 16 *16)
-
-
-/*HCI ACL DATA buffer len = LE_ACL_Data_Packet_Length + 4, pkt_len is integer multiple of 4, so result is 4 Byte align */
-#define 	CALCULATE_HCI_ACL_DATA_FIFO_SIZE(pkt_len)					(pkt_len+4)
-
-												/*
-												 * DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(8B)
-												 *             **use 2B enough**
-												 */
-#define		ISO_PDU_SIZE_ALLIGN16(n)			(((n + 21) + 15) / 16 * 16) //4+2+4+2+4+3+8
-
-
-/*
- * DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(12B)
- *             **use 2B enough**
- */
-#define		ISO_BIS_RX_PDU_SIZE_ALLIGN16(n)			(((n + 25) + 15) / 16 * 16) //4+2+4+2+4+3+12
-
-
-#define		ATT_ALLIGN4_DMA_BUFF(n)				(((n + 10) + 3) / 4 * 4)
-/*
- * DMA_len(4) + type(1) + len(1) + l2cap_len(2) + cid(2) + sud_len(2) + mic(4)
- */
-#define		L2CAP_ALLIGN4_KFRAM_DMA_BUFF(n)		(((n + 16) + 3) / 4 * 4)
-
-#define		IAL_SDU_ALLIGN4_BUFF(n) 			(((n + 16) + 3) / 4 * 4)
-
-#define		HCI_ISO_ALLIGN4_BUFF(n)				(((n + 4) + 3) / 4 * 4) //DMA len 4
+#define		DATA_LENGTH_ALLIGN16(n)				((n + 15) / 16 * 16)

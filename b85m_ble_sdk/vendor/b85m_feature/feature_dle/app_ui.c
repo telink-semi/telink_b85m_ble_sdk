@@ -49,7 +49,7 @@
 
 #include "app_config.h"
 #include "app.h"
-#include "app_att.h"
+#include "../default_att.h"
 #include "app_ui.h"
 
 #include "application/keyboard/keyboard.h"
@@ -94,7 +94,7 @@ _attribute_data_retention_	int 	key_not_released;
 #define PAIR_UNPAIR_KEY   	   		3
 
 _attribute_data_retention_	u8 		key_type;
-
+_attribute_data_retention_  int     tst_flg;
 /**
  * @brief   Check changed key value.
  * @param   none.
@@ -109,7 +109,7 @@ void key_change_proc(void)
 	key_not_released = 1;
 	if (kb_event.cnt == 2)   //two key press
 	{
-
+		tst_flg ^= 1;
 	}
 	else if(kb_event.cnt == 1)
 	{

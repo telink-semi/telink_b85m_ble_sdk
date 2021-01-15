@@ -49,8 +49,8 @@
 #include "stack/ble/ble.h"
 #include "flash_fw_check.h"
 
-
-
+extern int	ota_program_bootAddr;
+extern int	ota_program_offset;
 
 static const unsigned long fw_crc32_half_tbl[16] = {
 	0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,

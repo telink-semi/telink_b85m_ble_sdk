@@ -60,7 +60,7 @@
 /**
  * @brief	ACL RX buffer. size & number defined in app_buffer.h
  * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
- * if either ACl connection master role or ACl connection slave role is e used.
+ * if either ACl connection master role or ACl connection slave role is used.
  */
 u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
 
@@ -89,9 +89,6 @@ _attribute_data_retention_	u8 mtu_s_tx_fifo[SLAVE_MAX_NUM * SLAVE_MTU_BUFF_SIZE_
 
 
 
-
-_attribute_data_retention_  u32 connect_event_occurTick[MASTER_SLAVE_MAX_NUM];
-_attribute_data_retention_  u32 mtuExchange_check_tick[MASTER_SLAVE_MAX_NUM];
 
 _attribute_data_retention_ u8 mtuExchange_started_flg[MASTER_SLAVE_MAX_NUM];
 _attribute_data_retention_ u8 dle_started_flg[MASTER_SLAVE_MAX_NUM];

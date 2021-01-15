@@ -46,7 +46,8 @@
 #ifndef LL_PERD_ADV_H_
 #define LL_PERD_ADV_H_
 
-#if (LL_FEATURE_ENABLE_LE_PERIODIC_ADVERTISING)
+
+
 
 /* maximum number of periodic advertising this SDK can support */
 #define			PERIODIC_ADV_NUMBER_MAX							2
@@ -91,7 +92,7 @@ ble_sts_t	blc_ll_setPeriodicAdvParam(adv_handle_t adv_handle, u16 advInter_min, 
 
 /**
  * @brief      This function is used to set the data used in periodic advertising PDUs.
- * @param[in]  advHandle -
+ * @param[in]  adv_handle - - equal to adv_set index here.
  * @param[in]  advData_len -
  * @param[in]  *advdata -
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
@@ -102,16 +103,15 @@ ble_sts_t  	blc_ll_setPeriodicAdvData(adv_handle_t adv_handle, u8 advData_len, u
 
 /**
  * @brief      This function is used to enable or disable the periodic advertising for the advertising
-			   set specified by the Advertising_Handle parameter
+ *			   set specified by the Advertising_Handle parameter
  * @param[in]  adv_enable - Advertising_Enable
- * @param[in]  adv_handle -
+ * @param[in]  adv_handle - - equal to adv_set index here.
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t 	blc_ll_setPeriodicAdvEnable(ll_prd_adv_t * perd, adv_en_t adv_enable);
+ble_sts_t 	blc_ll_setPeriodicAdvEnable(adv_en_t adv_enable, adv_handle_t adv_handle);
 
 
 
 #endif
 
 
-#endif /* LL_PERD_ADV_H_ */

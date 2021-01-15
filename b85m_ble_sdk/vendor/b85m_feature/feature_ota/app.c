@@ -84,22 +84,16 @@ int	master_smp_pending = 0; 		// SMP: security & encryption;
 
 
 const u8	tbl_advData[] = {
-	 0x08, 0x09, 'B','8','5','_','o','t','a',
-	 0x02, 0x01, 0x05, 							// BLE limited discoverable mode and BR/EDR not supported
-	 0x03, 0x19, 0x80, 0x01, 					// 384, Generic Remote Control, Generic category
-	 0x05, 0x02, 0x12, 0x18, 0x0F, 0x18,		// incomplete list of service class UUIDs (0x1812, 0x180F)
+	 4,  DT_COMPLETE_LOCAL_NAME, 				'o','t','a',
+	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
+	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
+	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
 const u8	tbl_scanRsp [] = {
-	 0x08, 0x09, 'B','8','5','_','o','t','a',
+	 4,  DT_COMPLETE_LOCAL_NAME, 				'o','t','a',
 };
 
-
-
-#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-	int filter_mac_enable = 0;
-	u8  filter_mac_address[6] = {};
-#endif
 /**
  * @brief      BLE Adv report event handler
  * @param[in]  p         Pointer point to event parameter buffer.
@@ -134,13 +128,6 @@ int app_le_adv_report_event_handle(u8 *p)
 
 
 	if(master_auto_connect || user_manual_pairing){
-
-		#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-			if(filter_mac_enable && memcmp(pa->mac + 3, filter_mac_address + 3, 3) != 0 ){
-//				my_dump_str_data(1,"mac drop", pa->mac, 6);
-				return 0;  //no connect
-			}
-		#endif
 
 		/* send create connection command to Controller, trigger it switch to initiating state. After this command, Controller
 		 * will scan all the ADV packets it received but not report to host, to find the specified device(mac_adr_type & mac_adr),
@@ -180,7 +167,6 @@ int app_le_connection_complete_event_handle(u8 *p)
 	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
 
 	if(pConnEvt->status == BLE_SUCCESS){
-		my_dump_str_data(APP_DUMP_EN, "conn complete", &pConnEvt->connHandle, 12);
 
 		u8 conn_idx = dev_char_info_insert_by_conn_event(pConnEvt);
 		connect_event_occurTick[conn_idx] = clock_time() | 0x01;
@@ -220,8 +206,6 @@ int app_le_connection_complete_event_handle(u8 *p)
 int 	app_disconnect_event_handle(u8 *p)
 {
 	event_disconnection_t	*pCon = (event_disconnection_t *)p;
-
-	my_dump_str_data(APP_DUMP_EN, "conn disconnect ", &pCon->connHandle, 2);
 
 	//terminate reason
 	if(pCon->reason == HCI_ERR_CONN_TIMEOUT){  	//connection timeout
@@ -353,7 +337,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 	switch(event)
 	{
-		case GAP_EVT_SMP_PAIRING_BEAGIN:
+		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
 		}
 		break;
@@ -510,7 +494,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
  * @param[in]	none
  * @return      none
  */
-void user_init_normal(void)
+_attribute_no_inline_ void user_init_normal(void)
 {
 	/* random number generator must be initiated here( in the beginning of user_init_nromal).
 	 * When deepSleep retention wakeUp, no need initialize again */
@@ -519,8 +503,6 @@ void user_init_normal(void)
 
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
 
-	/* for 512K Flash, flash_sector_mac_address equals to 0x76000
-	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
@@ -543,26 +525,23 @@ void user_init_normal(void)
 
 
 
-	blc_ll_setMaxConnectionNumber(MASTER_MAX_NUM, SLAVE_MAX_NUM);  //MASTER_MAX_NUM SLAVE_MAX_NUM
+	blc_ll_setMaxConnectionNumber(1, 1);  //MASTER_MAX_NUM SLAVE_MAX_NUM
 
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
 	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
+	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
 	/* ACL Master TX FIFO */
-	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
 	/* ACL Slave TX FIFO */
-	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
+	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
 
 
 
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_20MS);
 
-	#if (MCU_CORE_TYPE == MCU_CORE_825x)
-		rf_set_power_level_index (RF_POWER_P3p01dBm);
-	#else
-		rf_set_power_level_index (RF_POWER_P3p50dBm);
-	#endif
+	rf_set_power_level_index (RF_POWER_P3dBm);
+
 
 	//////////// LinkLayer Initialization  End /////////////////////////
 
@@ -579,7 +558,8 @@ void user_init_normal(void)
 	//bluetooth low energy(LE) event
 	blc_hci_le_setEventMask_cmd(		HCI_LE_EVT_MASK_CONNECTION_COMPLETE  \
 									|	HCI_LE_EVT_MASK_ADVERTISING_REPORT \
-									|   HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE);
+									|   HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE \
+									|	HCI_LE_EVT_MASK_DATA_LENGTH_CHANGE);
 
 
 	u8 check_status = blc_controller_check_appBufferInitialization();
@@ -605,6 +585,10 @@ void user_init_normal(void)
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
+	#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	#endif
+
 	#if (BLE_SLAVE_SMP_ENABLE)  //Slave SMP Enable
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
@@ -624,10 +608,11 @@ void user_init_normal(void)
 
 	//host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
 	blc_gap_registerHostEventHandler( app_host_event_callback );
-	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEAGIN 			|  \
+	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEGIN 			|  \
 						  GAP_EVT_MASK_SMP_PAIRING_SUCCESS   		|  \
 						  GAP_EVT_MASK_SMP_PAIRING_FAIL				|  \
-						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE);
+						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE	|  \
+						  GAP_EVT_MASK_ATT_EXCHANGE_MTU);
 	//////////// Host Initialization  End /////////////////////////
 
 //////////////////////////// BLE stack Initialization  End //////////////////////////////////
@@ -638,9 +623,9 @@ void user_init_normal(void)
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
 	blc_ll_setAdvParam(ADV_INTERVAL_50MS, ADV_INTERVAL_50MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
+//	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
 
@@ -652,22 +637,6 @@ void user_init_normal(void)
 
 #if (OTA_CLIENT_SUPPORT_BIG_PDU_ENABLE)
 	blc_att_setMasterRxMTUSize(250);
-#endif
-
-
-
-#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-	flash_read_page(0xF0000, 6, filter_mac_address);
-	if(filter_mac_address[0] != 0xFF || filter_mac_address[5] != 0xFF){
-		filter_mac_enable = 1;
-	}
-#endif
-
-
-
-#if (APP_DUMP_EN)
-	my_usb_init(0x120, &print_fifo);
-	usb_set_pin_en ();
 #endif
 
 
@@ -756,16 +725,12 @@ int main_idle_loop (void)
 
 
 
-#if (APP_DUMP_EN)
-	myudb_usb_handle_irq ();
-#endif
-
 	return 0; //must return 0 due to SDP flow
 }
 
 
 
-void main_loop (void)
+_attribute_no_inline_ void main_loop (void)
 {
 	main_idle_loop ();
 }

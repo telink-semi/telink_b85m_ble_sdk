@@ -47,21 +47,11 @@
 #define ISO_H_
 
 
-#if (LL_FEATURE_ENABLE_ISO)
 
 
+/////////////////////////// CIS FIFO Concerned ////////////////////////////////
 
-/******************************* Macro & Enumeration & Structure Definition for Stack Begin, user can not use!!!!  *****/
-
-////////////////////////////// ISO TX Data Buffer Init ////////////////////////////////////////////
-
-typedef struct{
-//	u64		ft_cisEventCnt;		/* 39-bit cisEventCounter: FT_E = E + FT -1, cisPayloadNumber  [E*BN, (E+1)*BN-1] */
-//	u32		ft_cisSubEvtNum;	/* FT_U = NSE C floor (NSE  BN)  (BN C 1 C cisPayloadNumber mod BN) */
-	u64 	payloadNumber;
-	u64		eventCnt;
-}iso_tx_pdu_para_t;
-
+//ISO CIS TX Data Buffer strcut begin
 typedef	struct {
 //	u64		ft_cisEventCnt;		/* 39-bit cisEventCounter: FT_E = E + FT -1, cisPayloadNumber  [E*BN, (E+1)*BN-1] */
 	u64 	payloadNumber;
@@ -70,52 +60,75 @@ typedef	struct {
 //	u32		ft_cisSubEvtNum;	/* FT_U = NSE C floor (NSE  BN)  (BN C 1 C cisPayloadNumber mod BN) */
 
 	u16		offset;
-	u16 	RFU;
+	u8 		RFU[2]; //4B align
 	rf_packet_ll_data_t isoTxPdu;
 }iso_tx_pdu_t;
 
 typedef	struct {
-	u16		fifo_size;
+	u32		fifo_size;
+
+	u16     full_size; //fifo_size plus additional header
 	u8		fifo_num;
-	u8		iso_num;
+	u8		rsvd;
+
 	iso_tx_pdu_t* iso_tx_pdu;
-}iso_tx_pdu_fifo_t;
+}cis_tx_pdu_fifo_t;
 
 
-#define		ISO_PDU_TXFIFO_INIT(name,fifo_size,fifo_num,iso_num)		u8 name##_b[DATA_LENGTH_ALLIGN4((ISO_PDU_SIZE_ALLIGN16(fifo_size) + sizeof(iso_tx_pdu_t) - sizeof(rf_packet_ll_data_t)))*fifo_num*iso_num]={0}; iso_tx_pdu_fifo_t name = {ISO_PDU_SIZE_ALLIGN16(fifo_size),fifo_num,iso_num, (iso_tx_pdu_t*)name##_b}
 
 
-iso_tx_pdu_fifo_t	bltIsoPduTxfifo;
-u8					bltIsoPduTxfifo_b[];
-
-
-iso_tx_pdu_fifo_t	bltIsoBisPduTxfifo;
-u8 					bltIsoBisPduTxfifo_b[];
-
-////////////////////////////// ISO CIS RX Data Buffer Init ////////////////////////////////////////////
+//ISO CIS RX Data Buffer strcut begin
 typedef	struct {
 	u64 	curRcvdPldNum;	//The cisPayloadNum corresponding to the received CIS Data PDU.
 	u64		rcvdPldCisEventCnt;
 	u32		rcvdPldCisAnchorTick;	//Calculate the corresponding CIS reference anchor value according to the received peer CisPayloadNum.
 	u32     rxFlushedFlg;	//Passed it's Flush Point
+
 	rf_packet_ll_data_t isoRxPdu;
 }iso_rx_pdu_t;
 
 typedef	struct {
-	u32		fifo_size;
+	u16		fifo_size;
+	u16     full_size; //fifo_size plus additional header
+
 	u16		fifo_num;
 	u8		wptr;
 	u8		rptr;
+
 	iso_rx_pdu_t* iso_rx_pdu;
-}iso_rx_pdu_fifo_t;
-
-#define		ISO_PDU_RXFIFO_INIT(name,fifo_size,fifo_num)		u8 name##_b[DATA_LENGTH_ALLIGN4((ISO_PDU_SIZE_ALLIGN16(fifo_size) + sizeof(iso_rx_pdu_t) - sizeof(rf_packet_ll_data_t)))*fifo_num]={0}; iso_rx_pdu_fifo_t name = {ISO_PDU_SIZE_ALLIGN16(fifo_size),fifo_num, 0, 0, (iso_rx_pdu_t*)name##_b}
-
-iso_rx_pdu_fifo_t	bltIsoPduRxfifo;
-u8					bltIsoPduRxfifo_b[];
+}cis_rx_pdu_fifo_t;
 
 
-////////////////////////////// ISO BIS RX Data Buffer Init ////////////////////////////////////////////
+
+
+//ISO CIS RX Event Buffer strcut begin
+typedef	struct {
+	u64					 	curRcvdPldNum;      //The cisPayloadNum corresponding to the received CIS Data PDU.
+	rf_packet_ll_data_t* 	pCurrIsoRxPdu;      //ISO RX PDU buffer address
+	u32	    				idealPldAnchorTick; //Calculate the corresponding CIS reference anchor value according to the received peer CisPayloadNum.
+	u16	    				handle;          //Current CIS connection handle
+	u8						payloadLen;		//The length indicates the size of the CIS Payload and MIC, if included.
+	u8						rsvd;               //align
+}iso_rx_evt_t;
+
+
+
+
+my_fifo_t 				bltCisRxEvt;
+cis_tx_pdu_fifo_t		bltCisPduTxfifo;
+cis_rx_pdu_fifo_t		bltCisPduRxfifo;
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+
+/////////////////////////// BIS FIFO Concerned ////////////////////////////////
+
+#if (LL_FEATURE_ENABLE_CONNECTIONLESS_ISO)
+#define bis_tx_pdu_fifo_t	cis_tx_pdu_fifo_t
+
+//ISO BIS RX Data Buffer Init
 typedef	struct {
 	u64 	bisPayloadCnt;	//bisPayloadcounter
 	u32		rcvdPldbisAnchorTick;	//Calculate the corresponding CIS reference anchor value according to the received peer CisPayloadNum.
@@ -130,67 +143,52 @@ typedef	struct {
 	iso_bis_rx_pdu_t* bis_rx_pdu;
 }iso_bis_rx_pdu_fifo_t;
 
-#define		BIS_PDU_RXFIFO_INIT(name,fifo_size,fifo_num)		u8 name##_b[ISO_BIS_RX_PDU_SIZE_ALLIGN16(fifo_size) *fifo_num]={0}; iso_rx_pdu_fifo_t name = {ISO_BIS_RX_PDU_SIZE_ALLIGN16(fifo_size),fifo_num, 0, 0, (iso_rx_pdu_t*)name##_b}
 
+bis_tx_pdu_fifo_t		bltIsoBisPduTxfifo;
+u8 						bltIsoBisPduTxfifo_b[];
 iso_bis_rx_pdu_fifo_t	bltIsoBisPduRxfifo;
 u8					    bltIsoBisPduRxfifo_b[];
 
+#define		BIS_PDU_RXFIFO_INIT(name,fifo_size,fifo_num)			u8 name##_b[ISO_BIS_RX_PDU_SIZE_ALLIGN16(fifo_size) *fifo_num]={0}; iso_rx_pdu_fifo_t name = {ISO_BIS_RX_PDU_SIZE_ALLIGN16(fifo_size),fifo_num, 0, 0, (iso_rx_pdu_t*)name##_b}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 
 
 
-
-////////////////////////////// ISO RX event Init ////////////////////////////////////////////
-u8 					bltIsoRxEvt_b[];
-my_fifo_t 			bltIsoRxEvt;
-
-typedef	struct {
-	u64					 	curRcvdPldNum;      //The cisPayloadNum corresponding to the received CIS Data PDU.
-	rf_packet_ll_data_t* 	pCurrIsoRxPdu;      //ISO RX PDU buffer address
-	u32	    				idealPldAnchorTick; //Calculate the corresponding CIS reference anchor value according to the received peer CisPayloadNum.
-	u16	    				handle;          //Current CIS connection handle
-	u8						payloadLen;		//The length indicates the size of the CIS Payload and MIC, if included.
-	u8						rsvd;               //align
-}iso_rx_evt_t;
+/**
+ * @brief      for user to initialize CIS ISO TX FIFO.
+ * @param[in]  pRxbuf - TX FIFO buffer address(Tx buffer must concern all CISes).
+ * @param[in]  fifo_size - TX FIFO size, size must be 4*n
+ * @param[in]  fifo_number - TX FIFO number, can only be 4, 8, 16 or 32
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t blc_ll_initCisTxFifo(u8 *pTxbuf, int fifo_size, int fifo_number);
 
 
-/******************************* Macro & Enumeration & Structure Definition for Stack End ******************************/
+/**
+ * @brief      for user to initialize CIS ISO RX FIFO.
+ * @param[in]  pRxbuf - RX FIFO buffer address.
+ * @param[in]  fifo_size - RX FIFO size, size must be 4*n
+ * @param[in]  fifo_number - RX FIFO number, can only be 4, 8, 16 or 32
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t blc_ll_initCisRxFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
 
 
-
-
-
-
-/******************************* Macro & Enumeration variables for User Begin ******************************************/
-
-
-
-/******************************* Macro & Enumeration variables for User End ********************************************/
-
-
-
-
-
-
-
-/******************************* Stack Interface Begin, user can not use!!! ********************************************/
-ble_sts_t  blc_hci_le_read_iso_tx_sync_cmd(u16 iso_connHandle, u8 *pData);
-
-
-/******************************* Stack Interface End *******************************************************************/
-
-
-
-
-
-
-/******************************* User Interface  Begin *****************************************************************/
-
-
-
-/******************************* User Interface  End  ******************************************************************/
+/**
+ * @brief      for user to initialize CIS RX EVT FIFO.
+ * @param[in]  pRxbuf - RX FIFO buffer address.
+ * @param[in]  fifo_size - RX FIFO size, size must be 4*n
+ * @param[in]  fifo_number - RX FIFO number, can only be 4, 8, 16 or 32
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t blc_ll_initCisRxEvtFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
 
 
 #endif
 
 
-#endif /* ISO_H_ */

@@ -57,35 +57,37 @@
 
 ///////////////////  Feature ////////////////////////////
 #ifndef		LL_MULTI_SLAVE_MAC_ENABLE
-#define		LL_MULTI_SLAVE_MAC_ENABLE				    	0
+#define		LL_MULTI_SLAVE_MAC_ENABLE				    			0
 #endif
 
+#if (MCU_CORE_TYPE == MCU_CORE_9518)
 
-/* Different process for different MCU: ******************************************/
-#if(__TL_LIB_8258__ || (MCU_CORE_TYPE == MCU_CORE_825x))
-#define	FIX_HW_CRC24_EN						       	 		1
+#else
+	/* Different process for different MCU: ******************************************/
+	#if(__TL_LIB_8258__ || (MCU_CORE_TYPE == MCU_CORE_825x))
+	#define	FIX_HW_CRC24_EN						       	 				1
+	#endif
+
+	#ifndef FIX_HW_CRC24_EN
+	#define	FIX_HW_CRC24_EN												0
+	#endif
+	/**********************************************************************************/
 #endif
-
-#ifndef FIX_HW_CRC24_EN
-#define	FIX_HW_CRC24_EN										0
-#endif
-/**********************************************************************************/
-
 
 //conn param update/map update
 #ifndef	BLS_PROC_MASTER_UPDATE_REQ_IN_IRQ_ENABLE
-#define BLS_PROC_MASTER_UPDATE_REQ_IN_IRQ_ENABLE			0  //TODO:
+#define BLS_PROC_MASTER_UPDATE_REQ_IN_IRQ_ENABLE					0  //TODO:
 #endif
 
 
 #ifndef LE_AUTHENTICATED_PAYLOAD_TIMEOUT_SUPPORT_EN
-#define LE_AUTHENTICATED_PAYLOAD_TIMEOUT_SUPPORT_EN			0
+#define LE_AUTHENTICATED_PAYLOAD_TIMEOUT_SUPPORT_EN					0
 #endif
 
 
 //Link layer feature enable flag default setting
-#ifndef BLE_CORE42_DATA_LENGTH_EXTENSION_ENABLE
-#define BLE_CORE42_DATA_LENGTH_EXTENSION_ENABLE						1
+#ifndef LL_FEATURE_SUPPORT_LE_DATA_LENGTH_EXTENSION
+#define LL_FEATURE_SUPPORT_LE_DATA_LENGTH_EXTENSION					1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_2M_PHY
@@ -114,11 +116,11 @@
 
 //core_5.2 feature begin
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER
-#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		0
+#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE
-#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE		0
+#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE		1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_ISOCHRONOUS_BROADCASTER

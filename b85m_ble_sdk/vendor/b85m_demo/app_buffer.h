@@ -100,7 +100,7 @@
  * 2. should be be an integer multiple of 16 (16 Byte align)
  * 3. user can use formula:  size = CAL_LL_ACL_TX_FIFO_SIZE(connMaxTxOctets)
  * usage limitation for ACL_MASTER_TX_FIFO_NUM & ACL_SLAVE_TX_FIFO_NUM:
- * 1. must be: (2^n), (power of 2, then add 1)
+ * 1. must be: 2^n  (power of 2)
  * 2. at least 8; recommended value: 8, 16, 32; other value not allowed.
  */
 #define ACL_MASTER_TX_FIFO_SIZE			48	// ACL_MASTER_MAX_TX_OCTETS + 10, then 16 Byte align;CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)
@@ -121,13 +121,16 @@ extern	u8	app_acl_slvTxfifo[];
 /***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, Begin ********************************/
 
 /*Note:
- * MTU Buff size = Extra_Len(10)+ ATT_MTU_MAX(23) then align 4bytes
+ * if support LE Secure Connections, L2CAP buffer must >= 72.([64+6]+3)/4*4), 4B align.
+ * MTU Buff size = Extra_Len(6)+ ATT_MTU_MAX
+ *  1. should be greater than or equal to (ATT_MTU + 6)
+ *  2. should be be an integer multiple of 4 (4 Byte align)
  */
-#define	MTU_M_BUFF_SIZE_MAX			ATT_ALLIGN4_DMA_BUFF(23)
+#define ATT_MTU_MASTER_RX_MAX_SIZE  23
+#define	MTU_M_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_MASTER_RX_MAX_SIZE)
 
-
-/** if support LE Secure Connections, L2CAP buffer must >= 76.[65+10,align 4bytes] */
-#define MTU_S_BUFF_SIZE_MAX			ATT_ALLIGN4_DMA_BUFF(23)
+#define ATT_MTU_SLAVE_RX_MAX_SIZE   23
+#define	MTU_S_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_SLAVE_RX_MAX_SIZE)
 
 
 extern	u8 mtu_m_rx_fifo[];

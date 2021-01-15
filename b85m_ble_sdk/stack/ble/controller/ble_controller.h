@@ -57,6 +57,7 @@
 #include "stack/ble/hci/hci_event.h"
 
 #include "stack/ble/controller/ll/ll.h"
+#include "stack/ble/controller/ll/ll_pm.h"
 
 #include "stack/ble/controller/ll/acl_conn/acl_conn.h"
 #include "stack/ble/controller/ll/acl_conn/acl_slave.h"

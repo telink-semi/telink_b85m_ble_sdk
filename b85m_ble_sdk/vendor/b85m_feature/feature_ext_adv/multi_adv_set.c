@@ -264,7 +264,7 @@ void app_multiple_adv_set_test(void)
 	blc_ll_setExtAdvParam( ADV_HANDLE1, 		ADV_EVT_PROP_EXTENDED_NON_CONNECTABLE_NON_SCANNABLE_UNDIRECTED,  ADV_INTERVAL_30MS, 				ADV_INTERVAL_30MS,
 						   BLT_ENABLE_ADV_ALL,	OWN_ADDRESS_PUBLIC, 										     BLE_ADDR_PUBLIC, 				NULL,
 						   ADV_FP_NONE,  		TX_POWER_3dBm,												     BLE_PHY_1M, 						0,
-						   BLE_PHY_CODED, 	 		ADV_SID_0, 													     0);
+						   BLE_PHY_2M, 	 		ADV_SID_0, 													     0);
 
 	blc_ll_setExtAdvData( ADV_HANDLE1, 1024, testAdvData);
 //	blc_ll_setExtScanRspData( ADV_HANDLE1, 1024, testScanRspData);
@@ -298,7 +298,7 @@ void app_multiple_adv_set_test(void)
 
 
 
-//	blc_ll_setExtAdvEnable( BLC_ADV_ENABLE, ADV_HANDLE0, 0 , 0);
+	blc_ll_setExtAdvEnable( BLC_ADV_ENABLE, ADV_HANDLE0, 0 , 0);
 	blc_ll_setExtAdvEnable( BLC_ADV_ENABLE, ADV_HANDLE1, 0 , 0);
 //	blc_ll_setExtAdvEnable( BLC_ADV_ENABLE, ADV_HANDLE2, 0 , 0);
 

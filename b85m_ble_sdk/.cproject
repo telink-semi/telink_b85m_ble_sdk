@@ -68,7 +68,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8278|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8278|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -144,7 +144,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_master_dongle|vendor/b85m_demo|vendor/b85m_controller|vendor/B85_controller|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_demo|drivers/8278|vendor/82x8_hci|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_m4s3|vendor/8258_m0s3_demo|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_ble_sample|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_master_slave|vendor/8258_higher_tester|vendor/8258_bqb_uppertester|vendor/8258_master_kma_dongle" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_master_dongle|vendor/b85m_demo|vendor/b85m_controller|vendor/B85_controller|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_demo|drivers/8278|vendor/82x8_hci|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_m4s3|vendor/8258_m0s3_demo|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_ble_sample|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_master_slave|vendor/8258_higher_tester|vendor/8258_bqb_uppertester|vendor/8258_master_kma_dongle" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -220,7 +220,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_demo|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_feature_test|vendor/B85_demo|drivers/8278|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_ble_sample|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_m4s3|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_demo|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_feature_test|vendor/B85_demo|drivers/8278|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_ble_sample|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_m4s3|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -251,7 +251,7 @@
 							<builder buildPath="${workspace_loc:/ble_lt_ms/Debug}" id="com.telink.tc32eclipse.target.builder.TC32Win.app.debug.1546189783" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder" parallelBuildOn="true" parallelizationNumber="8" superClass="com.telink.tc32eclipse.target.builder.TC32Win.app.debug"/>
 							<tool id="com.telink.tc32eclipse.tool.assembler.TC32Win.app.debug.1879022779" name="TC32 CC/Assembler" superClass="com.telink.tc32eclipse.tool.assembler.TC32Win.app.debug">
 								<option id="com.telink.tc32eclipse.assembler.option.debug.level.1784156647" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.assembler.option.debug.level" value="com.telink.tc32eclipse.assembler.option.debug.level.none" valueType="enumerated"/>
-								<option id="com.telink.tc32eclipse.asm.option.flags.980928625" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_STARTUP_8278" valueType="string"/>
+								<option id="com.telink.tc32eclipse.asm.option.flags.980928625" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_STARTUP_8278_RET_32K" valueType="string"/>
 								<inputType id="com.telink.tc32eclipse.tool.assembler.input.884364428" superClass="com.telink.tc32eclipse.tool.assembler.input"/>
 							</tool>
 							<tool command="tc32-elf-gcc -ffunction-sections -fdata-sections" id="com.telink.tc32eclipse.tool.compiler.TC32Win.app.debug.212749227" name="TC32 Compiler" superClass="com.telink.tc32eclipse.tool.compiler.TC32Win.app.debug">
@@ -277,7 +277,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/proj_lib}&quot;"/>
 								</option>
 								<option id="com.telink.tc32eclipse.linker.option.libs.904184328" name="Libraries (-l)" superClass="com.telink.tc32eclipse.linker.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="lt_8278"/>
+									<listOptionValue builtIn="false" value="lt_8278_m4s4"/>
 								</option>
 								<inputType id="com.telink.tc32eclipse.tool.linker.input.67238996" name="OBJ Files" superClass="com.telink.tc32eclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -296,7 +296,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8258|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8258|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -372,7 +372,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_demo|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_feature_test|vendor/B85_demo|drivers/8258|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_ble_sample|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_m4s3|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_demo|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_feature_test|vendor/B85_demo|drivers/8258|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_ble_sample|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_m4s3|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -448,7 +448,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_master_dongle|vendor/b85m_demo|vendor/b85m_controller|vendor/B85_controller|drivers/8258|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_demo|vendor/82x8_hci|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_m4s3|vendor/8258_m0s3_demo|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_ble_sample|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_master_slave|vendor/8258_higher_tester|vendor/8258_bqb_uppertester|vendor/8258_master_kma_dongle" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_master_dongle|vendor/b85m_demo|vendor/b85m_controller|vendor/B85_controller|drivers/8258|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_demo|vendor/82x8_hci|vendor/82x8_m4s4_demo|vendor/82x8_m4s3_demo|vendor/8258_m4s3|vendor/8258_m0s3_demo|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_m4s3_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_ble_sample|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_master_slave|vendor/8258_higher_tester|vendor/8258_bqb_uppertester|vendor/8258_master_kma_dongle" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -524,7 +524,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_demo|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8278|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_demo|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8278|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -600,7 +600,83 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="vendor/b85m_demo|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8258|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="vendor/b85m_slave|vendor/b85m_demo|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8258|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+			<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+		</cconfiguration>
+		<cconfiguration id="com.telink.tc32eclipse.configuration.app.debug.1970299845.351063629.799040038.1424736676.1955425636.889184354.1992742544">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.telink.tc32eclipse.configuration.app.debug.1970299845.351063629.799040038.1424736676.1955425636.889184354.1992742544" moduleId="org.eclipse.cdt.core.settings" name="827x_slave">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="com.telink.tc32eclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.telink.tc32eclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" id="com.telink.tc32eclipse.configuration.app.debug.1970299845.351063629.799040038.1424736676.1955425636.889184354.1992742544" name="827x_slave" parent="com.telink.tc32eclipse.configuration.app.debug" postbuildStep="&quot;${workspace_loc:/${ProjName}}/tl_check_fw.sh&quot;   ${ConfigName}   ${ProjName}" prebuildStep="">
+					<folderInfo id="com.telink.tc32eclipse.configuration.app.debug.1970299845.351063629.799040038.1424736676.1955425636.889184354.1992742544." name="/" resourcePath="">
+						<toolChain id="com.telink.tc32eclipse.toolchain.TC32Win.app.debug.1718769263" name="TC32-GCC Toolchain" superClass="com.telink.tc32eclipse.toolchain.TC32Win.app.debug">
+							<option id="com.telink.tc32eclipse.toolchain.options.toolchain.objcopy.flash.app.debug.283487271" name="Generate binary file for Flash memory" superClass="com.telink.tc32eclipse.toolchain.options.toolchain.objcopy.flash.app.debug"/>
+							<option id="com.telink.tc32eclipse.toolchain.options.toolchain.objdump.app.debug.244204895" name="Generate Extended Listing (Source + generated Assembler)" superClass="com.telink.tc32eclipse.toolchain.options.toolchain.objdump.app.debug"/>
+							<option id="com.telink.tc32eclipse.toolchain.options.toolchain.size.app.debug.364956578" name="Print Size" superClass="com.telink.tc32eclipse.toolchain.options.toolchain.size.app.debug"/>
+							<targetPlatform id="com.telink.tc32eclipse.targetplatform.TC32Win.app.debug.83003166" name="TC32 Cross-Target" superClass="com.telink.tc32eclipse.targetplatform.TC32Win.app.debug"/>
+							<builder buildPath="${workspace_loc:/ble_lt_ms/Debug}" id="com.telink.tc32eclipse.target.builder.TC32Win.app.debug.1061414334" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder" parallelBuildOn="true" parallelizationNumber="8" superClass="com.telink.tc32eclipse.target.builder.TC32Win.app.debug"/>
+							<tool id="com.telink.tc32eclipse.tool.assembler.TC32Win.app.debug.1743874710" name="TC32 CC/Assembler" superClass="com.telink.tc32eclipse.tool.assembler.TC32Win.app.debug">
+								<option id="com.telink.tc32eclipse.assembler.option.debug.level.1423490662" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.assembler.option.debug.level" value="com.telink.tc32eclipse.assembler.option.debug.level.none" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.asm.option.flags.570832197" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_STARTUP_8278_RET_32K" valueType="string"/>
+								<inputType id="com.telink.tc32eclipse.tool.assembler.input.368152703" superClass="com.telink.tc32eclipse.tool.assembler.input"/>
+							</tool>
+							<tool command="tc32-elf-gcc -ffunction-sections -fdata-sections" id="com.telink.tc32eclipse.tool.compiler.TC32Win.app.debug.472089007" name="TC32 Compiler" superClass="com.telink.tc32eclipse.tool.compiler.TC32Win.app.debug">
+								<option id="com.telink.tc32eclipse.compiler.option.debug.level.1142703052" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.compiler.option.debug.level" value="com.telink.tc32eclipse.compiler.option.debug.level.none" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.1788821462" name="Optimization Level" superClass="com.telink.tc32eclipse.compiler.option.optimize" value="com.telink.tc32eclipse.compiler.optimize.two" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.compiler.option.incpath.1693375266" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/vendor/common}&quot;"/>
+								</option>
+								<option id="com.telink.tc32eclipse.compiler.option.def.1922825237" name="Define Syms (-D)" superClass="com.telink.tc32eclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__PROJECT_827x_SLAVE__=1"/>
+									<listOptionValue builtIn="false" value="CHIP_TYPE=CHIP_TYPE_827x"/>
+								</option>
+								<option id="com.telink.tc32eclipse.compiler.option.std.577938656" name="Language Standard" superClass="com.telink.tc32eclipse.compiler.option.std" value="com.telink.tc32eclipse.compiler.option.std.gnu99" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.compiler.option.otherflags.2099665504" name="Other flags" superClass="com.telink.tc32eclipse.compiler.option.otherflags" value="-fshort-wchar -fms-extensions" valueType="string"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.packstruct.1173788683" name="Pack structs (-fpack-struct)" superClass="com.telink.tc32eclipse.compiler.option.optimize.packstruct" value="true" valueType="boolean"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.shortenums.1955319003" name="Short enums (-fshort-enums)" superClass="com.telink.tc32eclipse.compiler.option.optimize.shortenums" value="true" valueType="boolean"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.other.624189790" name="Other Optimization Flags" superClass="com.telink.tc32eclipse.compiler.option.optimize.other" value="-finline-small-functions" valueType="string"/>
+								<inputType id="com.telink.tc32eclipse.compiler.TC32Win.input.929643993" name="C Source Files" superClass="com.telink.tc32eclipse.compiler.TC32Win.input"/>
+							</tool>
+							<tool command="tc32-elf-ld --gc-sections" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG}${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="com.telink.tc32eclipse.tool.linker.TC32Win.app.debug.2022661817" name="TC32 C Linker" superClass="com.telink.tc32eclipse.tool.linker.TC32Win.app.debug">
+								<option id="com.telink.tc32eclipse.linker.option.libpath.1494686161" name="Libraries Path (-L)" superClass="com.telink.tc32eclipse.linker.option.libpath" valueType="stringList">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/proj_lib}&quot;"/>
+								</option>
+								<option id="com.telink.tc32eclipse.linker.option.libs.851213037" name="Libraries (-l)" superClass="com.telink.tc32eclipse.linker.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="lt_8278_m0s2"/>
+								</option>
+								<inputType id="com.telink.tc32eclipse.tool.linker.input.908222327" name="OBJ Files" superClass="com.telink.tc32eclipse.tool.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="com.telink.tc32eclipse.tool.archiver.TC32Win.base.192341091" name="TC32 Archiver" superClass="com.telink.tc32eclipse.tool.archiver.TC32Win.base"/>
+							<tool id="com.telink.tc32eclipse.tool.objdump.TC32Win.app.debug.1923410935" name="TC32 Create Extended Listing" superClass="com.telink.tc32eclipse.tool.objdump.TC32Win.app.debug">
+								<option id="com.telink.tc32eclipse.objdump.option.output.78120022" name="Output Filename" superClass="com.telink.tc32eclipse.objdump.option.output" value="8278_slave.lst" valueType="string"/>
+							</tool>
+							<tool id="com.telink.tc32eclipse.tool.objcopy.flash.TC32Win.app.debug.290455184" name="TC32 Create Flash image" superClass="com.telink.tc32eclipse.tool.objcopy.flash.TC32Win.app.debug">
+								<option id="com.telink.tc32eclipse.objcopy.flash.option.output.296199184" name="Output Filename" superClass="com.telink.tc32eclipse.objcopy.flash.option.output" value="" valueType="string"/>
+								<option id="com.telink.tc32eclipse.objcopy.option.flash.stdopts.227215490" name="Options to create flash image" superClass="com.telink.tc32eclipse.objcopy.option.flash.stdopts" value="" valueType="string"/>
+							</tool>
+							<tool id="com.telink.tc32eclipse.tool.size.TC32Win.app.debug.1644511271" name="Print Size" superClass="com.telink.tc32eclipse.tool.size.TC32Win.app.debug"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="vendor/b85m_demo|vendor/b85m_master_dongle|vendor/b85m_feature|vendor/b85m_controller|vendor/B85_controller|vendor/B85_feature|vendor/B85_internal_test|vendor/B85_hci|vendor/B85_feature_test|drivers/8258|vendor/82x8_hci|vendor/8258_bqb_lowertester|vendor/8258_m0s3_demo|vendor/8258_iso_demo|vendor/8258_lower_tester|vendor/8258_ble_sample|vendor/8258_m4s0_demo|vendor/8258_cis_master|vendor/8258_m4s3_feature_test|vendor/8258_feature_test|vendor/8258_higher_tester|vendor/8258_master_kma_dongle|vendor/8258_multi_conn_feature_test|drivers/8255|vendor/8258_ble_remote|vendor/8255_ble_remote|vendor/8258_m1s1_demo|vendor/8258_module|vendor/8258_internal_test|vendor/8258_m1s1|vendor/8258_cis_slave_audio|vendor/8255_driver_test|vendor/8258_driver_test|vendor/8258_cis_slave|vendor/8258_hci|vendor/8258_bqb_uppertester" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

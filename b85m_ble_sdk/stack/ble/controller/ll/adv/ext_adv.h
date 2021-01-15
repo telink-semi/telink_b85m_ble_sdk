@@ -54,7 +54,7 @@
 #define			ADV_SETS_NUMBER_MAX								3
 
 //TODO:
-#define 		ADV_SET_PARAM_LENGTH								(sizeof(ll_ext_adv_t))   //sizeof(ll_ext_adv_t) =  ,  must 4 byte aligned
+#define 		ADV_SET_PARAM_LENGTH							(sizeof(ll_ext_adv_t))   //sizeof(ll_ext_adv_t) =  ,  must 4 byte aligned
 
 
 

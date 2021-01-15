@@ -456,7 +456,6 @@ typedef struct {
 } hci_le_cisReqEvt_t;
 
 
-#if (LL_FEATURE_ENABLE_CONNECTIONLESS_ISO)
 /**
  *  @brief  Event Parameters for "7.7.65.27 LE Create BIG Complete event"
  */
@@ -474,7 +473,7 @@ typedef struct {
 	u16			maxPDU;
 	u16			isoIntvl;
 	u8			numBis;
-	u16		    bisHandles[BIS_IN_BIG_NUM_MAX];
+	u16		    bisHandles[1];//BIS_IN_BIG_NUM_MAX];
 } hci_le_createBigCompleteEvt_t;
 
 
@@ -504,7 +503,7 @@ typedef struct {
 	u16			maxPDU;
 	u16			isoIntvl;
 	u8			numBis;
-	u16         bisHandles[BIS_IN_BIG_NUM_MAX];
+	u16         bisHandles[1];//BIS_IN_BIG_NUM_MAX];
 } hci_le_bigSyncEstablishedEvt_t;
 
 
@@ -524,24 +523,18 @@ typedef struct {
  */
 
 
-#endif
 
 
-int	hci_le_cisEstablished_evt(u8 status, u16 cisHandle, u8 cigSyncDly[3], u8 cisSyncDly[3], u8 transLaty_m2s[3], u8 transLaty_s2m[3], u8 phy_m2s,
+int	 hci_le_cisEstablished_evt(u8 status, u16 cisHandle, u8 cigSyncDly[3], u8 cisSyncDly[3], u8 transLaty_m2s[3], u8 transLaty_s2m[3], u8 phy_m2s,
 		                      u8 phy_s2m, u8 nse, u8 bn_m2s, u8 bn_s2m, u8 ft_m2s, u8 ft_s2m, u16 maxPDU_m2s, u16 maxPDU_s2m, u16 isoIntvl );
-int hci_le_cisReq_evt(u16 aclHandle, u16 cisHandle, u8 cigId, u8 cisId);
+int  hci_le_cisReq_evt(u16 aclHandle, u16 cisHandle, u8 cigId, u8 cisId);
 
-
-#if (LL_FEATURE_ENABLE_CONNECTIONLESS_ISO)
-int hci_le_craeteBigComplete_evt(u8 staus, u8 bigHandle, u8 bigSyncDly[3], u8 transLatyBig[3], u8 phy, u8 nse,
-								 u8 bn, u8 pto, u8 irc, u16 maxPDU, u16 isoIntvl,  u8 numBis, u16 bisHandles[BIS_IN_BIG_NUM_MAX]);
-int hci_le_terminateBigComplete_evt(u8 bigHandle, u8 reason);
-int hci_le_bigSyncEstablished_evt(u8 staus, u8 bigHandle, u8 transLatyBig[3], u8 nse, u8 bn, u8 pto, u8 irc,
-		                          u16 maxPDU, u16 isoIntvl,  u8 numBis, u16 bisHandles[BIS_IN_BIG_NUM_MAX]);
-int hci_le_bigSyncLost_evt(u8 bigHandle, u8 reason);
-
-#endif
-
+int  hci_le_craeteBigComplete_evt(u8 staus, u8 bigHandle, u8 bigSyncDly[3], u8 transLatyBig[3], u8 phy, u8 nse,
+								 u8 bn, u8 pto, u8 irc, u16 maxPDU, u16 isoIntvl,  u8 numBis, u16* bisHandles);
+int  hci_le_terminateBigComplete_evt(u8 bigHandle, u8 reason);
+int  hci_le_bigSyncEstablished_evt(u8 staus, u8 bigHandle, u8 transLatyBig[3], u8 nse, u8 bn, u8 pto, u8 irc,
+		                          u16 maxPDU, u16 isoIntvl,  u8 numBis, u16* bisHandles);
+int  hci_le_bigSyncLost_evt(u8 bigHandle, u8 reason);
 
 void hci_disconnectionComplete_evt(u8 status, u16 connHandle, u8 reason);
 int  hci_cmdComplete_evt(u8 numHciCmds, u8 opCode_ocf, u8 opCode_ogf, u8 paraLen, u8 *para, u8 *result);
@@ -567,6 +560,8 @@ int hci_le_encryptChange_evt(u16 connhandle,  u8 encrypt_en);
 int hci_le_encryptKeyRefresh_evt(u16 connhandle);
 
 int hci_remoteNateReqComplete_evt (u8* bd_addr);
+
+
 #endif /* HCI_EVENT_H_ */
 
 

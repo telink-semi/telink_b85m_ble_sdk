@@ -48,9 +48,9 @@
 /*********************************************************** STIMER START********************************************/
 _attribute_ram_code_ void systimer_set_irq_capture(unsigned int sys_timer_tick)//8278 for save time,need to place in ram.
 {
-	if( (unsigned int)( sys_timer_tick  - (reg_system_tick + 160 )) > BIT(30) )//63us - 75us in flash / 3.5us in ram
+	if( (unsigned int)( sys_timer_tick  - (reg_system_tick + 7*CLOCK_16M_SYS_TIMER_CLK_1US )) > BIT(30) )//63us - 75us in flash / 3.5us in ram
 	{
-		reg_system_tick_irq = reg_system_tick + 320; ///320 = 0x140, so not &0xfffffff8
+		reg_system_tick_irq = reg_system_tick + 12*CLOCK_16M_SYS_TIMER_CLK_1US; ///320 = 0x140, so not &0xfffffff8
 	}
 	else{
 		reg_system_tick_irq = sys_timer_tick & 0xfffffff8;

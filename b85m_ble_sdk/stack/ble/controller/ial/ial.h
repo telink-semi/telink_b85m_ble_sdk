@@ -46,10 +46,10 @@
 #ifndef IAL_H_
 #define IAL_H_
 
-#if (LL_FEATURE_ENABLE_ISO)
 
 
-#include "stack/ble/ll/iso/iso.h"
+
+#include "stack/ble/controller/ll/iso/iso.h"
 
 
 
@@ -141,6 +141,13 @@ void 		blc_ial_initCisSduBuff(u8 *rx_fifo,u16 rx_fifo_size, u8 rx_fifo_num, u8 *
 ble_sts_t 	blc_hci_packIsoData(u16 cis_connHandle, u8 *pIsoData);
 
 /**
+ * @brief      This function is used to setup ISO Data Path.
+ * @param[in]  refer to the structure 'hci_le_setupIsoDataPathCmdParams_t'
+ * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
+ */
+ble_sts_t blc_isoal_le_setupISODataPath_cmd(hci_le_setupIsoDataPathCmdParams_t *para);
+
+/**
  * @brief      This function is used to segmentation SDU to one Framed PDUs.
  * @param[in]  cis_connHandle
  * @return      Status - 0x00: command succeeded; IAL_ERR_SDU_LEN_EXCEED_SDU_MAX
@@ -156,7 +163,17 @@ ble_sts_t 	blc_ial_splitSdu2FramedPdu(u16 cis_connHandle);
  * @return      Status - 0x00: command succeeded; IAL_ERR_SDU_LEN_EXCEED_SDU_MAX
  * 						 LL_ERR_INVALID_PARAMETER: command failed
  */
-ble_sts_t 	blc_ial_bis_splitSdu2UnframedPdu(u16 cis_connHandle, iso_data_packet_t *sdu);
+ble_sts_t 	blc_ial_cis_splitSdu2UnframedPdu(u16 cisHandle, iso_data_packet_t *sdu);
+
+
+/**
+ * @brief      This function is used to fragmentation SDU to one or more Unframed PDUs.
+ * @param[in]  bis_connHandle
+ * @param[in]  sdu  point to sdu buff
+ * @return      Status - 0x00: command succeeded; IAL_ERR_SDU_LEN_EXCEED_SDU_MAX
+ * 						 LL_ERR_INVALID_PARAMETER: command failed
+ */
+ble_sts_t 	blc_ial_bis_splitSdu2UnframedPdu(u16 bis_connHandle, iso_data_packet_t *sdu);
 
 
 /******************************* User Interface  End  ******************************************************************/
@@ -166,4 +183,3 @@ ble_sts_t 	blc_ial_bis_splitSdu2UnframedPdu(u16 cis_connHandle, iso_data_packet_
 #endif
 
 
-#endif /* IAL_H_ */

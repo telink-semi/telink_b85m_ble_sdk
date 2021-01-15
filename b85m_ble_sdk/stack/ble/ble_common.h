@@ -125,7 +125,8 @@ typedef enum {
     HCI_ERR_LIMIT_REACHED										   = 0x43,
     HCI_ERR_OP_CANCELLED_BY_HOST								   = 0x44,
     HCI_ERR_PACKET_TOO_LONG										   = 0x45,
-    
+	//DBG used only for CIS
+	HCI_ERR_CONN_TERM_CIS_MIC_FAILURE                              = 0xD3,
 
 
 
@@ -185,6 +186,13 @@ typedef enum {
 	LL_ACL_TX_BUF_PARAM_INVALID,
 	LL_ACL_TX_BUF_SIZE_MUL_NUM_EXCEED_4K,
 	LL_ACL_TX_BUF_SIZE_NOT_MEET_MAX_TX_OCT,
+
+	LL_CIS_RX_BUF_NO_INIT,
+	LL_CIS_RX_BUF_PARAM_INVALID,
+	LL_CIS_TX_BUF_NO_INIT,
+	LL_CIS_TX_BUF_PARAM_INVALID,
+	LL_CIS_RX_EVT_BUF_NO_INIT,
+	LL_CIS_RX_EVT_BUF_PARAM_INVALID,
 
 	HCI_ACL_DATA_BUF_PARAM_INVALID,
 	HCI_ACL_DATA_BUF_SIZE_NOT_MEET_MAX_TX_OCT,
@@ -313,6 +321,42 @@ typedef enum {
 
 	DATA_TYPE_MANUFACTURER_SPECIFIC_DATA 	= 0xFF,     //	Manufacturer Specific Data
 }data_type_t;
+
+
+
+
+
+
+
+/**
+ * @brief	HCI ACL DATA buffer length = LE_ACL_Data_Packet_Length + 4, pkt_len is integer multiple of 4, so result is 4 Byte align
+ *			4 = 2(connHandle) + 1(PBFlag) + 1(length)
+ */
+#define 	CALCULATE_HCI_ACL_DATA_FIFO_SIZE(pkt_len)				((pkt_len) + 4)
+
+
+
+/**
+ * @brief	6 = header(2)+l2cap_len(2)+CID(2)
+ */
+#define		CAL_MTU_BUFF_SIZE(n)				(((n + 6) + 3)/4 * 4)
+
+/**
+ * @brief	12 = type(1) + len(1) + l2cap_len(2) + cid(2) + sud_len(2) + mic(4)
+ */
+#define		L2CAP_ALLIGN4_KFRAM_DMA_BUFF(n)		(((n + 12) + 3) / 4 * 4)
+
+#define		CIS_PDU_ALLIGN4_TXBUFF(n)			DATA_LENGTH_ALLIGN4((ISO_PDU_SIZE_ALLIGN16(n) + DATA_LENGTH_ALLIGN4(sizeof(iso_tx_pdu_t) - sizeof(rf_packet_ll_data_t))))
+
+#define		CIS_PDU_ALLIGN4_RXBUFF(n)			DATA_LENGTH_ALLIGN4((ISO_PDU_SIZE_ALLIGN16(n) + DATA_LENGTH_ALLIGN4(sizeof(iso_rx_pdu_t) - sizeof(rf_packet_ll_data_t))))
+
+#define		IAL_SDU_ALLIGN4_BUFF(n) 			(((n + 16) + 3) / 4 * 4)
+
+#define		HCI_ISO_ALLIGN4_BUFF(n)				(((n + 4) + 3) / 4 * 4) //DMA len 4
+
+
+
+
 
 
 

@@ -49,7 +49,7 @@
 
 #include "app_config.h"
 #include "app.h"
-#include "app_att.h"
+#include "../default_att.h"
 #include "app_ui.h"
 
 #include "application/keyboard/keyboard.h"

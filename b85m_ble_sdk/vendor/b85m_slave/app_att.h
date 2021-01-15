@@ -47,9 +47,8 @@
 #define BLM_ATT_H_
 
 #include "tl_common.h"
-#include "app_config.h"
 
-#if (FEATURE_TEST_MODE == TEST_MISC_FUNC)
+
 ///////////////////////////////////// slave-role ATT service HANDLER define ///////////////////////////////////////
 typedef enum
 {
@@ -182,26 +181,4 @@ void my_gatt_init (void);
 
 
 
-
-///////////////////////////////////// master-role ATT client HANDLER define ///////////////////////////////////////
-/**
- * @brief       This function is used to send keyboard HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard (u16 conn, u8 *p);
-
-/**
- * @brief       This function is used to send consumer HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard_media (u16 conn, u8 *p);
-
-
 #endif /* BLM_ATT_H_ */
-
-#endif
-

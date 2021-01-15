@@ -53,16 +53,20 @@
  */
 typedef void (*blt_event_callback_t)(u8 e, u8 *p, int n);
 
-#define 		BLT_EV_MAX_NUM						10
 
-#define			BLT_EV_FLAG_ADV						0
-#define			BLT_EV_FLAG_ADV_DURATION_TIMEOUT	1
-#define			BLT_EV_FLAG_SCAN_RSP				2
-#define			BLT_EV_FLAG_LL_REJECT_IND		    3
-#define			BLT_EV_FLAG_RX_DATA_ABANDOM			4
-#define			BLT_EV_FLAG_GPIO_EARLY_WAKEUP		5
-#define			BLT_EV_FLAG_SUSPEND_ENTER			6
-#define			BLT_EV_FLAG_SUSPEND_EXIT			7
+
+
+typedef enum{
+	BLT_EV_FLAG_ADV_DURATION_TIMEOUT	=	0,
+	BLT_EV_FLAG_RX_DATA_ABANDOM,
+	BLT_EV_FLAG_GPIO_EARLY_WAKEUP,
+	BLT_EV_FLAG_SLEEP_ENTER,
+	BLT_EV_FLAG_SUSPEND_EXIT,
+	BLT_EV_FLAG_LL_REJECT_IND,
+	BLT_EV_MAX_NUM,
+}blt_ev_flag_t;
+
+
 
 
 
@@ -75,12 +79,10 @@ typedef enum{
 
 
 
-
-
 /**
- * @brief	Telink defined LinkLayer Event Callback
- * @param	none
- * @param	none
+ * @brief	Telink defined LinkLayer Event callBack
+ * @param[in]	e - event number, must use element of "blt_ev_flag_t"
+ * @param[in]	p - callBack function
  * @return	none
  */
 void 		blc_ll_registerTelinkControllerEventCallback (u8 e, blt_event_callback_t p);

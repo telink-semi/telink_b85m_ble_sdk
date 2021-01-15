@@ -49,11 +49,6 @@
 
 #if (FEATURE_TEST_MODE == TEST_EXT_ADV)
 
-#if (__PROJECT_8258_FEATURE_TEST__)
-	#define CHIP_TYPE				CHIP_TYPE_825x
-#else
-	#define CHIP_TYPE				CHIP_TYPE_827x
-#endif
 
 #define MASTER_MAX_NUM								4
 #define SLAVE_MAX_NUM								4
@@ -62,6 +57,7 @@
 
 
 ///////////////////////// Feature Configuration ///////////////////////////////////////////////
+#define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						1  //1 for smp,  0 no security
 
@@ -69,7 +65,7 @@
 #define SINGLE_ADV_SET								0	//single adv_set
 #define MULTI_ADV_SETS								1   //multiple adv_set
 /* for user to select adv_set test mode*/
-#define	ADV_SET_MODE								MULTI_ADV_SETS
+#define	ADV_SET_MODE								MULTI_ADV_SETS//SINGLE_ADV_SET
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define UI_LED_ENABLE								1
@@ -80,22 +76,8 @@
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
 #define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			0
 
-///////////////////// Flash Sector Usage Configuration for 512K Flash //////////////////////////
-/*If Slave or Master SMP enable, default 0x78000~0x7BFFF (4 sector, 16K) is used for SMP pairing
-  information storage, it is set in BLE stack library, same as initialization below:
-  blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
-  First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.
-  "blc_smp_configPairingSecurityInfoStorageAddressAndSize" has been called in "blc_readFlashSize_autoConfigCustomFlashSector".*/
-#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
-	#define FLASH_ADR_SMP_PAIRING					0x78000    //if flash 1M--0xFA000
-	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
-#endif
 
-/*If Master SMP disable, 0x7C000~0x7CFFF 1 sector is for paring information storage */
-#if (!BLE_MASTER_SMP_ENABLE)
-	#define FLASH_ADR_CUSTOM_PAIRING         		0x7C000    //if flash 1M--0xF8000
-	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     		4096
-#endif
+#define APP_DEFAULT_HID_BATTERY_OTA_ATTRIBUTE_TABLE        1
 
 
 
@@ -124,8 +106,8 @@
 
 
 		//////////////////// KEY CONFIG (EVK board) ///////////////////////////
-		#define  KB_DRIVE_PINS  {GPIO_PB4, GPIO_PB5}
-		#define  KB_SCAN_PINS   {GPIO_PB2, GPIO_PB3}
+		#define  KB_DRIVE_PINS  		{GPIO_PB4, GPIO_PB5}
+		#define  KB_SCAN_PINS   		{GPIO_PB2, GPIO_PB3}
 
 		//drive pin as gpio
 		#define	PB4_FUNC				AS_GPIO
@@ -164,8 +146,7 @@
 	#define	GPIO_LED_WHITE			GPIO_PD4
 	#define	GPIO_LED_RED			GPIO_PD5
 
-
-	#define LED_ON_LEVAL 			1 		//gpio output high voltage to turn on led
+	#define LED_ON_LEVAL 						1 		//gpio output high voltage to turn on led
 
 	#define PD2_FUNC				AS_GPIO
 	#define PD3_FUNC				AS_GPIO
@@ -176,7 +157,6 @@
 	#define	PD3_OUTPUT_ENABLE		1
 	#define PD4_OUTPUT_ENABLE		1
 	#define	PD5_OUTPUT_ENABLE		1
-
 #endif
 
 

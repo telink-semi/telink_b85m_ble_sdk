@@ -1,55 +1,30 @@
 /********************************************************************************************************
- * @file	app_att.h
+ * @file     app_att.h
  *
- * @brief	This is the header file for BLE SDK
+ * @brief    for TLSR chips
  *
- * @author	BLE GROUP
- * @date	2020.06
+ * @author	 BLE Group
+ * @date     May. 22, 2019
  *
- * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
- *          
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
- *          
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
- *              specific prior written permission.
- *          
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
+ * @par      Copyright (c) Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
- *              relating to such deletion(s), modification(s) or alteration(s).
- *         
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *			 The information contained herein is confidential and proprietary property of Telink
+ * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
+ *           This heading MUST NOT be removed from this file.
+ *
+ * 			 Licensees are granted free, non-transferable use of the information in this
+ *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
  *******************************************************************************************************/
+
 #ifndef BLM_ATT_H_
 #define BLM_ATT_H_
 
-#include "tl_common.h"
-#include "app_config.h"
 
-#if (FEATURE_TEST_MODE == TEST_LL_MD)
+#if (FEATURE_TEST_MODE == TEST_PERIODIC_ADVERTISING)
 
 ///////////////////////////////////// slave-role ATT service HANDLER define ///////////////////////////////////////
 typedef enum
@@ -172,36 +147,14 @@ typedef enum
 
 
 
-/**
- * @brief   GATT initialization.
- *          !!!Note: this function is used to register ATT table to BLE Stack.
- * @param   none.
- * @return  none.
- */
+
 void my_gatt_init (void);
 
 
 
 
+#endif //end of "FEATURE_TEST_MODE == TEST_PERIODIC_ADVERTISING"
 
-///////////////////////////////////// master-role ATT client HANDLER define ///////////////////////////////////////
-/**
- * @brief       This function is used to send keyboard HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard (u16 conn, u8 *p);
-
-/**
- * @brief       This function is used to send consumer HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard_media (u16 conn, u8 *p);
 
 
 #endif /* BLM_ATT_H_ */
-
-#endif

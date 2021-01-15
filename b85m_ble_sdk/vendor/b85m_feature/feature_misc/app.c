@@ -50,7 +50,7 @@
 #include "app_config.h"
 #include "app.h"
 #include "app_buffer.h"
-#include "app_att.h"
+#include "../default_att.h"
 
 #include "application/keyboard/keyboard.h"
 #include "application/usbstd/usbkeycode.h"
@@ -85,14 +85,14 @@ int user_manual_pairing;
 
 
 const u8	tbl_advData[] = {
-	 0x09, 0x09, 'B','8','5','_','M','i','s','c',
-	 0x02, 0x01, 0x05, 							// BLE limited discoverable mode and BR/EDR not supported
-	 0x03, 0x19, 0x80, 0x01, 					// 384, Generic Remote Control, Generic category
-	 0x05, 0x02, 0x12, 0x18, 0x0F, 0x18,		// incomplete list of service class UUIDs (0x1812, 0x180F)
+	 5,  DT_COMPLETE_LOCAL_NAME, 				'm','i','s','c',
+	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
+	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
+	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
 const u8	tbl_scanRsp [] = {
-	0x09, 0x09, 'B','8','5','_','M','i','s','c',
+	5,  DT_COMPLETE_LOCAL_NAME, 				'm','i','s','c',
 };
 
 
@@ -140,6 +140,8 @@ int app_le_adv_report_event_handle(u8 *p)
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
 								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_2S, \
 								 0, 0xFFFF);
+
+		(void)status;
 	}
 	/*********************** Master Create connection demo code end  *******************************************************/
 
@@ -289,7 +291,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 	switch(event)
 	{
-		case GAP_EVT_SMP_PAIRING_BEAGIN:
+		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
 		}
 		break;
@@ -417,7 +419,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
  * @param[in]	none
  * @return      none
  */
-void user_init_normal(void)
+_attribute_no_inline_ void user_init_normal(void)
 {
 	/* random number generator must be initiated here( in the beginning of user_init_nromal).
 	 * When deepSleep retention wakeUp, no need initialize again */
@@ -425,8 +427,6 @@ void user_init_normal(void)
 
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
 
-	/* for 512K Flash, flash_sector_mac_address equals to 0x76000
-	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
@@ -454,11 +454,11 @@ void user_init_normal(void)
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
 	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
+	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
 	/* ACL Master TX FIFO */
-	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
 	/* ACL Slave TX FIFO */
-	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
+	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
 
 
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
@@ -467,11 +467,8 @@ void user_init_normal(void)
 		blc_ll_initChannelSelectionAlgorithm_2_feature();
 	#endif
 
-	#if (MCU_CORE_TYPE == MCU_CORE_825x)
-		rf_set_power_level_index (RF_POWER_P3p01dBm);
-	#else
-		rf_set_power_level_index (RF_POWER_P3p50dBm);
-	#endif
+	rf_set_power_level_index (RF_POWER_P3dBm);
+
 
 	//////////// LinkLayer Initialization  End /////////////////////////
 
@@ -514,6 +511,10 @@ void user_init_normal(void)
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
+	#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	#endif
+
 	#if (BLE_SLAVE_SMP_ENABLE)  //Slave SMP Enable
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
@@ -531,7 +532,7 @@ void user_init_normal(void)
 
 	//host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
 	blc_gap_registerHostEventHandler( app_host_event_callback );
-	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEAGIN 			|  \
+	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEGIN 			|  \
 						  GAP_EVT_MASK_SMP_PAIRING_SUCCESS   		|  \
 						  GAP_EVT_MASK_SMP_PAIRING_FAIL				|  \
 						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE);
@@ -547,7 +548,7 @@ void user_init_normal(void)
 	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 }
 
@@ -717,7 +718,7 @@ int main_idle_loop (void)
 
 
 
-void main_loop (void)
+_attribute_no_inline_ void main_loop (void)
 {
 	main_idle_loop ();
 }

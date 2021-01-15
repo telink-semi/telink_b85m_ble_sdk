@@ -125,7 +125,13 @@ int HCI_Tr_RxHandlerCback(void)
 		return 0;//have no data
 	}
 
-	u8 *p = hci_fifo_get(&bltHci_rxfifo);
+
+	u8 *p = NULL;
+	if (bltHci_rxfifo.rptr != bltHci_rxfifo.wptr)
+	{
+		p = bltHci_rxfifo.p + (bltHci_rxfifo.rptr & bltHci_rxfifo.mask) * bltHci_rxfifo.size;
+	}
+
 	if(p)
 	{
 	#if(UI_LED_ENABLE)
@@ -133,7 +139,7 @@ int HCI_Tr_RxHandlerCback(void)
 	#endif
 
 		blc_hci_handler(&p[0], 0);//the second parameter is not used.
-		hci_fifo_pop(&bltHci_rxfifo);
+		bltHci_rxfifo.rptr ++;
 		return 1;
 	}
 #elif HCI_TR_MODE == HCI_TR_USB

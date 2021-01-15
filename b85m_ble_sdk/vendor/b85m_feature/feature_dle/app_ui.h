@@ -58,7 +58,7 @@ extern	int master_disconnect_connhandle;
 extern	int master_auto_connect;
 extern	int user_manual_pairing;
 
-
+extern  int tst_flg;
 /**
  * @brief      keyboard task handler
  * @param[in]  e    - event type

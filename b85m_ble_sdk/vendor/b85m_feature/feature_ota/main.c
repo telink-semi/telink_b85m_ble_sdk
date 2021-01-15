@@ -76,26 +76,25 @@ _attribute_ram_code_ int main(void)
 
 	#if (BLE_OTA_SERVER_ENABLE)
 		/* set firmware size and boot address must be called before "cpu_wakeup_init".*/
-		blc_ota_setFirmwareSizeAndBootAddr(128, MULTI_BOOT_ADDR_0x20000);
+		blc_ota_setFirmwareSizeAndBootAddress(128, MULTI_BOOT_ADDR_0x20000);
 	#endif
 
 	#if(MCU_CORE_TYPE == MCU_CORE_825x)
 		cpu_wakeup_init();
 	#elif(MCU_CORE_TYPE == MCU_CORE_827x)
-		cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+		cpu_wakeup_init(DCDC_MODE, EXTERNAL_XTAL_24M);
 	#endif
 
 	/* detect if MCU is wake_up from deep retention mode */
 	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();  //MCU deep retention wakeUp
 
+	
 	clock_init(SYS_CLK_TYPE);
 
 	rf_drv_init(RF_MODE_BLE_1M);
 
 	gpio_init(!deepRetWakeUp);
 
-	/* load customized freq_offset cap value. */
-	blc_app_loadCustomizedParameters();
 
 	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
 		user_init_deepRetn ();
@@ -103,8 +102,14 @@ _attribute_ram_code_ int main(void)
 	else{ //MCU power_on or wake_up from deepSleep mode
 		/* read flash size only in power_on or deepSleep */
 		blc_readFlashSize_autoConfigCustomFlashSector();
-		user_init_normal();
+		user_init_normal ();
 	}
+
+	/* load customized freq_offset cap value.
+	 * must be placed after "blc_readFlashSize_autoConfigCustomFlashSector"
+	 */
+	blc_app_loadCustomizedParameters();
+
 
 	irq_enable();
 

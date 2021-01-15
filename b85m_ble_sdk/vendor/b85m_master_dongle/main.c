@@ -81,7 +81,7 @@ _attribute_ram_code_ int main(void)
 	#if(MCU_CORE_TYPE == MCU_CORE_825x)
 		cpu_wakeup_init();
 	#elif(MCU_CORE_TYPE == MCU_CORE_827x)
-		cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
+		cpu_wakeup_init(DCDC_MODE, EXTERNAL_XTAL_24M);
 	#endif
 
 	/* detect if MCU is wake_up from deep retention mode */
@@ -98,9 +98,6 @@ _attribute_ram_code_ int main(void)
 		usb_init();
 	#endif
 
-	/* load customized freq_offset cap value. */
-	blc_app_loadCustomizedParameters();
-
 	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
 		user_init_deepRetn ();
 	}
@@ -109,6 +106,11 @@ _attribute_ram_code_ int main(void)
 		blc_readFlashSize_autoConfigCustomFlashSector();
 		user_init_normal ();
 	}
+
+	/* load customized freq_offset cap value.
+	 * must be placed after "blc_readFlashSize_autoConfigCustomFlashSector"
+	 */
+	blc_app_loadCustomizedParameters();
 
 
 	irq_enable();

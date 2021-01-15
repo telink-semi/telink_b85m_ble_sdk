@@ -46,8 +46,8 @@
 
 #pragma once
 
-#if(__PROJECT_8258_M1S1__ )
-	#include "vendor/8258_m1s1_demo/app_config.h"
+#if(__PROJECT_827x_SLAVE__ )
+	#include "vendor/b85m_slave/app_config.h"
 #elif(__PROJECT_8258_CONTROLLER__ )
 	#include "vendor/b85m_controller/app_config.h"
 #elif(__PROJECT_8278_CONTROLLER__)

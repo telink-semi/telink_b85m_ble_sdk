@@ -188,8 +188,41 @@ void generateRandomNum(int len, unsigned char *data);
 /******************************* dma_start ******************************************************************/
 enum{
 	FLD_DMA_RPTR_MASK =			0x0F, // max 15
+};
 
-	};
+/**
+ * @brief	ACL RX Data buffer length = maxRxOct + 21, then 16 Byte align
+ *			maxRxOct + 21 = 4(DMA_len) + 2(BLE header) + maxRxOct + 4(MIC) + 3(CRC) + 8(ExtraInfor)
+			RX buffer size must be be 16*n, due to MCU design
+ */
+//actually +21.The purpose of +22 is to deal with extreme situations. Due to DMA design,at least one byte buffer can not be unusable.
+#define 	CAL_LL_ACL_RX_FIFO_SIZE(maxRxOct)	(((maxRxOct+22) + 15) / 16 *16)
+
+
+/**
+ * @brief	ACL TX Data buffer length = maxTxOct + 10, then 4 Byte align
+ *			maxTxOct + 10 = 4(DMA_len) + 2(BLE header) + maxTxOct + 4(MIC)
+			TX buffer size must be be 4*n, due to MCU design
+ */
+#define 	CAL_LL_ACL_TX_FIFO_SIZE(maxTxOct)	(((maxTxOct+10) + 3) / 4 *4)
+
+
+
+/*HCI TX RX buffer len = uart_fifo+ dma 4byte */
+#define 	HCI_FIFO_SIZE(n)					(((n+7) + 15) / 16 *16)
+
+/*
+ * DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(8B)
+ *             **use 2B enough**
+ */
+#define		ISO_PDU_SIZE_ALLIGN16(n)			(((n + 21) + 15) / 16 * 16) //4+2+4+2+4+3+8
+
+
+/*
+* DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(12B)
+*             **use 2B enough**
+*/
+#define		ISO_BIS_RX_PDU_SIZE_ALLIGN16(n)			(((n + 25) + 15) / 16 * 16) //4+2+4+2+4+3+12
 /******************************* dma_end ******************************************************************/
 
 /******************************* anlog_start ******************************************************************/

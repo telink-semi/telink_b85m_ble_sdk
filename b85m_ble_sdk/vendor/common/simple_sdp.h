@@ -55,16 +55,6 @@
 #endif
 
 
-#ifndef FLASH_SDP_ATT_ADRRESS
-#define FLASH_SDP_ATT_ADRRESS         				0xF6000    //for master: store peer slave device's ATT handle
-#endif
-
-
-#ifndef FLASH_SDP_ATT_MAX_SIZE
-#define FLASH_SDP_ATT_MAX_SIZE         				(2*4096)   //8K flash for ATT HANLDE storage
-#endif
-
-
 
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 

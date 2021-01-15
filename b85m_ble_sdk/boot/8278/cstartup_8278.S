@@ -255,8 +255,11 @@ FLL_D:
 
 
 DEBUG_GPIO:
+	@.word	(0x800582)                  @  PAx oen
 	.word	(0x80058a)                  @  PBx oen
-
+	@.word	(0x800592)                  @  PCx oen
+	@.word	(0x80059a)                  @  PDx oen
+	@.word	(0x8005a2)                  @  PEx oen
 
 BOOT_SEL_D:
 	.word	(0x80063e)

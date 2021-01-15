@@ -126,19 +126,33 @@ typedef struct attribute
 
 /**
  * @brief		Register ATT table.
- * @param[in]	p               - Pointer point to attribute table.
+ * @param[in]	p - Pointer point to attribute table.
  * @return[in]	0: success
  * 				other: fail
  */
-void		 bls_att_setAttributeTable (u8 *p);
+void		bls_att_setAttributeTable (u8 *p);
 
+/**
+ * @brief		This function is used to set prepare write buffer
+ * @param[in]	*p - the pointer of buffer
+ * @param[in]	len - the length of buffer
+ * @return	none.
+ */
+void		blc_att_setPrepareWriteBuffer(u8 *p, u16 len);
+
+/**
+ * @brief		This function is used to set MTU req pending timing after connection created
+ * @param[in]	time_ms - pending timing, unit: ms
+ * @return      none
+ */
+void   		blc_att_setMtureqSendingTime_after_connCreate(int time_ms);
 /**
  * @brief		This function is used to set RX MTU size in master
  * @param[in]	master_mtu_size - ATT MTU size
  * @return[in]	0: success
  * 				other: fail
  */
-ble_sts_t  	blc_att_setMasterRxMTUSize(u16 master_mtu_size);
+ble_sts_t	blc_att_setMasterRxMTUSize(u16 master_mtu_size);
 
 /**
  * @brief		This function is used to set RX MTU size in slave
@@ -146,7 +160,7 @@ ble_sts_t  	blc_att_setMasterRxMTUSize(u16 master_mtu_size);
  * @return[in]	0: success
  * 				other: fail
  */
-ble_sts_t  	blc_att_setSlaveRxMTUSize(u16 slave_mtu_size);
+ble_sts_t	blc_att_setSlaveRxMTUSize(u16 slave_mtu_size);
 
 /**
  * @brief		Send MTU Size Exchange Request.
@@ -154,7 +168,7 @@ ble_sts_t  	blc_att_setSlaveRxMTUSize(u16 slave_mtu_size);
  * @return[in]	0: success
  * 				other: fail
  */
-ble_sts_t	 blc_att_requestMtuSizeExchange (u16 connHandle, u16 mtu_size);
+ble_sts_t	blc_att_requestMtuSizeExchange (u16 connHandle, u16 mtu_size);
 
 
 /******************************* User Interface  End  ******************************************************************/

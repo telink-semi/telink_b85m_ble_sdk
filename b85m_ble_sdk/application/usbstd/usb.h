@@ -80,13 +80,13 @@ static inline int usb_mic_is_enable(){
 }
 #endif
 
-void usb_handle_irq(void);
-
 extern u8 usb_just_wakeup_from_suspend;
 extern u8 usb_has_suspend_irq;
 extern u8 edp_toggle[8];
 
-void usb_init();
+void usb_init(void);
+
+void usb_handle_irq(void);
 
 #ifndef		USB_SOFTWARE_CRC_CHECK
 #define		USB_SOFTWARE_CRC_CHECK		0

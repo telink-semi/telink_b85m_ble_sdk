@@ -123,7 +123,7 @@ typedef enum {
 	 RF_POWER_P3p50dBm  = BIT(7) | 63,   //   3.5 dbm
 	 RF_POWER_P3p33dBm  = BIT(7) | 61,   //   3.3 dbm
 	 RF_POWER_P3p13dBm  = BIT(7) | 59,   //   3.1 dbm
-	 RF_POWER_P2p93dBm  = BIT(7) | 57,   //   2.9 dbm
+	 RF_POWER_P2p93dBm  = BIT(7) | 57,   /*   2.9 dbm */	RF_POWER_P3dBm = RF_POWER_P2p93dBm,
 	 RF_POWER_P2p60dBm  = BIT(7) | 54,   //   2.6 dbm
 	 RF_POWER_P2p36dBm  = BIT(7) | 52,   //   2.4 dbm
 	 RF_POWER_P2p10dBm  = BIT(7) | 50,   //   2.1 dbm
@@ -132,7 +132,7 @@ typedef enum {
 	 RF_POWER_P1p25dBm  = BIT(7) | 44,   //   1.3 dbm
 	 RF_POWER_P0p71dBm  = BIT(7) | 41,   //   0.7 dbm
 	 RF_POWER_P0p52dBm  = BIT(7) | 40,   //   0.5 dbm
-	 RF_POWER_N0p28dBm  = BIT(7) | 36,   //  -0.3 dbm
+	 RF_POWER_N0p28dBm  = BIT(7) | 36,   /*  -0.3 dbm */	RF_POWER_P0dBm = RF_POWER_N0p28dBm,
 	 RF_POWER_N0p51dBm  = BIT(7) | 35,   //  -0.5 dbm
 	 RF_POWER_N0p74dBm  = BIT(7) | 34,   //  -0.7 dbm
 	 RF_POWER_N1p21dBm  = BIT(7) | 32,   //  -1.2 dbm

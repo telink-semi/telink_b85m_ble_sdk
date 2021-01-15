@@ -87,12 +87,12 @@
  *                4				  3				conn_dev_list[0..3]		conn_dev_list[4..6]
  *                4				  4				conn_dev_list[0..3]		conn_dev_list[4..7]
  */
-dev_char_info_t	conn_dev_list[DEVICE_CHAR_INFO_MAX_NUM];
+_attribute_data_retention_	dev_char_info_t	conn_dev_list[DEVICE_CHAR_INFO_MAX_NUM];
 
 
 
-int conn_master_num = 0;   //current master number in connection state
-int conn_slave_num = 0;    //current slave number in connection state
+_attribute_data_retention_	int conn_master_num = 0;   //current master number in connection state
+_attribute_data_retention_	int conn_slave_num = 0;    //current slave number in connection state
 
 
 

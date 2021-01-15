@@ -53,8 +53,8 @@
 #define CMD_OTA_END							0xFF02	//client -> server
 
 #define CMD_OTA_START_EXT					0xFF03	//client -> server
-#define CMD_OTA_FW_VERSION_REQ				0xFF04
-#define CMD_OTA_FW_VERSION_RSP				0xFF05
+#define CMD_OTA_FW_VERSION_REQ				0xFF04	//client -> server
+#define CMD_OTA_FW_VERSION_RSP				0xFF05	//server -> client
 #define CMD_OTA_RESULT						0xFF06	//server -> client
 
 

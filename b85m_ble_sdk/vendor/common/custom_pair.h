@@ -49,14 +49,6 @@
 #include "vendor/common/user_config.h"
 
 
-#ifndef FLASH_ADR_CUSTOM_PAIRING
-#define FLASH_ADR_CUSTOM_PAIRING         		0x7c000
-#endif
-
-#ifndef FLASH_CUSTOM_PAIRING_MAX_SIZE
-#define FLASH_CUSTOM_PAIRING_MAX_SIZE     		4096
-#endif
-
 
 /*!  Pair parameter manager type */
 typedef struct{

@@ -84,27 +84,6 @@ extern	blc_hci_tx_handler_t	blc_hci_tx_handler;
 
 extern  my_fifo_t	hci_tx_iso_fifo;
 
-typedef	struct {
-	u32		size;
-	u8		num;
-	u8		mask;
-	u8		wptr;
-	u8		rptr;
-	u8*		p;
-}hci_fifo_t;
-
-
-extern 	hci_fifo_t	bltHci_rxfifo;
-extern 	hci_fifo_t	bltHci_txfifo;
-extern  hci_fifo_t	bltHci_rxAclfifo;
-
-
-u8*  hci_fifo_wptr (hci_fifo_t *f);
-u8*  hci_fifo_wptr_v2 (hci_fifo_t *f);
-u8*  hci_fifo_get (hci_fifo_t *f);
-void hci_fifo_pop (hci_fifo_t *f);
-void hci_fifo_next (hci_fifo_t *f);
-
 
 /**
  *  @brief  Definition for HCI packet type & HCI packet indicator

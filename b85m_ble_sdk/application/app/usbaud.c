@@ -213,6 +213,7 @@ int usb_audio_class_out_intf_proc(u8 type, u8 feature_id){
 				ret = 1;
 				break;
 			}
+			break;
 
 		default:
 			break;

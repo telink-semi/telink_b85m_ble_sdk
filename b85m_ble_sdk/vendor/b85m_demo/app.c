@@ -55,21 +55,21 @@
 
 
 
-int	master_smp_pending = 0; 		// SMP: security & encryption;
+_attribute_data_retention_		int	master_smp_pending = 0; 		// SMP: security & encryption;
 
 
 
 
 
 const u8	tbl_advData[] = {
-	 0x09, 0x09, 'B','8','5','_','d','e','m','o',
-	 0x02, 0x01, 0x05, 							// BLE limited discoverable mode and BR/EDR not supported
-	 0x03, 0x19, 0x80, 0x01, 					// 384, Generic Remote Control, Generic category
-	 0x05, 0x02, 0x12, 0x18, 0x0F, 0x18,		// incomplete list of service class UUIDs (0x1812, 0x180F)
+	 11, DT_COMPLETE_LOCAL_NAME, 				'm','u','l','t','i','_','c','o','n','n',
+	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
+	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
+	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
 const u8	tbl_scanRsp [] = {
-	 0x09, 0x09, 'B','8','5','_','d','e','m','o',
+	 11, DT_COMPLETE_LOCAL_NAME, 				'm','u','l','t','i','_','c','o','n','n',
 };
 
 
@@ -83,10 +83,7 @@ const u8	tbl_scanRsp [] = {
  */
 int AA_dbg_adv_rpt = 0;
 u32	tick_adv_rpt = 0;
-#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-	int filter_mac_enable = 0;
-	u8  filter_mac_address[6] = {};
-#endif
+
 int app_le_adv_report_event_handle(u8 *p)
 {
 	event_adv_report_t *pa = (event_adv_report_t *)p;
@@ -130,13 +127,6 @@ int app_le_adv_report_event_handle(u8 *p)
 
 	if(master_auto_connect || user_manual_pairing){
 
-		#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-			if(filter_mac_enable && memcmp(pa->mac + 3, filter_mac_address + 3, 3) != 0 ){
-				//my_dump_str_data(1,"mac drop", pa->mac, 6);
-				return 0;  //no connect
-			}
-		#endif
-
 		/* send create connection command to Controller, trigger it switch to initiating state. After this command, Controller
 		 * will scan all the ADV packets it received but not report to host, to find the specified device(mac_adr_type & mac_adr),
 		 * then send a "CONN_REQ" packet, enter to connection state and send a connection complete event
@@ -176,7 +166,6 @@ int app_le_connection_complete_event_handle(u8 *p)
 	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
 
 	if(pConnEvt->status == BLE_SUCCESS){
-		my_dump_str_data(APP_DUMP_EN, "conn complete", &pConnEvt->connHandle, 12);
 
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
@@ -243,8 +232,6 @@ int 	app_disconnect_event_handle(u8 *p)
 {
 	event_disconnection_t	*pCon = (event_disconnection_t *)p;
 
-	my_dump_str_data(APP_DUMP_EN, "conn disconnect ", &pCon->connHandle, 2);
-
 	//terminate reason
 	if(pCon->reason == HCI_ERR_CONN_TIMEOUT){  	//connection timeout
 
@@ -294,8 +281,7 @@ int app_le_connection_update_complete_event_handle(u8 *p)
 	hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
 
 	if(pUpt->status == BLE_SUCCESS){
-//		u32 display_data = pUpt->connHandle<<16 | pUpt->connInterval;
-//		my_dump_str_data(APP_DUMP_EN, "update complete event", &display_data, 4);
+
 	}
 
 	return 0;
@@ -367,7 +353,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 	switch(event)
 	{
-		case GAP_EVT_SMP_PAIRING_BEAGIN:
+		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
 
 		}
@@ -569,7 +555,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
  * @param[in]	none
  * @return      none
  */
-void user_init_normal(void)
+_attribute_no_inline_ void user_init_normal(void)
 {
 	/* random number generator must be initiated here( in the beginning of user_init_nromal).
 	 * When deepSleep retention wakeUp, no need initialize again */
@@ -577,16 +563,9 @@ void user_init_normal(void)
 
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
 
-	/* for 512K Flash, flash_sector_mac_address equals to 0x76000
-	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
-
-#if (APP_DUMP_EN)
-	my_usb_init(0x120, &print_fifo);
-	usb_set_pin_en ();
-#endif
 
 
 	//////////// LinkLayer Initialization  Begin /////////////////////////
@@ -618,12 +597,6 @@ void user_init_normal(void)
 
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
 
-
-	#if (MCU_CORE_TYPE == MCU_CORE_825x)
-		rf_set_power_level_index (RF_POWER_P3p01dBm);
-	#else
-		rf_set_power_level_index (RF_POWER_P3p50dBm);
-	#endif
 
 	//////////// LinkLayer Initialization  End /////////////////////////
 
@@ -669,6 +642,10 @@ void user_init_normal(void)
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
+	#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	#endif
+
 	#if (BLE_SLAVE_SMP_ENABLE)  //Slave SMP Enable
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
@@ -687,7 +664,7 @@ void user_init_normal(void)
 
 	//host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
 	blc_gap_registerHostEventHandler( app_host_event_callback );
-	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEAGIN 			|  \
+	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEGIN 			|  \
 						  GAP_EVT_MASK_SMP_PAIRING_SUCCESS   		|  \
 						  GAP_EVT_MASK_SMP_PAIRING_FAIL				|  \
 						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE);
@@ -704,27 +681,23 @@ void user_init_normal(void)
 	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_50MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+	rf_set_power_level_index (RF_POWER_P3dBm);
+
+	#if (BLE_APP_PM_ENABLE)
+		blc_ll_initPowerManagement_module();
+		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
+	#endif
 
 
 	#if (BLE_OTA_SERVER_ENABLE)
-		/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddr"(if used), and before any other OTA API.*/
+		/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddress"(if used), and before other OTA API.*/
 		blc_ota_initOtaServer_module();
-		blc_ota_setOtaProcessTimeout(200);
 	#endif
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-	my_dump_str_data(APP_DUMP_EN,"user init end", 0, 0);
 
-#if (MASTER_CONNECT_SLAVE_MAC_FILTER_EN)
-	flash_read_page(0x75000, 6, filter_mac_address);
-	if(filter_mac_address[0] != 0xFF || filter_mac_address[5] != 0xFF){
-		filter_mac_enable = 1;
-	}
-#endif
 }
 
 
@@ -765,10 +738,6 @@ int main_idle_loop (void)
 	proc_master_role_unpair();
 
 
-	#if (APP_DUMP_EN)
-		myudb_usb_handle_irq ();
-	#endif
-
 	return 0; //must return 0 due to SDP flow
 }
 
@@ -779,7 +748,7 @@ int main_idle_loop (void)
  * @param[in]  none.
  * @return     none.
  */
-void main_loop (void)
+_attribute_no_inline_ void main_loop (void)
 {
 	main_idle_loop ();
 

@@ -45,21 +45,20 @@
  *******************************************************************************************************/
 #pragma once
 
-#if (__PROJECT_8258_DEMO__)
-	#define CHIP_TYPE				CHIP_TYPE_825x
-#else
-	#define CHIP_TYPE				CHIP_TYPE_827x
-#endif
 
 #define MASTER_MAX_NUM								4
 #define SLAVE_MAX_NUM								4
 
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
+#define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SIMPLE_SDP_ENABLE				1   //simple service discovery for BLE master
-#define BLE_OTA_SERVER_ENABLE						0
+#define BLE_OTA_SERVER_ENABLE						1
+
+#define BLE_APP_PM_ENABLE							1
+
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define UI_LED_ENABLE								1
@@ -69,43 +68,6 @@
 #define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
 #define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			0
-
-
-
-///////////////////// Flash Sector Usage Configuration for 512K Flash //////////////////////////
-/*If Slave or Master SMP enable, default 0x78000~0x7BFFF (4 sector, 16K) is used for SMP pairing
-  information storage, it is set in BLE stack library, same as initialization below:
-  blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE)
-  First 8K is for normal use, second 8K is a backup to guarantee SMP information never lose.
-  "blc_smp_configPairingSecurityInfoStorageAddressAndSize" has been called in "blc_readFlashSize_autoConfigCustomFlashSector".*/
-#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
-	//if flash 512K
-	#define FLASH_ADR_SMP_PAIRING					0x78000    //if flash 1M--0xFA000
-	#define FLASH_SMP_PAIRING_MAX_SIZE				(2*4096)   //normal 8K + backup 8K = 16K
-#endif
-
-/*If Master SMP disable, 0x7C000~0x7CFFF 1 sector is for paring information storage.
- *user can modify these macro according to actual situation*/
-#if (!BLE_MASTER_SMP_ENABLE)
-	//if flash 512K
-	#define FLASH_ADR_CUSTOM_PAIRING         		0x7C000    //if flash 1M--0xF8000
-	#define FLASH_CUSTOM_PAIRING_MAX_SIZE     		4096
-#endif
-
-/*If Master simple SDP enable, 0x7D000~0x7EFFF 2 sector is used to store peer slave
- * device's ATT handle.  user can modify these macro according to actual situation*/
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-	//if flash 512K
-	#define FLASH_SDP_ATT_ADRRESS                	0x7D000    //if flash 1M--0xF6000; for master: store peer slave device's ATT handle.
-	#define FLASH_SDP_ATT_MAX_SIZE				 	(2*4096)   //8K flash for ATT HANLDE storage
-#endif
-
-
-
-
-
-
-
 
 
 
@@ -133,8 +95,8 @@
 
 
 		//////////////////// KEY CONFIG (EVK board) ///////////////////////////
-		#define  KB_DRIVE_PINS  {GPIO_PB4, GPIO_PB5}
-		#define  KB_SCAN_PINS   {GPIO_PB2, GPIO_PB3}
+		#define  KB_DRIVE_PINS  		{GPIO_PB4, GPIO_PB5}
+		#define  KB_SCAN_PINS   		{GPIO_PB2, GPIO_PB3}
 
 		//drive pin as gpio
 		#define	PB4_FUNC				AS_GPIO

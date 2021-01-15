@@ -69,9 +69,24 @@
  * 1. must be: 2^n, (power of 2)
  * 2. at least 4; recommended value: 8, 16
  */
-#define ACL_CONN_MAX_RX_OCTETS		(251)
-#define ACL_RX_FIFO_SIZE			CAL_LL_ACL_RX_FIFO_SIZE(ACL_CONN_MAX_RX_OCTETS)
-#define ACL_RX_FIFO_NUM				(8)
+#if (DLE_LENGTH_SELECT == DLE_LENGTH_27_BYTES)
+	#define ACL_CONN_MAX_RX_OCTETS			27
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_52_BYTES)
+	#define ACL_CONN_MAX_RX_OCTETS			52
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_56_BYTES)
+	#define ACL_CONN_MAX_RX_OCTETS			56
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_100_BYTES)
+	#define ACL_CONN_MAX_RX_OCTETS			100
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_200_BYTES)
+	#define ACL_CONN_MAX_RX_OCTETS			200
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_251_BYTES)
+	#define ACL_CONN_MAX_RX_OCTETS			251
+#else
+	#define ACL_CONN_MAX_RX_OCTETS			27
+#endif
+
+#define ACL_RX_FIFO_SIZE					CAL_LL_ACL_RX_FIFO_SIZE(ACL_CONN_MAX_RX_OCTETS)
+#define ACL_RX_FIFO_NUM						(8)
 
 /**
  * @brief	ACL TX buffer size & number
@@ -82,17 +97,46 @@
  * 2. should be be an integer multiple of 16 (16 Byte align)
  * 3. user can use formula:  size = CAL_LL_ACL_TX_FIFO_SIZE(connMaxTxOctets)
  * usage limitation for ACL_MASTER_TX_FIFO_NUM & ACL_SLAVE_TX_FIFO_NUM:
- * 1. must be: (2^n), (power of 2, then add 1)
+ * 1. must be: 2^n  (power of 2)
  * 2. at least 8; recommended value: 8, 16, 32; other value not allowed.
  */
-#define ACL_SLAVE_MAX_TX_OCTETS		(251)
-#define ACL_SLAVE_TX_FIFO_SIZE		CAL_LL_ACL_TX_FIFO_SIZE(ACL_SLAVE_MAX_TX_OCTETS)
-#define ACL_SLAVE_TX_FIFO_NUM		(8) //different from eagle. 2^n
+#if (DLE_LENGTH_SELECT == DLE_LENGTH_27_BYTES)
+	#define ACL_SLAVE_MAX_TX_OCTETS			27
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_52_BYTES)
+	#define ACL_SLAVE_MAX_TX_OCTETS			52
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_56_BYTES)
+	#define ACL_SLAVE_MAX_TX_OCTETS			56
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_100_BYTES)
+	#define ACL_SLAVE_MAX_TX_OCTETS			100
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_200_BYTES)
+	#define ACL_SLAVE_MAX_TX_OCTETS			200
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_251_BYTES)
+	#define ACL_CONN_MAX_TX_OCTETS			251
+#else
+	#define ACL_CONN_MAX_TX_OCTETS			27
+#endif
 
+#define ACL_SLAVE_TX_FIFO_SIZE				CAL_LL_ACL_TX_FIFO_SIZE(ACL_SLAVE_MAX_TX_OCTETS)
+#define ACL_SLAVE_TX_FIFO_NUM				(8) //must be: 2^n
 
-#define ACL_MASTER_MAX_TX_OCTETS	(251)
-#define ACL_MASTER_TX_FIFO_SIZE		CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)
-#define ACL_MASTER_TX_FIFO_NUM		(8) //different from eagle. 2^n
+#if (DLE_LENGTH_SELECT == DLE_LENGTH_27_BYTES)
+	#define ACL_MASTER_MAX_TX_OCTETS		27
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_52_BYTES)
+	#define ACL_MASTER_MAX_TX_OCTETS		52
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_56_BYTES)
+	#define ACL_MASTER_MAX_TX_OCTETS		56
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_100_BYTES)
+	#define ACL_MASTER_MAX_TX_OCTETS		100
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_200_BYTES)
+	#define ACL_MASTER_MAX_TX_OCTETS		200
+#elif (DLE_LENGTH_SELECT == DLE_LENGTH_251_BYTES)
+	#define ACL_MASTER_MAX_TX_OCTETS		251
+#else
+	#define ACL_MASTER_MAX_TX_OCTETS		27
+#endif
+
+#define ACL_MASTER_TX_FIFO_SIZE				CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)
+#define ACL_MASTER_TX_FIFO_NUM				(8) //must be: (2^n)
 
 extern	u8	app_acl_rxfifo[];
 extern	u8	app_acl_mstTxfifo[];
@@ -105,15 +149,16 @@ extern	u8	app_acl_slvTxfifo[];
 /***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, Begin ********************************/
 
 /*Note:
- * if support LE Secure Connections, L2CAP buffer must >= 76.[65+10,align 4bytes]
+ * if support LE Secure Connections, L2CAP buffer must >= 72.([64+6]+3)/4*4), 4B align.
+ * MTU Buff size = Extra_Len(6)+ ATT_MTU_MAX
+ *  1. should be greater than or equal to (ATT_MTU + 6)
+ *  2. should be be an integer multiple of 4 (4 Byte align)
  */
 #define ATT_MTU_MASTER_RX_MAX_SIZE   		247
-#define	MASTER_MTU_BUFF_SIZE_MAX			ATT_ALLIGN4_DMA_BUFF(ATT_MTU_MASTER_RX_MAX_SIZE)
+#define	MASTER_MTU_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_MASTER_RX_MAX_SIZE)
 
-
-/** if support LE Secure Connections, L2CAP buffer must >= 76.[65+10,align 4bytes] */
 #define ATT_MTU_SLAVE_RX_MAX_SIZE   		247
-#define	SLAVE_MTU_BUFF_SIZE_MAX			 	ATT_ALLIGN4_DMA_BUFF(ATT_MTU_SLAVE_RX_MAX_SIZE)
+#define	SLAVE_MTU_BUFF_SIZE_MAX			 	CAL_MTU_BUFF_SIZE(ATT_MTU_SLAVE_RX_MAX_SIZE)
 
 
 extern	u8 mtu_m_rx_fifo[];
@@ -127,9 +172,6 @@ extern	u8 mtu_s_tx_fifo[];
 
 #define TEST_DATA_LEN		247
 
-
-extern _attribute_data_retention_  u32 connect_event_occurTick[MASTER_SLAVE_MAX_NUM];
-extern _attribute_data_retention_  u32 mtuExchange_check_tick[MASTER_SLAVE_MAX_NUM];
 
 extern _attribute_data_retention_ u8 mtuExchange_started_flg[MASTER_SLAVE_MAX_NUM];
 extern _attribute_data_retention_ u8 dle_started_flg[MASTER_SLAVE_MAX_NUM];

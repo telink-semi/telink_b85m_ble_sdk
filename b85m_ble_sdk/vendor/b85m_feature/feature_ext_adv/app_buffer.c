@@ -58,7 +58,7 @@
 /**
  * @brief	ACL RX buffer. size & number defined in app_buffer.h
  * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
- * if either ACl connection master role or ACl connection slave role is e used.
+ * if either ACl connection master role or ACl connection slave role is used.
  */
 u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
 

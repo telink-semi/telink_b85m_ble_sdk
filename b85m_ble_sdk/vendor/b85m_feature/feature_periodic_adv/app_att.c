@@ -1,62 +1,46 @@
 /********************************************************************************************************
- * @file	app_att.c
+ * @file  	 app_att.c
  *
- * @brief	This is the source file for BLE SDK
+ * @brief    for TLSR chips
  *
- * @author	BLE GROUP
- * @date	2020.06
+ * @author	 BLE Group
+ * @date     May. 22, 2019
  *
- * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
- *          
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
- *          
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
- *              specific prior written permission.
- *          
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
+ * @par      Copyright (c) Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
- *              relating to such deletion(s), modification(s) or alteration(s).
- *         
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *			 The information contained herein is confidential and proprietary property of Telink
+ * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
+ *           This heading MUST NOT be removed from this file.
+ *
+ * 			 Licensees are granted free, non-transferable use of the information in this
+ *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
  *******************************************************************************************************/
 #include "tl_common.h"
 #include "drivers.h"
 #include "stack/ble/ble.h"
 
-#include "app_config.h"
-#include "app.h"
+
 #include "app_att.h"
 #include "app_ui.h"
 
 #include "application/usbstd/usbkeycode.h"
 #include "application/keyboard/keyboard.h"
-#include "application/rf_frame.h"
 
-#if (FEATURE_TEST_MODE == TEST_EXT_ADV)
+
+
+#if (FEATURE_TEST_MODE == TEST_PERIODIC_ADVERTISING)
+
+
+
+const u8 my_MicUUID[16]			= WRAPPING_BRACES(TELINK_MIC_DATA);
+const u8 my_SpeakerUUID[16]		= WRAPPING_BRACES(TELINK_SPEAKER_DATA);
+const u8 my_OtaUUID[16]			= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
+const u8 my_SppS2CUUID[16]		= WRAPPING_BRACES(TELINK_SPP_DATA_SERVER2CLIENT);
+const u8 my_SppC2SUUID[16]		= WRAPPING_BRACES(TELINK_SPP_DATA_CLIENT2SERVER);
 
 
 ////////////////////////////////////////// slave-role ATT service concerned ///////////////////////////////////////////////
@@ -108,7 +92,7 @@ static u16 serviceChangeVal[2] = {0};
 
 static u8 serviceChangeCCC[2] = {0,0};
 
-static const u8 my_devName[] = {'B','8','5','_','E','x','t','A','d','v'};
+static const u8 my_devName[] = {'T','L','K','_','M','4','S','3'};
 
 static const u8 my_PnPtrs [] = {0x02, 0x8a, 0x24, 0x66, 0x82, 0x01, 0x00};
 
@@ -241,10 +225,12 @@ static const u8 reportMap[] =
 static u16 extServiceUUID;
 
 
-//////////////////////// OTA //////////////////////////////////
+/////////////////////////////////////////////////////////
 static const  u8 my_OtaServiceUUID[16]				= WRAPPING_BRACES(TELINK_OTA_UUID_SERVICE);
-static const  u8 my_OtaUUID[16]						= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
-static 		  u8 my_OtaData 						= 0x00;
+static u8 my_OtaData 						        = 0x00;
+
+static const u8  my_MicName[] = {'M', 'i', 'c'};
+static const u8  my_SpeakerName[] = {'S', 'p', 'e', 'a', 'k', 'e', 'r'};
 static const u8  my_OtaName[] = {'O', 'T', 'A'};
 
 
@@ -382,7 +368,7 @@ static const u8 my_OtaCharVal[19] = {
 	TELINK_SPP_DATA_OTA,
 };
 
-int spp_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
+int module_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
 {
 	u8 len = p->l2capLen - 3;
 	if(len > 0)
@@ -390,6 +376,11 @@ int spp_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
 
 	}
 
+	return 0;
+}
+
+int otaMyWrite(u16 connHandle, void * p)
+{
 	return 0;
 }
 
@@ -490,7 +481,7 @@ static const attribute_t my_Attributes[] = {
 	{0,ATT_PERMISSIONS_RDWR,2,2,(u8*)&clientCharacterCfgUUID,(u8*)(&SppDataServer2ClientDataCCC)},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSPPS2CDescriptor),(u8*)&userdesc_UUID,(u8*)(&TelinkSPPS2CDescriptor)},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSppDataClient2ServerCharVal),(u8*)(&my_characterUUID), 		(u8*)(TelinkSppDataClient2ServerCharVal), 0},				//prop
-	{0,ATT_PERMISSIONS_RDWR,16,sizeof(SppDataClient2ServerData),(u8*)(&TelinkSppDataClient2ServerUUID), (u8*)(SppDataClient2ServerData), (att_readwrite_callback_t)&spp_onReceiveData},	//value
+	{0,ATT_PERMISSIONS_RDWR,16,sizeof(SppDataClient2ServerData),(u8*)(&TelinkSppDataClient2ServerUUID), (u8*)(SppDataClient2ServerData), (att_readwrite_callback_t)&module_onReceiveData},	//value
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSPPC2SDescriptor),(u8*)&userdesc_UUID,(u8*)(&TelinkSPPC2SDescriptor)},
 
 
@@ -498,17 +489,12 @@ static const attribute_t my_Attributes[] = {
 	// 0036 - 0039
 	{4,ATT_PERMISSIONS_READ, 2,16,(u8*)(&my_primaryServiceUUID), 	(u8*)(&my_OtaServiceUUID), 0},
 	{0,ATT_PERMISSIONS_READ, 2, sizeof(my_OtaCharVal),(u8*)(&my_characterUUID), (u8*)(my_OtaCharVal), 0},				//prop
-	{0,ATT_PERMISSIONS_RDWR,16,sizeof(my_OtaData),(u8*)(&my_OtaUUID),	(&my_OtaData), &otaWrite, NULL},			//value
+	{0,ATT_PERMISSIONS_RDWR,16,sizeof(my_OtaData),(u8*)(&my_OtaUUID),	(&my_OtaData), &otaMyWrite, &otaRead},			//value
 	{0,ATT_PERMISSIONS_READ, 2,sizeof (my_OtaName),(u8*)(&userdesc_UUID), (u8*)(my_OtaName), 0},
 
 };
 
-/**
- * @brief   GATT initialization.
- *          !!!Note: this function is used to register ATT table to BLE Stack.
- * @param   none.
- * @return  none.
- */
+
 void	my_gatt_init (void)
 {
 	bls_att_setAttributeTable ((u8 *)my_Attributes);
@@ -518,58 +504,4 @@ void	my_gatt_init (void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////////////////////////////////////////// master-role ATT concerned ///////////////////////////////////////////////
-/**
- * @brief       This function is used to send consumer HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard_media (u16 conn, u8 *p)
-{
-	u16 consumer_key = p[0] | p[1]<<8;
-
-
-#if (1 && UI_LED_ENABLE)	//Demo effect: when slave send Vol+/Vol- to master, LED GPIO toggle to show the result
-	if(consumer_key == MKEY_VOL_UP){
-		gpio_toggle(GPIO_LED_GREEN);
-	}
-	else if(consumer_key == MKEY_VOL_DN){
-		gpio_toggle(GPIO_LED_BLUE);
-	}
-#endif
-}
-
-
-//////////////// keyboard ///////////////////////////////////////////////////
-
-/**
- * @brief       This function is used to send HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard (u16 conn, u8 *p)
-{
-
-}
-
-
-#endif
+#endif //end of "FEATURE_TEST_MODE == TEST_PERIODIC_ADVERTISING"

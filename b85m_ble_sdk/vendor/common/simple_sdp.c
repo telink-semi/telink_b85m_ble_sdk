@@ -49,6 +49,7 @@
 
 #include "simple_sdp.h"
 #include "device_manage.h"
+#include "blt_common.h"
 
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 

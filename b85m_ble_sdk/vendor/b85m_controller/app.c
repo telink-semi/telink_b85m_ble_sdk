@@ -153,11 +153,7 @@ void user_init_normal(void)
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
 
 
-#if (MCU_CORE_TYPE == MCU_CORE_825x)
-	rf_set_power_level_index (RF_POWER_P3p01dBm);
-#else
-	rf_set_power_level_index (RF_POWER_P3p50dBm);
-#endif
+	rf_set_power_level_index (RF_POWER_P3dBm);
 
 	blc_ll_initChannelSelectionAlgorithm_2_feature();
 	
@@ -196,7 +192,7 @@ void user_init_normal(void)
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
 	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(0);  //ADV disable
+	blc_ll_setAdvEnable(BLC_ADV_DISABLE);  //ADV disable
 
 	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_200MS, SCAN_WINDOW_200MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_DISABLE, DUP_FILTER_DISABLE);

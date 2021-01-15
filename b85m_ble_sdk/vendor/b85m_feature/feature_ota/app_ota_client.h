@@ -50,12 +50,28 @@
 #if (FEATURE_TEST_MODE == TEST_OTA)
 
 
+/**
+ * @brief	peer device's new firmware storage address on local device
+ */
+#define NEW_FW_ADDR_128K								0x20000
 #define NEW_FW_ADDR_256K								0x40000
 #define NEW_FW_ADDR_512K								0x80000
+#define NEW_FW_ADDR_768K								0xC0000
 
 
-#define FW_SIZE_MIN										0x04000	 //16K
-#define FW_SIZE_MAX										0x40000	 //256K
+#if (MCU_CORE_TYPE == MCU_CORE_9518)
+	#define NEW_FW_ADDR0								NEW_FW_ADDR_512K
+	#define NEW_FW_ADDR1								NEW_FW_ADDR_768K
+	#define FW_SIZE_MIN									0x04000	 //16K
+	#define FW_SIZE_MAX									0x40000	 //256K
+#else
+	#define NEW_FW_ADDR0								NEW_FW_ADDR_128K
+	#define NEW_FW_ADDR1								NEW_FW_ADDR_256K
+	#define FW_SIZE_MIN									0x04000	 //16K
+	#define FW_SIZE_MAX									0x20000	 //128K
+#endif
+
+
 
 
 #define OTA_STEP_0_IDLE									0

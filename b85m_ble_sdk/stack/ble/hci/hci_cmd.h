@@ -47,8 +47,7 @@
 #define HCI_CMD_H_
 
 
-#include "stack/ble/controller/ll/iso/iso_config.h"
-#include "stack/ble/ble_common.h"
+#include "stack/ble/ble_format.h"
 
 
 /**
@@ -61,7 +60,7 @@ typedef struct {
 	u8  advType;          // Advertising
 	u8  ownAddrType;
 	u8  peerAddrType;
-	u8  peerAddr[BLE_ADDR_LEN];
+	u8  peerAddr[6];//BLE_ADDR_LEN];
 	u8  advChannelMap;
 	u8  advFilterPolicy;
 } adv_para_t;
@@ -303,6 +302,7 @@ typedef enum{
 	CONN_INTERVAL_50MS               =            40,
 	CONN_INTERVAL_55MS               =            44,
 	CONN_INTERVAL_60MS               =            48,
+	CONN_INTERVAL_62P5MS			 =            50,
 	CONN_INTERVAL_65MS               =            52,
 	CONN_INTERVAL_70MS               =            56,
 	CONN_INTERVAL_75MS               =            60,
@@ -316,6 +316,7 @@ typedef enum{
 	CONN_INTERVAL_130MS              =            104,
 	CONN_INTERVAL_140MS              =            112,
 	CONN_INTERVAL_150MS              =            120,
+	CONN_INTERVAL_180MS              =            144,
 	CONN_INTERVAL_200MS              =            160,
 	CONN_INTERVAL_250MS              =            200,
 	CONN_INTERVAL_300MS              =            240,
@@ -792,7 +793,7 @@ typedef struct {
 	u8  	status;
 	u8		cig_id;
 	u8		cis_count;
-	u16		cis_connHandle[LL_CIS_IN_CIG_NUM_MAX];  //not 4 byte aligned, but no problem
+	u16		cis_connHandle[1];  //not 4 byte aligned, but no problem
 } hci_le_setCigParam_retParam_t;
 
 

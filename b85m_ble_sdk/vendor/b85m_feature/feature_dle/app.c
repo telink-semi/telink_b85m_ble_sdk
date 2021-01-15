@@ -50,29 +50,27 @@
 #include "app_config.h"
 #include "app.h"
 #include "app_buffer.h"
-#include "app_att.h"
+#include "../default_att.h"
 #include "app_ui.h"
 
 
 #if (FEATURE_TEST_MODE == TEST_LL_DLE)
 
 
-int	master_smp_pending = 0; 		// SMP: security & encryption;
-
-
+_attribute_data_retention_	int	master_smp_pending = 0; 		// SMP: security & encryption;
 
 
 
 
 const u8	tbl_advData[] = {
-	 0x08, 0x09, 'B','8','5','_','D','L','E',
-	 0x02, 0x01, 0x05, 							// BLE limited discoverable mode and BR/EDR not supported
-	 0x03, 0x19, 0x80, 0x01, 					// 384, Generic Remote Control, Generic category
-	 0x05, 0x02, 0x12, 0x18, 0x0F, 0x18,		// incomplete list of service class UUIDs (0x1812, 0x180F)
+	 4,  DT_COMPLETE_LOCAL_NAME, 				'd','l','e',
+	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
+	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
+	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
 const u8	tbl_scanRsp [] = {
-	 0x08, 0x09, 'B','8','5','_','D','L','E',
+	 4, DT_COMPLETE_LOCAL_NAME, 				'd','l','e',
 };
 
 
@@ -82,50 +80,15 @@ const u8	tbl_scanRsp [] = {
 /////////////////////////////////////////////////////////////////////
 void feature_dle_test_mainloop (void)
 {
+	u16 connHandle;
 	for(u8 i= 0; i < MASTER_SLAVE_MAX_NUM; i++){
 
-		u16 connHandle, mut_size, dle_size;
 		if(conn_dev_list[i].conn_state==1) //connect state
 		{
-
 			connHandle = conn_dev_list[i].conn_handle;
 
-			if(i<MASTER_MAX_NUM)//master handle
-			{
-				mut_size = ATT_MTU_MASTER_RX_MAX_SIZE;
-				dle_size = ACL_MASTER_MAX_TX_OCTETS;
-			}
-			else
-			{
-				mut_size = ATT_MTU_SLAVE_RX_MAX_SIZE;
-				dle_size = ACL_SLAVE_MAX_TX_OCTETS;
-			}
-
-
-			///send LL_LENGTH_REQ to peer device. need to exchange MTU, too.
-			if(connect_event_occurTick[i] && clock_time_exceed(connect_event_occurTick[i], 1500000)){  //1.5 S after connection established
-				connect_event_occurTick[i] = 0;
-
-				mtuExchange_check_tick[i] = clock_time() | 1;
-
-				if(!mtuExchange_started_flg[i]){
-
-					blc_att_requestMtuSizeExchange(connHandle, mut_size);
-				}
-			}
-
-			/////DLE exchange
-			if(mtuExchange_check_tick[i] && clock_time_exceed(mtuExchange_check_tick[i], 500000 )){  //2 S after connection established
-
-				mtuExchange_check_tick[i] = 0;
-				if(!dle_started_flg[i]){
-					blc_ll_sendDateLengthExtendReq(connHandle, dle_size );
-				}
-			}
-
-
 			//send data to peer device
-			if(dle_started_flg[i] && clock_time_exceed(mtu_tick[i], 1000*1000))
+			if(tst_flg && dle_started_flg[i] && mtuExchange_started_flg[i] && clock_time_exceed(mtu_tick[i], 1000*1000))
 			{
 				if(i < MASTER_MAX_NUM)
 				{
@@ -228,10 +191,6 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
-		u8 conn_idx = dev_char_get_conn_index_by_connhandle(pConnEvt->connHandle);
-		connect_event_occurTick[conn_idx] = clock_time() | 0x01;
-
-
 		if( pConnEvt->role == LL_ROLE_MASTER ) // master role, process SMP and SDP if necessary
 		{
 			#if (BLE_MASTER_SMP_ENABLE)
@@ -292,9 +251,6 @@ int 	app_disconnect_event_handle(u8 *p)
 
 
 	u8 conn_idx = dev_char_get_conn_index_by_connhandle(pCon->connHandle);
-	connect_event_occurTick[conn_idx] = 0;
-
-	mtuExchange_check_tick[conn_idx] = 0;
 
 	dle_started_flg[conn_idx] = 0;
 
@@ -352,11 +308,13 @@ int app_controller_event_callback (u32 h, u8 *p, int n)
 
 			}
 			else if(subEvt_code == HCI_SUB_EVT_LE_DATA_LENGTH_CHANGE){
-				hci_le_dataLengthChangeEvt_t* dle_param = (hci_le_dataLengthChangeEvt_t*)p;
-				u8 conn_idx = dev_char_get_conn_index_by_connhandle(dle_param->connHandle);
+				hci_le_dataLengthChangeEvt_t* pDleParam = (hci_le_dataLengthChangeEvt_t*)p;
+				u8 conn_idx = dev_char_get_conn_index_by_connhandle(pDleParam->connHandle);
 
 				dle_started_flg[conn_idx] = 1;
 				mtu_tick[conn_idx] = clock_time();
+
+				my_dump_str_u32s(APP_DUMP_EN, "DLE exchange", pDleParam->connHandle, pDleParam->maxTxOct, pDleParam->maxRxOct, 0);
 			}
 		}
 	}
@@ -382,7 +340,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 	switch(event)
 	{
-		case GAP_EVT_SMP_PAIRING_BEAGIN:
+		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
 		}
 		break;
@@ -431,10 +389,12 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 		case GAP_EVT_ATT_EXCHANGE_MTU:
 		{
-			gap_gatt_mtuSizeExchangeEvt_t *pEvt = (gap_gatt_mtuSizeExchangeEvt_t *)para; ///gap_gatt_mtuSizeExchangeEvt_t
+			gap_gatt_mtuSizeExchangeEvt_t *pEvt = (gap_gatt_mtuSizeExchangeEvt_t *)para;
+
 			u8 conn_idx = dev_char_get_conn_index_by_connhandle(pEvt->connHandle);
 			mtuExchange_started_flg[conn_idx] = 1;   //set MTU size exchange flag here
 
+			my_dump_str_data(APP_DUMP_EN, "Effective_MTU = ", &pEvt->effective_MTU, 2);
 		}
 		break;
 
@@ -515,7 +475,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
  * @param[in]	none
  * @return      none
  */
-void user_init_normal(void)
+_attribute_no_inline_ void user_init_normal(void)
 {
 	/* random number generator must be initiated here( in the beginning of user_init_nromal).
 	 * When deepSleep retention wakeUp, no need initialize again */
@@ -523,8 +483,6 @@ void user_init_normal(void)
 
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
 
-	/* for 512K Flash, flash_sector_mac_address equals to 0x76000
-	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
@@ -552,20 +510,17 @@ void user_init_normal(void)
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
 	/* all ACL connection share same RX FIFO */
-	if(blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM) != BLE_SUCCESS)	{  	while(1); 	}
+	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
 	/* ACL Master TX FIFO */
-	if(blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM) != BLE_SUCCESS) { while(1); }
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
 	/* ACL Slave TX FIFO */
-	if(blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM) != BLE_SUCCESS)	{ while(1); }
+	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
 
 
 	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
 
-	#if (MCU_CORE_TYPE == MCU_CORE_825x)
-		rf_set_power_level_index (RF_POWER_P3p01dBm);
-	#else
-		rf_set_power_level_index (RF_POWER_P3p50dBm);
-	#endif
+	rf_set_power_level_index (RF_POWER_P3dBm);
+
 
 	//////////// LinkLayer Initialization  End /////////////////////////
 
@@ -604,14 +559,22 @@ void user_init_normal(void)
 	blc_l2cap_initAclConnMasterMtuBuffer(mtu_m_rx_fifo, MASTER_MTU_BUFF_SIZE_MAX, 			0,					 0);
 	blc_l2cap_initAclConnSlaveMtuBuffer(mtu_s_rx_fifo, SLAVE_MTU_BUFF_SIZE_MAX, mtu_s_tx_fifo, SLAVE_MTU_BUFF_SIZE_MAX);
 
-	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE);
-	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);
+	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE); 	//Do not call this API, the default MTU_SIZE is 23
+	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);   	//Do not call this API, the default MTU_SIZE is 23
+
+	//blc_att_setMtureqSendingTime_after_connCreate(50);  		//Do not call this API: 1100ms is used by default
+	//blc_ll_setDataLengthReqSendingTime_after_connCreate(100); //Do not call this API: 1200ms is used by default
+
 
 	/* GATT Initialization */
 	my_gatt_init();
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
+	#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	#endif
+
 	#if (BLE_SLAVE_SMP_ENABLE)  //Slave SMP Enable
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
@@ -630,10 +593,11 @@ void user_init_normal(void)
 
 	//host(GAP/SMP/GATT/ATT) event process: register host event callback and set event mask
 	blc_gap_registerHostEventHandler( app_host_event_callback );
-	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEAGIN 			|  \
+	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEGIN 			|  \
 						  GAP_EVT_MASK_SMP_PAIRING_SUCCESS   		|  \
 						  GAP_EVT_MASK_SMP_PAIRING_FAIL				|  \
-						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE);
+						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE	|  \
+						  GAP_EVT_MASK_ATT_EXCHANGE_MTU);
 	//////////// Host Initialization  End /////////////////////////
 
 //////////////////////////// BLE stack Initialization  End //////////////////////////////////
@@ -644,10 +608,10 @@ void user_init_normal(void)
 //////////////////////////// User Configuration for BLE application ////////////////////////////
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
+	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_37, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 }
 
@@ -694,7 +658,7 @@ int main_idle_loop (void)
 
 
 
-void main_loop (void)
+_attribute_no_inline_ void main_loop (void)
 {
 	main_idle_loop ();
 }

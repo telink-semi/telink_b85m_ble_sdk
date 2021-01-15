@@ -43,28 +43,9 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *         
  *******************************************************************************************************/
-#ifndef LLMS_CONN_H_
-#define LLMS_CONN_H_
+#ifndef ACL_CONN_H_
+#define ACL_CONN_H_
 
-
-
-/**
- * @brief
- */
-#define			BLM_CONN_HANDLE									BIT(7)
-#define			BLS_CONN_HANDLE									BIT(6)
-#define 		BLT_ACL_CONN_MASTER_HANDLE						BLM_CONN_HANDLE
-#define 		BLT_ACL_CONN_SLAVE_HANDLE						BLS_CONN_HANDLE
-#define			BLT_ACL_CONN_HANDLE								(BLT_ACL_CONN_MASTER_HANDLE | BLT_ACL_CONN_SLAVE_HANDLE)
-
-
-
-#define			CONN_IDX_MASK									15
-
-
-
-#define			MAX_OCTETS_DATA_LEN_27							27
-#define			MAX_OCTETS_DATA_LEN_EXTENSION					251
 
 /**
  * @brief      This function is used to get the current number of ACL connections.
@@ -206,5 +187,13 @@ ble_sts_t 	blc_ll_sendDateLengthExtendReq (u16 connHandle,  u16 maxTxOct);
 ble_sts_t	blc_ll_setAclConnMaxOctetsNumber(u8 maxRxOct, u8 maxTxOct_master, u8 maxTxOct_slave);
 
 
+/**
+ * @brief		This function is used to set ll_length_req pending timing after connection created
+ * @param[in]	time_ms - pending timing, unit: ms
+ * @return      none
+ */
+void		blc_ll_setDataLengthReqSendingTime_after_connCreate(int time_ms);
 
-#endif /* LLMS_CONN_H_ */
+
+
+#endif /* ACL_CONN_H_ */

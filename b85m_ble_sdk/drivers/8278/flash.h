@@ -70,14 +70,14 @@ typedef enum{
  * The value of temp_buf[2] reflects flash capacity.
  */
 typedef enum {
-    FLASH_SIZE_64K     = 0x10,
-    FLASH_SIZE_128K    = 0x11,
-    FLASH_SIZE_256K    = 0x12,
-    FLASH_SIZE_512K    = 0x13,
-    FLASH_SIZE_1M      = 0x14,
-    FLASH_SIZE_2M      = 0x15,
-    FLASH_SIZE_4M      = 0x16,
-    FLASH_SIZE_8M      = 0x17,
+	FLASH_CAPACITY_64K     = 0x10,
+	FLASH_CAPACITY_128K    = 0x11,
+	FLASH_CAPACITY_256K    = 0x12,
+	FLASH_CAPACITY_512K    = 0x13,
+	FLASH_CAPACITY_1M      = 0x14,
+	FLASH_CAPACITY_2M      = 0x15,
+	FLASH_CAPACITY_4M      = 0x16,
+	FLASH_CAPACITY_8M      = 0x17,
 } Flash_CapacityDef;
 
 /**

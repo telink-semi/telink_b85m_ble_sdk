@@ -47,7 +47,6 @@
 #include "drivers.h"
 #include "stack/ble/ble.h"
 
-#include "app_config.h"
 #include "app.h"
 #include "app_att.h"
 #include "app_ui.h"
@@ -56,7 +55,6 @@
 #include "application/keyboard/keyboard.h"
 #include "application/rf_frame.h"
 
-#if (FEATURE_TEST_MODE == TEST_LL_DLE)
 
 
 ////////////////////////////////////////// slave-role ATT service concerned ///////////////////////////////////////////////
@@ -104,19 +102,19 @@ static const u16 my_gattServiceUUID = SERVICE_UUID_GENERIC_ATTRIBUTE;
 
 static const gap_periConnectParams_t my_periConnParameters = {20, 40, 0, 1000};
 
-static u16 serviceChangeVal[2] = {0};
+_attribute_data_retention_	static u16 serviceChangeVal[2] = {0};
 
-static u8 serviceChangeCCC[2] = {0,0};
+_attribute_data_retention_	static u8 serviceChangeCCC[2] = {0,0};
 
-static const u8 my_devName[] = {'B','8','5','_','D','L','E'};
+static const u8 my_devName[] = {'s','l','a','v','e','_', 'd','e','m','o'};
 
 static const u8 my_PnPtrs [] = {0x02, 0x8a, 0x24, 0x66, 0x82, 0x01, 0x00};
 
 //////////////////////// Battery /////////////////////////////////////////////////
 static const u16 my_batServiceUUID        = SERVICE_UUID_BATTERY;
 static const u16 my_batCharUUID       	  = CHARACTERISTIC_UUID_BATTERY_LEVEL;
-static u8 batteryValueInCCC[2] = {0,0};
-static u8 my_batVal[1] 	= {99};
+_attribute_data_retention_	static u8 batteryValueInCCC[2] = {0,0};
+_attribute_data_retention_	static u8 my_batVal[1] 	= {99};
 
 //////////////////////// HID /////////////////////////////////////////////////////
 
@@ -131,32 +129,32 @@ static const u16 hidinformationUUID       = CHARACTERISTIC_UUID_HID_INFORMATION;
 static const u16 hidCtrlPointUUID         = CHARACTERISTIC_UUID_HID_CONTROL_POINT;
 static const u16 hidIncludeUUID           = GATT_UUID_INCLUDE;
 
-static u8 protocolMode 			  = DFLT_HID_PROTOCOL_MODE;
+_attribute_data_retention_	static u8 protocolMode 			  = DFLT_HID_PROTOCOL_MODE;
 
 // Key in Report characteristic variables
-static u8 reportKeyIn[8];
-static u8 reportKeyInCCC[2] = {0,0};
+_attribute_data_retention_	static u8 reportKeyIn[8];
+_attribute_data_retention_	static u8 reportKeyInCCC[2] = {0,0};
 // HID Report Reference characteristic descriptor, key input
-static u8 reportRefKeyIn[2] =
+_attribute_data_retention_	static u8 reportRefKeyIn[2] =
              { HID_REPORT_ID_KEYBOARD_INPUT, HID_REPORT_TYPE_INPUT };
 
 // Key out Report characteristic variables
-static u8 reportKeyOut[1];
-static u8 reportRefKeyOut[2] =
+_attribute_data_retention_	static u8 reportKeyOut[1];
+_attribute_data_retention_	static u8 reportRefKeyOut[2] =
              { HID_REPORT_ID_KEYBOARD_INPUT, HID_REPORT_TYPE_OUTPUT };
 
 // Consumer Control input Report
-static u8 reportConsumerControlIn[2];
-static u8 reportConsumerControlInCCC[2] = {0,0};
-static u8 reportRefConsumerControlIn[2] =
+_attribute_data_retention_	static u8 reportConsumerControlIn[2];
+_attribute_data_retention_	static u8 reportConsumerControlInCCC[2] = {0,0};
+_attribute_data_retention_	static u8 reportRefConsumerControlIn[2] =
 			 { HID_REPORT_ID_CONSUME_CONTROL_INPUT, HID_REPORT_TYPE_INPUT };
 
 // Boot Keyboard Input Report
-static u8 bootKeyInReport;
-static u8 bootKeyInReportCCC[2] = {0,0};
+_attribute_data_retention_	static u8 bootKeyInReport;
+_attribute_data_retention_	static u8 bootKeyInReportCCC[2] = {0,0};
 
 // Boot Keyboard Output Report
-static u8 bootKeyOutReport;
+_attribute_data_retention_	static u8 bootKeyOutReport;
 
 // HID Information characteristic
 static const u8 hidInformation[] =
@@ -167,7 +165,7 @@ static const u8 hidInformation[] =
 };
 
 // HID Control Point characteristic
-static u8 controlPoint;
+_attribute_data_retention_	static u8 controlPoint;
 
 // HID Report Map characteristic
 // Keyboard report descriptor (using format for Boot interface descriptor)
@@ -238,13 +236,13 @@ static const u8 reportMap[] =
 };
 
 // HID External Report Reference Descriptor for report map
-static u16 extServiceUUID;
+_attribute_data_retention_	static u16 extServiceUUID;
 
 
 //////////////////////// OTA //////////////////////////////////
 static const  u8 my_OtaServiceUUID[16]				= WRAPPING_BRACES(TELINK_OTA_UUID_SERVICE);
 static const  u8 my_OtaUUID[16]						= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
-static 		  u8 my_OtaData 						= 0x00;
+_attribute_data_retention_	static 		  u8 my_OtaData 						= 0x00;
 static const u8  my_OtaName[] = {'O', 'T', 'A'};
 
 
@@ -260,12 +258,12 @@ static const u8 TelinkSppDataClient2ServerUUID[16]      = WRAPPING_BRACES(TELINK
 
 
 // Spp data from Server to Client characteristic variables
-static u8 SppDataServer2ClientDataCCC[2]  				= {0};
+_attribute_data_retention_	static u8 SppDataServer2ClientDataCCC[2]  				= {0};
 //this array will not used for sending data(directly calling HandleValueNotify API), so cut array length from 20 to 1, saving some SRAM
-static u8 SppDataServer2ClientData[1] 					= {0};  //SppDataServer2ClientData[20]
+_attribute_data_retention_	static u8 SppDataServer2ClientData[1] 					= {0};  //SppDataServer2ClientData[20]
 // Spp data from Client to Server characteristic variables
 //this array will not used for receiving data(data processed by Attribute Write CallBack function), so cut array length from 20 to 1, saving some SRAM
-static u8 SppDataClient2ServerData[1] 					= {0};  //SppDataClient2ServerData[20]
+_attribute_data_retention_	static u8 SppDataClient2ServerData[1] 					= {0};  //SppDataClient2ServerData[20]
 
 
 //SPP data descriptor
@@ -515,62 +513,3 @@ void	my_gatt_init (void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////////////////////////////////////////// master-role ATT concerned ///////////////////////////////////////////////
-
-/**
- * @brief       This function is used to send consumer HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard_media (u16 conn, u8 *p)
-{
-	u16 consumer_key = p[0] | p[1]<<8;
-
-
-#if (1 && UI_LED_ENABLE)	//Demo effect: when slave send Vol+/Vol- to master, LED GPIO toggle to show the result
-	if(consumer_key == MKEY_VOL_UP){
-		gpio_toggle(GPIO_LED_GREEN);
-	}
-	else if(consumer_key == MKEY_VOL_DN){
-		gpio_toggle(GPIO_LED_BLUE);
-	}
-#endif
-}
-
-
-//////////////// keyboard ///////////////////////////////////////////////////
-
-/**
- * @brief       This function is used to send HID report by USB.
- * @param[in]   conn     - connection handle
- * @param[in]   p        - Pointer point to data buffer.
- * @return
- */
-void	att_keyboard (u16 conn, u8 *p)
-{
-
-}
-
-
-#endif

@@ -59,7 +59,7 @@ static const  u8 my_OtaUUID[16]	= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
 
 
 #if (OTA_CLIENT_SUPPORT_BIG_PDU_ENABLE)
-	#define OTA_PDU_LENGTH									240
+	#define OTA_PDU_LENGTH									240  // n*16 (n= 1 ~ 15),
 #else
 	#define OTA_PDU_LENGTH									16
 #endif
@@ -108,10 +108,10 @@ void app_ota_set_result(int result)
 #endif
 
 
-//	int time_S = (clock_time() - blotaClt.ota_start_tick)/SYSTEM_TIMER_TICK_1S + 1;
-//
-//	my_dump_str_data(OTA_DUMP_EN,"OTA result", &result, 1);
-//	my_dump_str_data(OTA_DUMP_EN,"OTA time", &time_S, 4);
+	int time_S = (clock_time() - blotaClt.ota_start_tick)/SYSTEM_TIMER_TICK_1S + 1;
+
+	my_dump_str_data(OTA_DUMP_EN,"OTA result", &result, 1);
+	my_dump_str_data(OTA_DUMP_EN,"OTA time", &time_S, 4);
 
 
 	app_ota_reset();
@@ -203,10 +203,10 @@ void app_proc_ota_update(void)
 	if(blotaClt.ota_update_flow == OTA_STEP_1_CHECK_FW)
 	{
 		#if (UI_LED_ENABLE)
-			if(blotaClt.ota_new_fw_addr == NEW_FW_ADDR_256K){
+			if(blotaClt.ota_new_fw_addr == NEW_FW_ADDR0){
 				led_indicate_gpio = GPIO_LED_BLUE;
 			}
-			else if(blotaClt.ota_new_fw_addr == NEW_FW_ADDR_512K) {
+			else if(blotaClt.ota_new_fw_addr == NEW_FW_ADDR1) {
 				led_indicate_gpio = GPIO_LED_GREEN;
 			}
 
