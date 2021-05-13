@@ -51,7 +51,7 @@
 #include "app_buffer.h"
 
 #include "hci_tr_api.h"
-
+#include "hci_dfu_api.h"
 
 
 
@@ -228,6 +228,8 @@ void user_init_normal(void)
 #if HCI_TR_EN
 	HCI_Tr_Init();
 	blc_register_hci_handler(rx_from_uart_cb, tx_to_uart_cb);
+
+	DFU_Init();
 #endif
 
 	systimer_clr_irq_status();
@@ -244,17 +246,25 @@ void user_init_deepRetn(void)
 
 }
 
-
+u32 A_tick = 1;
 void main_loop (void)
 {
 #if HCI_TR_EN
 	HCI_Tr_Poll();
+	DFU_TaskStart();
 #endif
 
 	////////////////////////////////////// BLE entry /////////////////////////////////
 	blc_sdk_main_loop();
 
 	////////////////////////////////////// UI entry /////////////////////////////////
+#if 0
+	if(A_tick && clock_time_exceed(A_tick, 200*1000)){
+		A_tick = clock_time()|1;
+		gpio_toggle(GPIO_LED_WHITE);
+		//gpio_toggle(GPIO_LED_BLUE);
+	}
+#endif
 }
 
 
