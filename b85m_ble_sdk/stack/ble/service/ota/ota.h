@@ -58,7 +58,8 @@
 #define CMD_OTA_RESULT						0xFF06	//server -> client
 
 
-
+extern int	ota_program_bootAddr;
+extern int	ota_program_offset;
 
 
 /**

@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,13 +41,46 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef HCI_CMD_H_
 #define HCI_CMD_H_
 
 
 #include "stack/ble/ble_format.h"
+
+
+
+
+/**
+ *  @brief  Command Parameters for "7.1.6 Disconnect command"
+ */
+typedef struct {
+	u16	connection_handle;
+	u8	reason;
+} hci_disconnect_cmdParam_t;
+
+
+
+/**
+ *  @brief  Return Parameters for "7.4.6 Read BD_ADDR command"
+ */
+typedef struct {
+	u8	status;
+	u8	bd_addr[6];
+} hci_readBdAddr_retParam_t;
+
+
+
+
+/**
+ *  @brief  Return Parameters for "7.8.2 LE Read Buffer Size command"
+ */
+typedef struct {
+	u8	status;
+	u16	acl_data_pkt_len;  // LE_ACL_Data_Packet_Length
+	u8	num_le_data_pkt;   // Total_Num_LE_ACL_Data_Packets
+} hci_le_readBufSize_v1_retParam_t;
 
 
 /**
@@ -63,7 +96,7 @@ typedef struct {
 	u8  peerAddr[6];//BLE_ADDR_LEN];
 	u8  advChannelMap;
 	u8  advFilterPolicy;
-} adv_para_t;
+} hci_le_setAdvParam_cmdParam_t;
 
 
 /* Advertising_Interval, Time = N * 0.625 ms,
@@ -103,6 +136,7 @@ typedef enum{
 	ADV_INTERVAL_1_28_S      =                  2048,
 	ADV_INTERVAL_10_24S      =                 16384,
 }adv_inter_t;
+
 
 /* Advertisement Type */
 typedef enum{
@@ -254,6 +288,22 @@ typedef enum {
 /**
  *  @brief  Command Parameters for "7.8.12 LE Create Connection command"
  */
+typedef struct{
+	u16		scan_inter;
+	u16		scan_wind;
+	u8		fp; //init_filter_policy
+  	u8		peerAddr_type;
+	u8		peer_addr[6];
+	u8		ownAddr_type;
+  	u16		conn_min;
+  	u16		conn_max;
+  	u16 	connLatency;
+  	u16		timeout;
+  	u16		ceLen_min;
+  	u16		ceLen_max;
+} hci_le_createConn_cmdParam_t;
+
+
 
 /* Initiator_Filter_Policy */
 typedef enum {
@@ -316,7 +366,10 @@ typedef enum{
 	CONN_INTERVAL_130MS              =            104,
 	CONN_INTERVAL_140MS              =            112,
 	CONN_INTERVAL_150MS              =            120,
+	CONN_INTERVAL_160MS              =            128,
+	CONN_INTERVAL_170MS              =            136,
 	CONN_INTERVAL_180MS              =            144,
+	CONN_INTERVAL_190MS              =            152,
 	CONN_INTERVAL_200MS              =            160,
 	CONN_INTERVAL_250MS              =            200,
 	CONN_INTERVAL_300MS              =            240,
@@ -348,12 +401,21 @@ typedef enum{
 
 
 
+/**
+ *  @brief  Command Parameters for "7.8.16 LE Add Device To White List command"
+ */
+typedef struct{
+	u8		adr_type;
+	u8		addr[6];
+} hci_le_addDeviceWhitelist_cmdParam_t;
 
-
-
-
-
-
+/**
+ *  @brief  Command Parameters for "7.8.17 LE Remove Device From White List command"
+ */
+typedef struct{
+	u8		adr_type;
+	u8		addr[6];
+} hci_le_removeDeviceWhitelist_cmdParam_t;
 
 
 
@@ -461,6 +523,7 @@ typedef enum{
 	ADV_HANDLE0		= 0x00,
 	ADV_HANDLE1		= 0x01,
 	ADV_HANDLE2		= 0x02,
+	ADV_HANDLE3		= 0x03,
 }adv_handle_t;
 
 
@@ -573,7 +636,7 @@ typedef struct{
 typedef struct{
 	u8		enable;
 	u8		num_sets;
-	extAdvEn_Cfg_t		cisCfg[3];  // ADV_SETS_NUMBER_MAX
+	extAdvEn_Cfg_t		cisCfg[3];  // TSKNUM_EXT_ADV
 } hci_le_setExtAdvEn_cmdParam_t;
 
 
@@ -581,6 +644,88 @@ typedef struct{
 /**
  *  @brief  Command Parameters for "7.8.61 LE Set Periodic Advertising Parameters command"
  */
+
+/* Periodic_adv_Interval, Time = N * 1.25 ms,
+ * Notice that these are just part of but not all Periodic_adv_Interval value */
+typedef enum{
+	PERADV_INTERVAL_7P5MS              =            6,
+	PERADV_INTERVAL_8P75MS             =            7,
+	PERADV_INTERVAL_10MS               =            8,
+	PERADV_INTERVAL_11P25MS            =            9,
+	PERADV_INTERVAL_12P5MS             =            10,
+	PERADV_INTERVAL_13P75MS            =            11,
+	PERADV_INTERVAL_15MS               =            12,
+	PERADV_INTERVAL_16P25MS            =            13,
+	PERADV_INTERVAL_17P5MS             =            14,
+	PERADV_INTERVAL_18P75MS            =            15,
+	PERADV_INTERVAL_20MS               =            16,
+	PERADV_INTERVAL_21P25MS            =            17,
+	PERADV_INTERVAL_22P5MS             =            18,
+	PERADV_INTERVAL_23P75MS            =            19,
+	PERADV_INTERVAL_25MS               =            20,
+	PERADV_INTERVAL_26P25MS            =            21,
+	PERADV_INTERVAL_27P5MS             =            22,
+	PERADV_INTERVAL_28P75MS            =            23,
+	PERADV_INTERVAL_30MS               =            24,
+	PERADV_INTERVAL_31P25MS            =            25,
+	PERADV_INTERVAL_32P5MS             =            26,
+	PERADV_INTERVAL_33P75MS            =            27,
+	PERADV_INTERVAL_35MS               =            28,
+	PERADV_INTERVAL_36P25MS            =            29,
+	PERADV_INTERVAL_37P5MS             =            30,
+	PERADV_INTERVAL_38P75MS            =            31,
+	PERADV_INTERVAL_40MS               =            32,
+	PERADV_INTERVAL_41P25MS            =            33,
+	PERADV_INTERVAL_42P5MS             =            34,
+	PERADV_INTERVAL_43P75MS            =            35,
+	PERADV_INTERVAL_45MS               =            36,
+	PERADV_INTERVAL_46P25MS            =            37,
+	PERADV_INTERVAL_47P5MS             =            38,
+	PERADV_INTERVAL_48P75MS            =            39,
+	PERADV_INTERVAL_50MS               =            40,
+	PERADV_INTERVAL_55MS               =            44,
+	PERADV_INTERVAL_60MS               =            48,
+	PERADV_INTERVAL_62P5MS			   =            50,
+	PERADV_INTERVAL_65MS               =            52,
+	PERADV_INTERVAL_70MS               =            56,
+	PERADV_INTERVAL_75MS               =            60,
+	PERADV_INTERVAL_80MS               =            64,
+	PERADV_INTERVAL_85MS               =            68,
+	PERADV_INTERVAL_90MS               =            72,
+	PERADV_INTERVAL_95MS               =            78,
+	PERADV_INTERVAL_100MS              =            80,
+	PERADV_INTERVAL_110MS              =            88,
+	PERADV_INTERVAL_120MS              =            96,
+	PERADV_INTERVAL_130MS              =            104,
+	PERADV_INTERVAL_140MS              =            112,
+	PERADV_INTERVAL_150MS              =            120,
+	PERADV_INTERVAL_180MS              =            144,
+	PERADV_INTERVAL_200MS              =            160,
+	PERADV_INTERVAL_250MS              =            200,
+	PERADV_INTERVAL_300MS              =            240,
+	PERADV_INTERVAL_400MS              =            320,
+	PERADV_INTERVAL_500MS              =            400,
+	PERADV_INTERVAL_600MS              =            480,
+	PERADV_INTERVAL_700MS              =            560,
+	PERADV_INTERVAL_800MS              =            640,
+	PERADV_INTERVAL_900MS              =            720,
+	PERADV_INTERVAL_1S				   =            800,
+	PERADV_INTERVAL_1S2				   =            960,
+	PERADV_INTERVAL_1S4				   =            1120,
+	PERADV_INTERVAL_1S5				   =            1200,
+	PERADV_INTERVAL_1S6				   =            1280,
+	PERADV_INTERVAL_1S8				   =            1440,
+	PERADV_INTERVAL_2S				   =            1600,
+	PERADV_INTERVAL_3S				   =            2400,
+	PERADV_INTERVAL_4S				   =            3200,
+	PERADV_INTERVAL_5S				   =            4000,
+	PERADV_INTERVAL_6S				   =            4800,
+	PERADV_INTERVAL_7S				   =            5600,
+	PERADV_INTERVAL_8S				   =            6400,
+	PERADV_INTERVAL_9S				   =            7200,
+	PERADV_INTERVAL_10S				   =            8000,
+}periodic_adv_inter_t;
+
 typedef enum{
 
 	PERD_ADV_PROP_MASK_NONE	= 0,
@@ -605,7 +750,7 @@ typedef struct{
 	u8		scan_filter_policy;
   	u8		scan_PHYs;
   	ext_scan_cfg_t		scanCfg[2];  //at most 2 kind of PHY: 1M and Coded
-} hci_le_setExtScan_cmdParam_t;
+} hci_le_setExtScanParam_cmdParam_t;
 
 
 /* Scanning_PHYs */
@@ -621,22 +766,58 @@ typedef enum {
 /**
  *  @brief  Command Parameters for "7.8.65 LE Set Extended Scan Enable command"
  */
+typedef struct{
+	u8		Enable;
+	u8		Filter_Duplicates;
+	u16		Duration;
+	u16		Period;
+} hci_le_setExtScanEnable_cmdParam_t;
+
+/* Filter_Duplicates for Extended Scan*/
+typedef enum {
+	DUPE_FLTR_DISABLE 				= 0x00,
+	DUPE_FLTR_ENABLE				= 0x01,
+	DUPE_FLTR_ENABLE_RST_PERIOD		= 0x02,
+} dupe_fltr_en_t;
+
+
 /* Scan duration, Range: 0x0001 to 0xFFFF, Time = N * 10 ms, Time Range: 10 ms to 655.35 s,
  * Notice that these are just part of but not all Scan duration value */
 typedef enum{
 	SCAN_DURATION_CONTINUOUS         =             0,
+	SCAN_DURATION_50MS				 =			   5,
 	SCAN_DURATION_100MS				 =			  10,
+	SCAN_DURATION_150MS				 =			  15,
 	SCAN_DURATION_200MS				 =			  20,
+	SCAN_DURATION_250MS				 =			  25,
 	SCAN_DURATION_300MS				 =			  30,
+	SCAN_DURATION_350MS				 =			  35,
 	SCAN_DURATION_400MS				 =			  40,
+	SCAN_DURATION_450MS				 =			  45,
 	SCAN_DURATION_500MS				 =			  50,
+	SCAN_DURATION_550MS				 =			  55,
 	SCAN_DURATION_600MS				 =			  60,
+	SCAN_DURATION_650MS				 =			  65,
 	SCAN_DURATION_700MS				 =			  70,
+	SCAN_DURATION_750MS				 =			  75,
 	SCAN_DURATION_800MS				 =			  80,
+	SCAN_DURATION_850MS				 =			  85,
 	SCAN_DURATION_900MS				 =			  90,
+	SCAN_DURATION_950MS				 =			  96,
 	SCAN_DURATION_1S				 =		 	  100,
-	SCAN_DURATION_1S5				 =			  150,
+	SCAN_DURATION_1S2			 	 =		 	  120,
+	SCAN_DURATION_1S5				 =		 	  150,
+	SCAN_DURATION_1S6				 =		 	  160,
+	SCAN_DURATION_1S8				 =		 	  180,
 	SCAN_DURATION_2S				 =		 	  200,
+	SCAN_DURATION_3S				 =		 	  300,
+	SCAN_DURATION_4S				 =		 	  400,
+	SCAN_DURATION_5S				 =		 	  500,
+	SCAN_DURATION_6S				 =		 	  600,
+	SCAN_DURATION_7S				 =		 	  700,
+	SCAN_DURATION_8S				 =		 	  800,
+	SCAN_DURATION_9S				 =		 	  900,
+	SCAN_DURATION_10S				 =		 	  1000,
 }scan_durn_t;
 
 /* Scan period, Range: 0x0001 to 0xFFFF, Time = N * 1.28 sec, Time Range: 1.28 s to 83,884.8 s
@@ -645,7 +826,13 @@ typedef enum{
 	SCAN_WINDOW_CONTINUOUS           =             0,
 	SCAN_WINDOW_1S28				 =			   1,
 	SCAN_WINDOW_2S56				 =			   2,
-	SCAN_WINDOW_6S14				 =			   5,
+	SCAN_WINDOW_3S84				 =			   3,
+	SCAN_WINDOW_5S12				 =			   4,
+	SCAN_WINDOW_6S4 				 =			   5,
+	SCAN_WINDOW_7S68				 =			   6,
+	SCAN_WINDOW_8S92				 =			   7,
+	SCAN_WINDOW_10S24				 =			   8,
+	SCAN_WINDOW_11S52				 =			   9,
 	SCAN_WINDOW_12S8				 =			  10,
 }scan_period_t;
 
@@ -655,29 +842,31 @@ typedef enum{
  *  @brief  Command Parameters for "7.8.66 LE Extended Create Connection command"
  */
 typedef struct{
-	u16		scan_interval;
-	u16		scan_window;
-  	u16		connInter_min;
-  	u16		connInter_max;
+	u16		scan_inter;
+	u16		scan_wind;
+  	u16		conn_min;
+  	u16		conn_max;
   	u16 	connLatency;
-  	u16		connTimeout;
+  	u16		timeout;
   	u16		ceLen_min;
   	u16		ceLen_max;
 } ext_init_cfg_t;
 
 typedef struct{
-	u8		init_filter_policy;
+	u8		fp; //init_filter_policy
 	u8		ownAddr_type;
   	u8		peerAddr_type;
 	u8		peer_addr[6];
 	u8		init_PHYs;
-  	ext_init_cfg_t		scanCfg[3];
+  	ext_init_cfg_t		initCfg[3];
 } hci_le_ext_createConn_cmdParam_t;
+
+#define EXT_CREATE_CONN_CMD_PARAM_MAX_LENGTH		(10 + 16 * 3)   //10 + sizeof(ext_init_cfg_t) * 3
 
 /* Initiating_PHYs */
 typedef enum {
 	INIT_PHY_1M 			= BIT(0),
-	INIT_PHY_2M 			= BIT(1),
+	INIT_PHY_2M 			= BIT(1),	//can not use this, at least one bit set for a PHY allowed for scanning on the primary advertising physical channel
 	INIT_PHY_CODED			= BIT(2),
 	INIT_PHY_1M_2M 			= (INIT_PHY_1M | INIT_PHY_2M),
 	INIT_PHY_1M_CODED 		= (INIT_PHY_1M | INIT_PHY_CODED),
@@ -692,6 +881,16 @@ typedef enum {
 /**
  *  @brief  Command Parameters for "7.8.67 LE Periodic Advertising Create Sync command"
  */
+typedef struct{
+	u8		Options;
+	u8		Advertising_SID;
+	u8		Advertiser_Address_Type;
+	u8		Advertiser_Address[6];
+	u16		Skip;
+	u16		Sync_Timeout;
+	u16		Sync_CTE_Type;
+} hci_le_periodicAdvCreateSync_cmdParam_t;
+
 /* Options */
 typedef enum {
 
@@ -701,11 +900,43 @@ typedef enum {
 	SYNC_ADV_SPECIFY	 = 0,
 	SYNC_ADV_FROM_LIST	 = BIT(0),
 
-	/* BIT(1) ~ BIT(7) reserved */
+	/* BIT(1)
+	   whether HCI_Periodic_Advertising_Report events for this periodic advertising train are initially enabled
+	   0: enabled
+	   1: disabled
+	*/
+	REPORTING_INITIALLY_EN	 = 0,
+	REPORTING_INITIALLY_DIS	 = BIT(1),
+
+	/* BIT(2) ~ BIT(7) reserved */
 } option_msk_t;
 
 
-
+/* Synchronization timeout, Time = N * 10 ms,
+ * Notice that these are just part of but not all Synchronization timeout value */
+typedef enum{
+	SYNC_TIMEOUT_100MS				 =			  10,
+	SYNC_TIMEOUT_200MS				 =			  20,
+	SYNC_TIMEOUT_300MS				 =			  30,
+	SYNC_TIMEOUT_400MS				 =			  40,
+	SYNC_TIMEOUT_500MS				 =			  50,
+	SYNC_TIMEOUT_1S					 =		 	  100,
+	SYNC_TIMEOUT_1S5				 =		 	  150,
+	SYNC_TIMEOUT_2S					 =		 	  200,
+	SYNC_TIMEOUT_2S5				 =		 	  250,
+	SYNC_TIMEOUT_3S					 =		 	  300,
+	SYNC_TIMEOUT_3S5				 =		 	  350,
+	SYNC_TIMEOUT_4S					 =		 	  400,
+	SYNC_TIMEOUT_4S5				 =		 	  450,
+	SYNC_TIMEOUT_5S					 =		 	  500,
+	SYNC_TIMEOUT_6S					 =		 	  600,
+	SYNC_TIMEOUT_7S					 =		 	  700,
+	SYNC_TIMEOUT_8S					 =		 	  800,
+	SYNC_TIMEOUT_9S					 =		 	  900,
+	SYNC_TIMEOUT_10S				 =			  1000,
+	SYNC_TIMEOUT_15S				 =			  1500,
+	SYNC_TIMEOUT_20S				 =			  2000,
+}sync_tm_t;
 
 
 
@@ -862,7 +1093,7 @@ typedef struct
   	u8  	big_handle;			/* Used to identify the BIG */
 	u8		adv_handle;			/* Used to identify the periodic advertising train */
 	u8		num_bis;			/* Total number of BISes in the BIG */
-  	u8  	sdu_intvl[3];		/* The interval, in microseconds, of periodic SDUs */
+  	u8  	sdu_intvl[3];		/* The interval, in microseconds, of BIS SDUs */
   	u16		max_sdu;			/* Maximum size of an SDU, in octets */
   	u16		max_trans_lat; 		/* Maximum time, in milliseconds, for transmitting an SDU */
   	u8  	rtn; 				/* The maximum number of times that every BIS Data PDU should be retransmitted */
@@ -885,13 +1116,13 @@ typedef struct
 	u8		adv_handle;			/* Used to identify the periodic advertising train */
 	u8		num_bis;			/* Total number of BISes in the BIG */
   	u8  	sdu_intvl[3];		/* The interval, in microseconds, of periodic SDUs */
-  	u16     iso_intvl;			/* The time between consecutive BIG anchor points */
+  	u16     iso_intvl;			/* The time between consecutive BIG anchor points, Time = N * 1.25 ms */
   	u8		nse;				/* The total number of subevents in each interval of each BIS in the BIG */
   	u16		max_sdu;			/* Maximum size of an SDU, in octets */
   	u16		max_pdu; 			/* Maximum size, in octets, of payload */
-  	u8		phy;				/* The transmitter PHY of packets */
-	packing_type_t		packing;//type same as u8
-	framing_t	    	framing;//type same as u8
+  	u8		phy;				/* The transmitter PHY of packets, BIT(0): LE 1M; BIT(1): LE 2M; BIT(3): LE Coded PHY */
+	u8		packing;
+	u8		framing;
 	u8		bn;					/* The number of new payloads in each interval for each BIS */
 	u8		irc;				/* The number of times the scheduled payload(s) are transmitted in a given event*/
 	u8		pto;				/* Offset used for pre-transmissions */
@@ -921,8 +1152,7 @@ typedef struct
 	u8		enc;				/* Encryption flag */
 	u8      broadcast_code[16]; /* The code used to derive the session key that is used to encrypt and decrypt BIS payloads */
 	u8		mse;				/* The Controller can schedule reception of any number of subevents up to NSE */
-  	u16		big_sync_timeout;	/* Synchronization timeout for the BIG */
-  	u16		max_trans_lat; 		/* Maximum time, in milliseconds, for transmitting an SDU */
+  	u16		big_sync_timeout;	/* Synchronization timeout for the BIG, Time = N*10 ms, Time Range: 100 ms to 163.84 s */
   	u8  	num_bis; 			/* Total number of BISes to synchronize */
   	u8*     bis;				/* List of indices of BISes */
 } hci_le_bigCreateSyncParams_t;

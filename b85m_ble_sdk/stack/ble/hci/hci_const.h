@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,14 +41,8 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
- *******************************************************************************************************/
-/*
- * hci_const.h
  *
- *  Created on: 2016-9-20
- *      Author: Administrator
- */
+ *******************************************************************************************************/
 
 #ifndef HCI_CONST_H_
 #define HCI_CONST_H_
@@ -79,19 +73,19 @@
 #define HCI_EVT_DATA_BUF_OVERFLOW                                    0x1A
 #define HCI_EVT_ENCRYPTION_KEY_REFRESH                               0x30
 #define HCI_EVT_LE_META                                              0x3E
-#define HCI_EVT_CERT_VS                                              0xF0
+#define HCI_EVT_HT_ERR_FLAG                                          0xF0
 
 // LE Meta Event Codes
 #define HCI_SUB_EVT_LE_CONNECTION_COMPLETE                           0x01	//core_4.0
-#define HCI_SUB_EVT_LE_ADVERTISING_REPORT                            0x02
-#define HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE                    0x03
-#define HCI_SUB_EVT_LE_READ_REMOTE_USED_FEATURES_COMPLETE            0x04
+#define HCI_SUB_EVT_LE_ADVERTISING_REPORT                            0x02	//core_4.0
+#define HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE                    0x03	//core_4.0
+#define HCI_SUB_EVT_LE_READ_REMOTE_USED_FEATURES_COMPLETE            0x04	//core_4.0
 #define HCI_SUB_EVT_LE_LONG_TERM_KEY_REQUESTED                       0x05	//core_4.0
 #define HCI_SUB_EVT_LE_REMOTE_CONNECTION_PARAM_REQUEST               0x06   //core_4.1
 #define HCI_SUB_EVT_LE_DATA_LENGTH_CHANGE                            0x07	//core_4.2
-#define HCI_SUB_EVT_LE_READ_LOCAL_P256_KEY_COMPLETE                  0x08
-#define HCI_SUB_EVT_LE_GENERATE_DHKEY_COMPLETE				         0x09
-#define HCI_SUB_EVT_LE_ENHANCED_CONNECTION_COMPLETE                  0x0A
+#define HCI_SUB_EVT_LE_READ_LOCAL_P256_KEY_COMPLETE                  0x08	//core_4.2
+#define HCI_SUB_EVT_LE_GENERATE_DHKEY_COMPLETE				         0x09	//core_4.2
+#define HCI_SUB_EVT_LE_ENHANCED_CONNECTION_COMPLETE                  0x0A	//core_4.2
 #define HCI_SUB_EVT_LE_DIRECT_ADVERTISE_REPORT		                 0x0B   //core_4.2
 
 #define HCI_SUB_EVT_LE_PHY_UPDATE_COMPLETE							 0x0C	//core_5.0
@@ -121,7 +115,7 @@
 #define HCI_SUB_EVT_LE_PATH_LOSS_THRESHOLD							 0x20	//core_5.2	7.7.65.32 LE Path Loss Threshold event
 #define HCI_SUB_EVT_LE_TRANSMIT_POWER_REPORTING						 0x21	//core_5.2	7.7.65.33 LE Transmit Power Reporting event
 #define HCI_SUB_EVT_LE_BIGINFO_ADVERTISING_REPORT					 0x22	//core_5.2	7.7.65.34 LE BIGInfo Advertising Report event
-
+#define HCI_SUB_EVT_MAX												 0x23
 
 
 #define HCI_SUB_EVT_LE_CONNECTION_ESTABLISH					         0xFF   //Telink private
@@ -308,7 +302,7 @@
 #define HCI_CMD_LE_TRANSMITTER_TEST                                  0x1E
 #define HCI_CMD_LE_TEST_END                                          0x1F
 //core_4.0 end
-//core_4.2 begin
+//core_4.1 begin
 #define HCI_CMD_LE_REMOTE_CONNECTION_PARAM_REQ_REPLY             	 0x20
 #define HCI_CMD_LE_REMOTE_CONNECTION_PARAM_REQ_NEGATIVE_REPLY    	 0x21
 //core_4.1 end

@@ -125,17 +125,11 @@ int HCI_Tr_RxHandlerCback(void)
 		return 0;//have no data
 	}
 
-
-	u8 *p = NULL;
-	if (bltHci_rxfifo.rptr != bltHci_rxfifo.wptr)
-	{
-		p = bltHci_rxfifo.p + (bltHci_rxfifo.rptr & bltHci_rxfifo.mask) * bltHci_rxfifo.size;
-	}
-
+	u8 *p =  bltHci_rxfifo.p + (bltHci_rxfifo.rptr & bltHci_rxfifo.mask) * bltHci_rxfifo.size;
 	if(p)
 	{
 	#if(UI_LED_ENABLE)
-		gpio_toggle(GPIO_LED_RED);
+		//gpio_toggle(GPIO_LED_RED);
 	#endif
 
 		blc_hci_handler(&p[0], 0);//the second parameter is not used.
@@ -167,7 +161,8 @@ int HCI_Tr_TxHandlerCback(void)
 	}
 
     u8 *pBuf = uartTxBuf;
-    u8 *p = hci_fifo_get(&bltHci_txfifo);
+    //u8 *p = hci_fifo_get(&bltHci_txfifo);
+    u8 *p = bltHci_txfifo.p + (bltHci_txfifo.rptr & bltHci_txfifo.mask)*bltHci_txfifo.size;
 	if(p)
 	{
 		u32 len = 0;
@@ -180,9 +175,10 @@ int HCI_Tr_TxHandlerCback(void)
 		if(uart_dma_send(uartTxBuf))
 		{
 		#if(UI_LED_ENABLE)
-			gpio_toggle(GPIO_LED_GREEN);
+			//gpio_toggle(GPIO_LED_GREEN);
 		#endif
-			hci_fifo_pop (&bltHci_txfifo);
+			//hci_fifo_pop (&bltHci_txfifo);
+			bltHci_txfifo.rptr++;
 			return 1;
 		}
 	}

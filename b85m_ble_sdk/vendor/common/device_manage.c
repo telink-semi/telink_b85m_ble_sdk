@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #include "tl_common.h"
 #include "drivers.h"
@@ -87,12 +87,12 @@
  *                4				  3				conn_dev_list[0..3]		conn_dev_list[4..6]
  *                4				  4				conn_dev_list[0..3]		conn_dev_list[4..7]
  */
-_attribute_data_retention_	dev_char_info_t	conn_dev_list[DEVICE_CHAR_INFO_MAX_NUM];
+_attribute_ble_data_retention_	dev_char_info_t	conn_dev_list[DEVICE_CHAR_INFO_MAX_NUM];
 
 
 
-_attribute_data_retention_	int conn_master_num = 0;   //current master number in connection state
-_attribute_data_retention_	int conn_slave_num = 0;    //current slave number in connection state
+_attribute_ble_data_retention_	int conn_master_num = 0;   //current master number in connection state
+_attribute_ble_data_retention_	int conn_slave_num = 0;    //current slave number in connection state
 
 
 

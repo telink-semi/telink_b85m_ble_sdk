@@ -57,7 +57,7 @@
 #define HCI_TR_H4            0
 #define HCI_TR_H5            1
 #define HCI_TR_USB           2
-#define HCI_TR_MODE          HCI_TR_H5
+#define HCI_TR_MODE          HCI_TR_H4
 
 /*! HCI ACL data packet max size define. */
 #define HCI_ACL_BUF_SIZE     (1 + 4 + HCI_RX_FIFO_SIZE)
@@ -66,7 +66,7 @@
 /*! HCI UART transport pin define */
 #define HCI_TR_RX_PIN        GPIO_PB0
 #define HCI_TR_TX_PIN        GPIO_PB1
-#define HCI_TR_BAUDRATE      (1000000)/*<! unused. */
+#define HCI_TR_BAUDRATE      (115200)/*<! unused. */
 
 
 typedef void (*HciH5PacketHandler_t)(u8 *pPacket, u32 len);

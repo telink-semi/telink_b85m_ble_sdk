@@ -48,7 +48,13 @@
 #define DRIVERS_8278_EXT_MISC_H_
 #include "../register_8278.h"
 
+/***************************************************************************/
+//for debug
+#define	DBG_SRAM_ADDR					0x40000
+#define write_dbg32(addr, value)   		write_reg32(addr, value)
+
 /******************************* stimer_start ******************************************************************/
+#define	SYSTICK_NUM_PER_US			16
 #define reg_system_tick_irq 		REG_ADDR32(0x744)//reg_system_tick_irq_level
 enum{
 	SYSTEM_TIMER_TICK_1US 		= 16,

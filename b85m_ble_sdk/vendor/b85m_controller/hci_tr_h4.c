@@ -96,6 +96,7 @@ void HCI_Tr_H4Init(hci_fifo_t *pRxFifo)
 	uart_gpio_set(HCI_TR_TX_PIN, HCI_TR_RX_PIN);
 	uart_reset();
 
+#if 0
 #if (MCU_CORE_TYPE == MCU_CORE_825x)
 	//baud rate: 115200
 	#if(CLOCK_SYS_CLOCK_HZ == 16000000)
@@ -118,6 +119,10 @@ void HCI_Tr_H4Init(hci_fifo_t *pRxFifo)
 	#elif(CLOCK_SYS_CLOCK_HZ == 48000000)
 		uart_init(2, 15, PARITY_NONE, STOP_BIT_ONE);
 	#endif
+#endif
+
+#else
+	uart_init_baudrate(HCI_TR_BAUDRATE, CLOCK_SYS_CLOCK_HZ, PARITY_NONE, STOP_BIT_ONE);
 #endif
 
 	/* UART Rx use Normal mode, UART Tx use DMA mode. */
@@ -320,13 +325,14 @@ void HCI_Tr_H4Init(hci_fifo_t *pHciRxFifo)
 	hciH4TrCB.backupCnt  = 0;
 
 	/* Timer configuration. */
-	HCI_Tr_TimeInit(5000);
+	HCI_Tr_TimeInit(1000);
 
 	/* UART configuration. */
 	uart_gpio_set(HCI_TR_TX_PIN, HCI_TR_RX_PIN);
 	uart_reset();
-
-#if (MCU_CORE_TYPE == MCU_CORE_825x)
+	
+#if 0
+#if 1//(MCU_CORE_TYPE == MCU_CORE_825x)
 	//baud rate: 115200
 	#if(CLOCK_SYS_CLOCK_HZ == 16000000)
 		uart_init(9, 13, PARITY_NONE, STOP_BIT_ONE);
@@ -348,6 +354,10 @@ void HCI_Tr_H4Init(hci_fifo_t *pHciRxFifo)
 	#elif(CLOCK_SYS_CLOCK_HZ == 48000000)
 		uart_init(2, 15, PARITY_NONE, STOP_BIT_ONE);
 	#endif
+#endif
+
+#else
+	uart_init_baudrate(HCI_TR_BAUDRATE, CLOCK_SYS_CLOCK_HZ, PARITY_NONE, STOP_BIT_ONE);
 #endif
 
 	uart_recbuff_init(hciH4TrCB.pRxFifo->p, hciH4TrCB.pRxFifo->size);
@@ -463,11 +473,11 @@ int HCI_Tr_H4BackUpHandler(u8 *pPacket, u32 len)
 		{
 			pBuf += 2;//skip connHandle
 			BSTREAM_TO_UINT16(paramLen, pBuf);
-			u16 cpyLen = 1 + HCI_CMD_HEAD_LEN + paramLen - backupLen;
+			u16 cpyLen = 1 + HCI_ACL_HEAD_LEN + paramLen - backupLen;
 			memcpy(hciH4TrCB.pBackUpBuf + hciH4TrCB.backupCnt, pPacket, min(cpyLen, len));
 			hciH4TrCB.backupCnt += min(cpyLen, len);
 
-			if(hciH4TrCB.backupCnt == 1 + HCI_CMD_HEAD_LEN + paramLen)
+			if(hciH4TrCB.backupCnt == 1 + HCI_ACL_HEAD_LEN + paramLen)
 			{
 				u8 *p = pHciRxFifo->p + (pHciRxFifo->wptr & (pHciRxFifo->num-1)) * pHciRxFifo->size;
 				memcpy(p, hciH4TrCB.pBackUpBuf, hciH4TrCB.backupCnt);

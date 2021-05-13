@@ -49,9 +49,13 @@
 
 #include <tl_common.h>
 
+/***************************************************************************/
+//for debug
+#define	DBG_SRAM_ADDR					0x40000
+#define write_dbg32(addr, value)   		write_reg32(addr, value)
 
 /******************************* stimer_start ******************************************************************/
-
+#define	SYSTICK_NUM_PER_US			16
 /**
  * @brief    This function serves to set system timer capture tick.
  * @return  none

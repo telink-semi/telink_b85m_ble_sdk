@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #pragma once
 
@@ -52,6 +52,7 @@
 #include "drivers.h"
 #include "tl_common.h"
 
+#define 	BQB_TEST_EN      										1
 
 
 
@@ -60,18 +61,22 @@
 #define		LL_MULTI_SLAVE_MAC_ENABLE				    			0
 #endif
 
-#if (MCU_CORE_TYPE == MCU_CORE_9518)
+//Used for private BIS SYNCHRONIZED RECEIVER
+#ifndef		LL_FEATURE_PRIVATE_BIS_SYNC_RECEIVER
+#define 	LL_FEATURE_PRIVATE_BIS_SYNC_RECEIVER					0
+#endif
 
+#if(MCU_CORE_TYPE == MCU_CORE_825x)
+	#define	FIX_HW_CRC24_EN											1
+	#define HW_ECDH_EN                                     			0
+#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+	#define	FIX_HW_CRC24_EN											0
+	#define HW_ECDH_EN                                      		1
+#elif(MCU_CORE_TYPE == MCU_CORE_9518)
+	#define	FIX_HW_CRC24_EN											0
+	#define HW_ECDH_EN                                      		1
 #else
-	/* Different process for different MCU: ******************************************/
-	#if(__TL_LIB_8258__ || (MCU_CORE_TYPE == MCU_CORE_825x))
-	#define	FIX_HW_CRC24_EN						       	 				1
-	#endif
-
-	#ifndef FIX_HW_CRC24_EN
-	#define	FIX_HW_CRC24_EN												0
-	#endif
-	/**********************************************************************************/
+	#error "unsupported mcu type !"
 #endif
 
 //conn param update/map update
@@ -90,6 +95,10 @@
 #define LL_FEATURE_SUPPORT_LE_DATA_LENGTH_EXTENSION					1
 #endif
 
+#ifndef LL_FEATURE_SUPPORT_LL_PRIVACY
+#define LL_FEATURE_SUPPORT_LL_PRIVACY								0 //TODO: legAdv and slave role conn support now
+#endif
+
 #ifndef LL_FEATURE_SUPPORT_LE_2M_PHY
 #define LL_FEATURE_SUPPORT_LE_2M_PHY								1
 #endif
@@ -100,6 +109,14 @@
 
 #ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING
 #define LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING					1
+#endif
+
+#ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_SCANNING
+#define LL_FEATURE_SUPPORT_LE_EXTENDED_SCANNING						0
+#endif
+
+#ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_INITIATE
+#define LL_FEATURE_SUPPORT_LE_EXTENDED_INITIATE						0
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING
@@ -116,11 +133,11 @@
 
 //core_5.2 feature begin
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER
-#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		1
+#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		0
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE
-#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE		1
+#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE		0
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_ISOCHRONOUS_BROADCASTER
@@ -136,10 +153,6 @@
 #endif
 //core_5.2 feature end
 
-
-#ifndef BQB_HIGHER_TESTER_ENABLE
-#define BQB_HIGHER_TESTER_ENABLE									0
-#endif
 
 
 #ifndef BQB_LOWER_TESTER_ENABLE
@@ -162,8 +175,16 @@
 #endif
 
 
-#ifndef BLE_OTA_ENABLE
-#define BLE_OTA_ENABLE												1
+
+
+#ifndef UPPER_TESTER_DBG_EN
+#define UPPER_TESTER_DBG_EN											0
 #endif
+
+#ifndef UPPER_TESTER_HCI_LOG_EN
+#define UPPER_TESTER_HCI_LOG_EN										0
+#endif
+
+
 
 

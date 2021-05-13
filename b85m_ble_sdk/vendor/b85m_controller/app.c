@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #include "tl_common.h"
 #include "drivers.h"
@@ -95,6 +95,27 @@ int tx_to_uart_cb (void)
 }
 
 ///////////////////////////////////////////
+#if LL_FEATURE_ENABLE_LE_EXTENDED_ADVERTISING
+/** Number of Supported Advertising Sets, no exceed "ADV_SETS_NUMBER_MAX" */
+#define	APP_ADV_SETS_NUMBER						   				4 //Max support up to 4 ADV sets
+
+/** Maximum Advertising Data Length,   (if legacy ADV, max length 31 bytes is enough) */
+#define APP_MAX_LENGTH_ADV_DATA									1024
+
+/** Maximum Scan Response Data Length, (if legacy ADV, max length 31 bytes is enough) */
+#define APP_MAX_LENGTH_SCAN_RESPONSE_DATA		  				1024
+
+
+_attribute_ble_data_retention_	u8  app_advSet_buffer[ADV_SET_PARAM_LENGTH * APP_ADV_SETS_NUMBER];
+
+_attribute_ble_data_retention_	u8 	app_advData_buffer[APP_MAX_LENGTH_ADV_DATA * APP_ADV_SETS_NUMBER];
+
+_attribute_ble_data_retention_	u8 	app_scanRspData_buffer[APP_MAX_LENGTH_SCAN_RESPONSE_DATA * APP_ADV_SETS_NUMBER];
+
+
+_attribute_ble_data_retention_	u8	testAdvData[APP_MAX_LENGTH_ADV_DATA];
+_attribute_ble_data_retention_  u8  testScanRspData[APP_MAX_LENGTH_SCAN_RESPONSE_DATA];
+#endif
 
 /**
  * @brief      use initialization
@@ -136,9 +157,14 @@ void user_init_normal(void)
 	blc_ll_initAclMasterRole_module();
 	blc_ll_initAclSlaveRole_module();
 
+#if LL_FEATURE_ENABLE_LE_EXTENDED_ADVERTISING
+	blc_ll_initExtendedAdvertising_module();
+	blc_ll_initExtendedAdvSetBuffer(app_advSet_buffer, APP_ADV_SETS_NUMBER);
+	blc_ll_initExtAdvDataBuffer(app_advData_buffer, APP_MAX_LENGTH_ADV_DATA);
+	blc_ll_initExtScanRspDataBuffer(app_scanRspData_buffer, APP_MAX_LENGTH_SCAN_RESPONSE_DATA);
+#endif
 
-
-	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
+	blc_ll_setMaxConnectionNumber(1, 1);
 
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
@@ -204,6 +230,7 @@ void user_init_normal(void)
 	blc_register_hci_handler(rx_from_uart_cb, tx_to_uart_cb);
 #endif
 
+	systimer_clr_irq_status();
 	////////////////// End SPP initialization ///////////////////////////////////
 }
 
@@ -227,11 +254,7 @@ void main_loop (void)
 	////////////////////////////////////// BLE entry /////////////////////////////////
 	blc_sdk_main_loop();
 
-
-
 	////////////////////////////////////// UI entry /////////////////////////////////
-
-
 }
 
 

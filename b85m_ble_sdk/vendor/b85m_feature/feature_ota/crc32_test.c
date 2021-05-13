@@ -1,10 +1,48 @@
-/*
- * crc32.c
+/********************************************************************************************************
+ * @file	crc32_test.c
  *
- *  Created on: 2018-1-26
- *      Author: Administrator
- */
-
+ * @brief	This is the source file for BLE SDK
+ *
+ * @author	BLE GROUP
+ * @date	2020.06
+ *
+ * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
+ *
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
+ *
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *******************************************************************************************************/
 #include "tl_common.h"
 #include "drivers.h"
 #include "stack/ble/ble.h"
@@ -80,7 +118,7 @@ static unsigned long crc32_half_tbl[16] = {
 static unsigned long AA_crc_table[256];
 static unsigned long AA_crc_half_table[16];
 
-//Î»Äæ×ª
+//Î»×ª
 static unsigned long bitrev(unsigned long input, int bw)
 {
     int i;
@@ -183,13 +221,13 @@ unsigned long crc32_half_cal(unsigned long crc, unsigned char* input, unsigned l
 
 
 u8 test16[16] =   {0x11, 0x34, 0x67, 0xfd, 0x11, 0x34, 0x67, 0xfd, 0x11, 0x34, 0x67, 0xfd, 0x11, 0x34, 0x67, 0xfd};
-//½«test16°´°ë¸ö×Ö½Ú²ğ¿ªÈçÏÂ£º
+//test16Ö½Ú²Â£
 u8 test32[32] =   { 0x01,0x01, 0x04,0x03, 0x07,0x06, 0x0d,0x0f, 0x01,0x01, 0x04,0x03, 0x07, 0x06, 0x0d,0x0f, \
 					0x01,0x01, 0x04,0x03, 0x07,0x06, 0x0d,0x0f, 0x01,0x01, 0x04,0x03, 0x07, 0x06, 0x0d,0x0f };
 
 
 u8 test16_Another[16] = {0x12, 0x34, 0x67, 0xfd, 0x14, 0xb4, 0x62, 0x8c, 0xc9, 0xf0, 0x17, 0xd5, 0x5f, 0xaa, 0xba, 0xc9};
-//½«test16_2°´°ë¸ö×Ö½Ú²ğ¿ªÈçÏÂ£º
+//test16_2Ö½Ú²Â£
 u8 test32_Another[32] = {0x02,0x01, 0x04,0x03, 0x07,0x06, 0x0d,0x0f, 0x04,0x01, 0x04,0x0b, 0x02,0x06, 0x0c,0x08,  \
 				   0x09,0x0c, 0x00,0x0f, 0x07,0x01, 0x05,0x0d, 0x0f,0x05, 0x0a,0x0a, 0x0a,0x0b, 0x09,0x0c	};
 
@@ -217,19 +255,19 @@ void crc32_test(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Âë±íÉú³ÉÊ±¼äÍ³¼Æ
-//×¢Òâ£ºÂë±íµÄ´æ´¢ÓĞ3ÖÖ·½Ê½£º1.Ô¤ÏÈËãºÃµÄtableÖ±½Ó´æ´¢ÔÚflashÖĞ; 2.Ô¤ÏÈËãºÃµÄtable´æ´¢ÔÚÈ«¾Ö±äÁ¿Êı×éÖĞ ; 3.·ÖÅälocal±äÁ¿£¬¶ÑÕ»ÖĞ£¬Ã¿´ÎÖØĞÂ¼ÆËã
-//Ö»ÓĞÉÏÃæµÚ3ÖÖ·½Ê½²ÅĞèÒªÖØĞÂÉú³ÉÂë±í¡£
+//Ê±Í³
+//×¢â£ºÄ´æ´¢3Ö·Ê½1.Ô¤ÃµtableÖ±Ó´æ´¢flash; 2.Ô¤Ãµtableæ´¢È«Ö± ; 3.localÕ»Ğ£Ã¿Â¼
+//Ö»3Ö·Ê½Òª
 
-	//¼ÆËãcrc32 table[256*4]£¨¶ÔÓ¦byteµ¥Î»Êı¾İµÄcrc¼ÆËã£©¡£ºÄÊ± 1.6 ms
-	//¼ÆËã³öÀ´µÄ±íAA_crc_tableºÍÔ¤ÏÈ¶¨ÒåÔÚflashÉÏµÄcrc32_tbl¿Ï¶¨ÊÇÒ»ÑùµÄ£¨ÒòÎªcrc32_tblÒ²Ê¹ÓÃpolyÖµÎª0x04C11DB7¼ÆËãµÄ£©
+	//crc32 table[256*4]Ó¦byteÎ»İµcrcã£©Ê± 1.6 ms
+	//Ä±AA_crc_tableÔ¤È¶flashÏµcrc32_tblÏ¶Ò»Ä£Îªcrc32_tblÒ²Ê¹polyÖµÎª0x04C11DB7Ä£
     DBG_CHN0_HIGH;
     crc32_init(0x04C11DB7, AA_crc_table);  //1600us
     DBG_CHN0_LOW;
 
 
-    //¼ÆËãcrc32 half table[16*4]£¨¶ÔÓ¦°ë¸öbyteµ¥Î»Êı¾İµÄcrc¼ÆËã£©.ºÄÊ±150us
-	//¼ÆËã³öÀ´µÄ±íAA_crc_half_tableºÍÔ¤ÏÈ¶¨ÒåÔÚflashÉÏµÄcrc32_half_tbl¿Ï¶¨ÊÇÒ»ÑùµÄ£¨ÒòÎªcrc32_half_tblÒ²Ê¹ÓÃpolyÖµÎª0x04C11DB7¼ÆËãµÄ£©
+    //crc32 half table[16*4]Ó¦byteÎ»İµcrcã£©.Ê±150us
+	//Ä±AA_crc_half_tableÔ¤È¶flashÏµcrc32_half_tblÏ¶Ò»Ä£Îªcrc32_half_tblÒ²Ê¹polyÖµÎª0x04C11DB7Ä£
     DBG_CHN1_HIGH;
     crc32_half_init(0x04C11DB7, AA_crc_half_table);  //150us
     DBG_CHN1_LOW;
@@ -237,33 +275,33 @@ void crc32_test(void)
 
 
 
-////////////////////////ÏÂÃæÓÃËÄÖÖ·½·¨¶ÔÍ¬Ò»±ÊÊı¾İ½øĞĞcrc32µÄ¼ÆËã£¬¼ÆËã½á¹ûÒ»Ñù£¬Ö»ÊÇsram/flash/timingÉÏ¸÷ÓĞ²îÒì
-    //crc³õÖµÈ«²¿Ê¹ÓÃ 0xFFFFFFFF
+////////////////////////Ö·Í¬Ò»İ½crc32Ä¼ã£¬Ò»Ö»sram/flash/timingÏ¸Ğ²
+    //crcÖµÈ«Ê¹ 0xFFFFFFFF
     AAA_crc_res1 = 0xFFFFFFFF;
     AAA_crc_res2 = 0xFFFFFFFF;
     AAA_crc_half_res1 = 0xFFFFFFFF;
     AAA_crc_half_res2 = 0xFFFFFFFF;
 
 #if 0
-    //1.°´byte¼ÆËãcrc32£¬²ésramÉÏµÄ±íAA_crc_table£¨Õ¼ÓÃ1K byte sram£©AA_crc_table£¬ºÄÊ±64us
+    //1.bytecrc32sramÏµÄ±AA_crc_tableÕ¼1K byte sramAA_crc_tableÊ±64us
     DBG_CHN0_HIGH;
-    AAA_crc_res1 = crc32_cal(AAA_crc_res1, test16, AA_crc_table, 16);  //¼ÆËã½á¹û£º99e17457
+    AAA_crc_res1 = crc32_cal(AAA_crc_res1, test16, AA_crc_table, 16);  //99e17457
     DBG_CHN0_LOW;
 
-    //2.°´byte¼ÆËãcrc32£¬²éflashÉÏµÄ±ícrc32_tbl£¨Õ¼ÓÃ1K byte Flash£©£¬ºÄÊ±212us
+    //2.bytecrc32flashÏµÄ±crc32_tblÕ¼1K byte FlashÊ±212us
     DBG_CHN1_HIGH;
-    AAA_crc_res2 = crc32_cal(AAA_crc_res2, test16, crc32_tbl, 16);  //¼ÆËã½á¹û£º99e17457
+    AAA_crc_res2 = crc32_cal(AAA_crc_res2, test16, crc32_tbl, 16);  //99e17457
     DBG_CHN1_LOW;
 #endif
 
-    //3.°´°ë¸öbyte¼ÆËãcrc32£¬²ésramÉÏµÄ±ícrc32_tbl£¨Õ¼ÓÃ64 byte sram£©AA_crc_table£¬ºÄÊ±100us
+    //3.bytecrc32sramÏµÄ±crc32_tblÕ¼64 byte sramAA_crc_tableÊ±100us
     DBG_CHN2_HIGH;
-    AAA_crc_half_res1 = crc32_half_cal(AAA_crc_half_res1, test32, AA_crc_half_table, 32);  //¼ÆËã½á¹û£º99e17457
+    AAA_crc_half_res1 = crc32_half_cal(AAA_crc_half_res1, test32, AA_crc_half_table, 32);  //99e17457
     DBG_CHN2_LOW;
 
-    //4.°´°ë¸öbyte¼ÆËãcrc32£¬²éflashÉÏµÄ±ícrc32_half_tbl£¨Õ¼ÓÃ64 byte Flash£©£¬ºÄÊ±136us
+    //4.bytecrc32flashÏµÄ±crc32_half_tblÕ¼64 byte FlashÊ±136us
     DBG_CHN3_HIGH;
-    AAA_crc_half_res2 = crc32_half_cal(AAA_crc_half_res2, test32, crc32_half_tbl, 32);    //¼ÆËã½á¹û£º99e17457
+    AAA_crc_half_res2 = crc32_half_cal(AAA_crc_half_res2, test32, crc32_half_tbl, 32);    //99e17457
     DBG_CHN3_LOW;
 
 
@@ -282,31 +320,31 @@ void crc32_test(void)
 
 
 #if 0
-////////////////////////ÏÂÃæÓÃËÄÖÖ·½·¨¶ÔÍ¬Ò»±ÊÊı¾İ½øĞĞcrc32µÄ¼ÆËã£¬¼ÆËã½á¹ûÒ»Ñù£¬Ö»ÊÇsram/flash/timingÉÏ¸÷ÓĞ²îÒì
-	//crc³õÖµÈ«²¿Ê¹ÓÃ 0xFFFFFFFF
+////////////////////////Ö·Í¬Ò»İ½crc32Ä¼ã£¬Ò»Ö»sram/flash/timingÏ¸Ğ²
+	//crcÖµÈ«Ê¹ 0xFFFFFFFF
     AAA_crc_res3 = 0xFFFFFFFF;
     AAA_crc_res4 = 0xFFFFFFFF;
     AAA_crc_half_res3 = 0xFFFFFFFF;
     AAA_crc_half_res4 = 0xFFFFFFFF;
 
-	//1.°´byte¼ÆËãcrc32£¬²ésramÉÏµÄ±íAA_crc_table£¨Õ¼ÓÃ1K byte sram£©AA_crc_table£¬ºÄÊ±64us
+	//1.bytecrc32sramÏµÄ±AA_crc_tableÕ¼1K byte sramAA_crc_tableÊ±64us
 	DBG_CHN0_HIGH;
-	AAA_crc_res3 = crc32_cal(AAA_crc_res3, test16_Another, AA_crc_table, 16);  //¼ÆËã½á¹û£ºd0c7d4de
+	AAA_crc_res3 = crc32_cal(AAA_crc_res3, test16_Another, AA_crc_table, 16);  //d0c7d4de
 	DBG_CHN0_LOW;
 
-	//2.°´byte¼ÆËãcrc32£¬²éflashÉÏµÄ±ícrc32_tbl£¨Õ¼ÓÃ1K byte Flash£©£¬ºÄÊ±212us
+	//2.bytecrc32flashÏµÄ±crc32_tblÕ¼1K byte FlashÊ±212us
 	DBG_CHN1_HIGH;
-	AAA_crc_res4 = crc32_cal(AAA_crc_res4, test16_Another, crc32_tbl, 16);  //¼ÆËã½á¹û£ºd0c7d4de
+	AAA_crc_res4 = crc32_cal(AAA_crc_res4, test16_Another, crc32_tbl, 16);  //d0c7d4de
 	DBG_CHN1_LOW;
 
-	//3.°´°ë¸öbyte¼ÆËãcrc32£¬²ésramÉÏµÄ±ícrc32_tbl£¨Õ¼ÓÃ64 byte sram£©AA_crc_table£¬ºÄÊ±80us
+	//3.bytecrc32sramÏµÄ±crc32_tblÕ¼64 byte sramAA_crc_tableÊ±80us
 	DBG_CHN2_HIGH;
-	AAA_crc_half_res3 = crc32_half_cal(AAA_crc_half_res3, test32_Another, AA_crc_half_table, 32);  //¼ÆËã½á¹û£ºd0c7d4de
+	AAA_crc_half_res3 = crc32_half_cal(AAA_crc_half_res3, test32_Another, AA_crc_half_table, 32);  //d0c7d4de
 	DBG_CHN2_LOW;
 
-	//4.°´°ë¸öbyte¼ÆËãcrc32£¬²éflashÉÏµÄ±ícrc32_half_tbl£¨Õ¼ÓÃ64 byte Flash£©£¬ºÄÊ±136us
+	//4.bytecrc32flashÏµÄ±crc32_half_tblÕ¼64 byte FlashÊ±136us
 	DBG_CHN3_HIGH;
-	AAA_crc_half_res4 = crc32_half_cal(AAA_crc_half_res4, test32_Another, crc32_half_tbl, 32);    //¼ÆËã½á¹û£ºd0c7d4de
+	AAA_crc_half_res4 = crc32_half_cal(AAA_crc_half_res4, test32_Another, crc32_half_tbl, 32);    //d0c7d4de
 	DBG_CHN3_LOW;
 
 
@@ -318,24 +356,24 @@ void crc32_test(void)
 	AAA_crc_res5 = 0xFFFFFFFF;
 	DBG_CHN0_HIGH;
     AAA_crc_res5 = crc32_cal(AAA_crc_res5, "1234567890", AA_crc_table, 10);
-    AAA_crc_res5 ^= 0xFFFFFFFF;  //¼ÆËã½á¹û£º261daee5£¬×¢ÒâÕâ¸öÒì»ò²»ÊÇ±ØĞëµÄ
+    AAA_crc_res5 ^= 0xFFFFFFFF;  //261daee5×¢Ç±
     write_reg32(0x40004, AAA_crc_res5);
     DBG_CHN0_LOW;
 
 
 
-    //½«16 byteµÄÊı¾İÁ÷test16_Another²ğ³É2±Ê 8byteµÄÊı¾İÁ÷£¬ÓÃÇ°8¸ö¼ÆËãµÄ½á¹û×÷Îªºó8¸öµÄcrc_init£¬ÑéÖ¤½á¹ûÊÇ·ñÒ»ÖÂ
-    //¼ÆËã½á¹û d0c7d4de ÓëÇ°ÃæÒ»ÖÂ
+    //16 bytetest16_Another2 8byteÇ°8Ä½Îª8crc_initÖ¤Ç·Ò»
+    // d0c7d4de Ç°Ò»
     u32 temp0 = crc32_cal(0xFFFFFFFF, test16_Another, AA_crc_table, 8);
     u32 temp1 = crc32_cal(temp0, test16_Another + 8, AA_crc_table, 8);
-    write_reg32(0x40004, temp1);  //8255 0x40004£¬ÈôÆäËûIC 0x8004
+    write_reg32(0x40004, temp1);  //8255 0x40004IC 0x8004
 
 
-    write_reg8(0x40000, 0x33);  //8255 0x40000£¬ÈôÆäËûIC 0x8000
+    write_reg8(0x40000, 0x33);  //8255 0x40000IC 0x8000
     if(AAA_crc_res5){
         while(1);
     }
-    write_reg8(0x40000, 0x44);   //8255 0x40000£¬ÈôÆäËûIC 0x8000
+    write_reg8(0x40000, 0x44);   //8255 0x40000IC 0x8000
 #endif
 }
 

@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef BLE_COMMON_H
 #define BLE_COMMON_H
@@ -66,7 +66,7 @@ typedef enum {
     HCI_ERR_CONN_TIMEOUT                                           = 0x08,
     HCI_ERR_CONN_LIMIT_EXCEEDED                                    = 0x09,
     HCI_ERR_SYNCH_CONN_LIMIT_EXCEEDED                              = 0x0A,
-    HCI_ERR_ACL_CONN_ALREADY_EXISTS                                = 0x0B,
+    HCI_ERR_CONN_ALREADY_EXISTS		                               = 0x0B,
     HCI_ERR_CMD_DISALLOWED                                         = 0x0C,
     HCI_ERR_CONN_REJ_LIMITED_RESOURCES                             = 0x0D,
     HCI_ERR_CONN_REJECTED_SECURITY_REASONS                         = 0x0E,
@@ -194,6 +194,15 @@ typedef enum {
 	LL_CIS_RX_EVT_BUF_NO_INIT,
 	LL_CIS_RX_EVT_BUF_PARAM_INVALID,
 
+	LL_BIS_TX_BUF_NO_INIT,
+	LL_BIS_TX_BUF_PARAM_INVALID,
+	LL_BIS_RX_BUF_NO_INIT,
+	LL_BIS_RX_BUF_PARAM_INVALID,
+	LL_BIS_RX_PDU_INVALID,
+	LL_BIS_RX_PDU_EMPTY,
+	LL_BIS_RX_EVT_BUF_NO_INIT,
+	LL_BIS_RX_EVT_BUF_PARAM_INVALID,
+
 	HCI_ACL_DATA_BUF_PARAM_INVALID,
 	HCI_ACL_DATA_BUF_SIZE_NOT_MEET_MAX_TX_OCT,
 
@@ -315,6 +324,7 @@ typedef enum {
 
 	DT_APPEARANCE							= 0x19,		//	Appearance
 
+	DT_CHM_UPT_IND							= 0x28,		//	Channel Map Update Indication
 	DT_BIGINFO								= 0x2C,		//	BIGInfo
 	DT_BROADCAST_CODE						= 0x2D,		// 	Broadcast_Code
 	DT_3D_INFORMATION_DATA					= 0x3D,		//	3D Information Data
@@ -346,9 +356,13 @@ typedef enum {
  */
 #define		L2CAP_ALLIGN4_KFRAM_DMA_BUFF(n)		(((n + 12) + 3) / 4 * 4)
 
-#define		CIS_PDU_ALLIGN4_TXBUFF(n)			DATA_LENGTH_ALLIGN4((ISO_PDU_SIZE_ALLIGN16(n) + DATA_LENGTH_ALLIGN4(sizeof(iso_tx_pdu_t) - sizeof(rf_packet_ll_data_t))))
+#define		CIS_PDU_ALLIGN4_TXBUFF(n)			DATA_LENGTH_ALLIGN4((CAL_LL_ISO_TX_FIFO_SIZE(n) + DATA_LENGTH_ALLIGN4(sizeof(cis_tx_pdu_t) - sizeof(rf_packet_ll_data_t))))
 
-#define		CIS_PDU_ALLIGN4_RXBUFF(n)			DATA_LENGTH_ALLIGN4((ISO_PDU_SIZE_ALLIGN16(n) + DATA_LENGTH_ALLIGN4(sizeof(iso_rx_pdu_t) - sizeof(rf_packet_ll_data_t))))
+#define		CIS_PDU_ALLIGN4_RXBUFF(n)			DATA_LENGTH_ALLIGN4(CAL_LL_ISO_RX_FIFO_SIZE(n) )
+
+#define		BIS_PDU_ALLIGN4_TXBUFF(n)			DATA_LENGTH_ALLIGN4((CAL_LL_ISO_TX_FIFO_SIZE(n) + DATA_LENGTH_ALLIGN4(sizeof(bis_tx_pdu_t) - sizeof(rf_packet_ll_data_t))))
+
+#define		BIS_PDU_ALLIGN4_RXBUFF(n)			DATA_LENGTH_ALLIGN4(CAL_LL_ISO_RX_FIFO_SIZE(n) + 12)
 
 #define		IAL_SDU_ALLIGN4_BUFF(n) 			(((n + 16) + 3) / 4 * 4)
 

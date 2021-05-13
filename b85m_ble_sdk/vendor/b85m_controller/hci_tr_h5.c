@@ -102,6 +102,7 @@ void HCI_Tr_H5Init(void)
 	uart_gpio_set(HCI_TR_TX_PIN, HCI_TR_RX_PIN);
 	uart_reset();
 
+#if 0
 #if (MCU_CORE_TYPE == MCU_CORE_825x)
 	//baud rate: 115200
 	#if(CLOCK_SYS_CLOCK_HZ == 16000000)
@@ -123,6 +124,10 @@ void HCI_Tr_H5Init(void)
 	#elif(CLOCK_SYS_CLOCK_HZ == 48000000)
 		uart_init(2, 15, PARITY_NONE, STOP_BIT_ONE);
 	#endif
+#endif
+
+#else
+	uart_init_baudrate(HCI_TR_BAUDRATE, CLOCK_SYS_CLOCK_HZ, PARITY_NONE, STOP_BIT_ONE);
 #endif
 
 	uart_recbuff_init(hciH5TrCb.pRxFifo->p,  hciH5TrCb.pRxFifo->size);

@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef LL_SCAN_EXT_H_
 #define LL_SCAN_EXT_H_
@@ -67,55 +67,50 @@ void 		blc_ll_initExtendedScanning_module(void);
 
 
 
-
-
 /**
- * @brief      set the extended scan parameters to be used on the advertising physical channels,
- *             scan_phys can be only 1M PHY or Coded PHY, but can not be both of them
+ * @brief      This function is used to set the extended scan parameters to be used on the advertising physical channels
+ *			   attention: when scan_phys is SCAN_PHY_1M, 	scanType_1 & scanInter_1 & scanWindow_1 are invalid parameters,
+ *			   			  when scan_phys is SCAN_PHY_CODED, scanType_0 & scanInter_0 & scanWindow_0 are invalid parameters,
  * @param[in]  ownAddrType - Own_Address_Type
- * @param[in]  scanFilterPolicy - Scanning_Filter_Policy
+ * @param[in]  scan_fp - Scanning_Filter_Policy
  * @param[in]  scan_phys - Scanning_PHYs, "SCAN_PHY_1M" or "SCAN_PHY_CODED"
- * @param[in]  scanType
- * @param[in]  scan_interval
- * @param[in]  scan_window
+ *
+ * 			   Attention:
+ * 			   scanType_0/scanInter_0/scanWindow_0 are only for 1M    PHY.  If    1M PHY is not supported, these parameters are ignored.
+ * 			   scanType_1/scanInter_1/scanWindow_1 are only for Coded PHY.  If Coded PHY is not supported, these parameters are ignored.
+ *
+ * @param[in]  scanType_0 - Scan_Type for 1M PHY, Passive Scanning or Active Scanning.
+ * @param[in]  scanInter_0 - Scan_Interval for 1M PHY, Time interval from when the Controller started its last scan until it
+							   begins the subsequent scan on the primary advertising physical channel.
+ * @param[in]  scanWindow_0 - Duration of the scan on the primary advertising physical channel for 1M PHY
+ *
+ * @param[in]  scanType_1 - Scan_Type for Coded PHY, Passive Scanning or Active Scanning.
+ * @param[in]  scanInter_1 - Scan_Interval for Coded PHY, Time interval from when the Controller started its last scan until it
+							   begins the subsequent scan on the primary advertising physical channel.
+ * @param[in]  scanWindow_1 - Duration of the scan on the primary advertising physical channel  for Coded PHY
+ *
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t 	blc_ll_setExtScanParam ( own_addr_type_t  ownAddrType, 	scan_fp_type_t scanFilterPolicy,	scan_phy_t	scan_phys,
-										   scan_type_t 	   	scanType,    	u16 		   scan_interval, 		u16 scan_window);
+ble_sts_t 	blc_ll_setExtScanParam ( own_addr_type_t  ownAddrType,	scan_fp_type_t scan_fp,		 scan_phy_t	scan_phys,
+									 	 scan_type_t   scanType_0,	scan_inter_t   scanInter_0,  scan_wind_t scanWindow_0,
+										 scan_type_t   scanType_1,	scan_inter_t   scanInter_1,  scan_wind_t scanWindow_1);
 
 
 
-/**
- * @brief      set the extended scan parameters to be used on the advertising physical channels,
- *             scan_phys must be both 1M PHY and Coded PHY.
- * @param[in]  ownAddrType - Own_Address_Type
- * @param[in]  scanFilterPolicy - Scanning_Filter_Policy
- * @param[in]  scan_phys - Scanning_PHYs, LE 1M PHY or LE Coded PHY or both, must be "SCAN_PHY_1M_CODED"
- * @param[in]  scanType_0
- * @param[in]  scan_interval_0
- * @param[in]  scan_window_0
- * @param[in]  scanType_1
- * @param[in]  scan_interval_1
- * @param[in]  scan_window_1
- * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
- */
-ble_sts_t 	blc_ll_setExtScanParam_2_phy ( own_addr_type_t  ownAddrType, 	scan_fp_type_t scanFilterPolicy,	scan_phy_t	scan_phys,
-										   scan_type_t 	 	scanType_0,    	u16 		   scan_interval_0, 	u16 scan_window_0,
-										   scan_type_t 	 	scanType_1,    	u16 		   scan_interval_1, 	u16 scan_window_1);
 
 
 
 
 /**
- * @brief	   enable or disable extended scanning.
- * @param[in]  extScan_en
- * @param[in]  filter_duplicate
+ * @brief	   This function is used to enable or disable scanning.
+ * @param[in]  extScan_en - 0x00: Scanning disabled; 0x01: Scanning enabled
+ * @param[in]  filter_duplicate - Filter_Duplicates
  * @param[in]  duration - Scan duration
  * @param[in]  period - Time interval from when the Controller started its last Scan_Duration until it begins the
- * 			   subsequent Scan_Duration.
+ * 			   			subsequent Scan_Duration.
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t 	blc_ll_setExtScanEnable (scan_en_t  extScan_en, 	dupFilter_en_t filter_duplicate,	u16 duration,	u16 period);
+ble_sts_t 	blc_ll_setExtScanEnable (scan_en_t  extScan_en,	dupe_fltr_en_t filter_duplicate, scan_durn_t duration,	scan_period_t period);
 
 
 

@@ -48,6 +48,7 @@
 
 #include "common/types.h"
 #include "hci_tr_api.h"
+#include "stack/ble/hci/hci_stack.h"
 
 /*!  H5 transport buffer config macro. */
 #define HCI_H5_TX_BUF_SIZE         MEM_SIZE_ALIGN4(HCI_H5_HEAD_LEN + HCI_TR_TX_BUF_SIZE + HCI_H5_CRC_LEN)

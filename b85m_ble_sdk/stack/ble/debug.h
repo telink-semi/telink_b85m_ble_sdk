@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef STACK_BLE_DEBUG_H_
 #define STACK_BLE_DEBUG_H_
@@ -88,11 +88,6 @@
 #endif
 
 
-#ifndef	EXT_ADV_DEBUG_EN
-#define EXT_ADV_DEBUG_EN										0
-#endif
-
-
 #ifndef	DBG_BOUNDARY_RX
 #define DBG_BOUNDARY_RX											0
 #endif
@@ -109,6 +104,27 @@
 
 #ifndef	DBG_SCHE_TIMING_EN
 #define DBG_SCHE_TIMING_EN									    0
+#endif
+
+
+#ifndef	DBG_IAL_EN
+#define DBG_IAL_EN									   		 	0
+#endif
+
+#ifndef	DEB_CIG_MST_EN
+#define DEB_CIG_MST_EN											0
+#endif
+
+#ifndef	DEB_CIG_SLV_EN
+#define DEB_CIG_SLV_EN											0
+#endif
+
+#ifndef	DEB_BIG_BCST_EN
+#define DEB_BIG_BCST_EN											0
+#endif
+
+#ifndef	DEB_BIG_SYNC_EN
+#define DEB_BIG_SYNC_EN											0
 #endif
 
 

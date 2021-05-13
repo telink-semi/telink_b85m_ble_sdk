@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #include "tl_common.h"
 #include "drivers.h"
@@ -102,9 +102,9 @@ static const u16 my_gattServiceUUID = SERVICE_UUID_GENERIC_ATTRIBUTE;
 
 static const gap_periConnectParams_t my_periConnParameters = {20, 40, 0, 1000};
 
-_attribute_data_retention_	static u16 serviceChangeVal[2] = {0};
+_attribute_ble_data_retention_	static u16 serviceChangeVal[2] = {0};
 
-_attribute_data_retention_	static u8 serviceChangeCCC[2] = {0,0};
+_attribute_ble_data_retention_	static u8 serviceChangeCCC[2] = {0,0};
 
 static const u8 my_devName[] = {'m','u','l','t','i','_','c','o','n','n'};
 
@@ -113,8 +113,8 @@ static const u8 my_PnPtrs [] = {0x02, 0x8a, 0x24, 0x66, 0x82, 0x01, 0x00};
 //////////////////////// Battery /////////////////////////////////////////////////
 static const u16 my_batServiceUUID        = SERVICE_UUID_BATTERY;
 static const u16 my_batCharUUID       	  = CHARACTERISTIC_UUID_BATTERY_LEVEL;
-_attribute_data_retention_	static u8 batteryValueInCCC[2] = {0,0};
-_attribute_data_retention_	static u8 my_batVal[1] 	= {99};
+_attribute_ble_data_retention_	static u8 batteryValueInCCC[2] = {0,0};
+_attribute_ble_data_retention_	static u8 my_batVal[1] 	= {99};
 
 //////////////////////// HID /////////////////////////////////////////////////////
 
@@ -129,32 +129,32 @@ static const u16 hidinformationUUID       = CHARACTERISTIC_UUID_HID_INFORMATION;
 static const u16 hidCtrlPointUUID         = CHARACTERISTIC_UUID_HID_CONTROL_POINT;
 static const u16 hidIncludeUUID           = GATT_UUID_INCLUDE;
 
-_attribute_data_retention_	static u8 protocolMode 			  = DFLT_HID_PROTOCOL_MODE;
+_attribute_ble_data_retention_	static u8 protocolMode 			  = DFLT_HID_PROTOCOL_MODE;
 
 // Key in Report characteristic variables
-_attribute_data_retention_	static u8 reportKeyIn[8];
-_attribute_data_retention_	static u8 reportKeyInCCC[2] = {0,0};
+_attribute_ble_data_retention_	static u8 reportKeyIn[8];
+_attribute_ble_data_retention_	static u8 reportKeyInCCC[2] = {0,0};
 // HID Report Reference characteristic descriptor, key input
-_attribute_data_retention_	static u8 reportRefKeyIn[2] =
+_attribute_ble_data_retention_	static u8 reportRefKeyIn[2] =
              { HID_REPORT_ID_KEYBOARD_INPUT, HID_REPORT_TYPE_INPUT };
 
 // Key out Report characteristic variables
-_attribute_data_retention_	static u8 reportKeyOut[1];
-_attribute_data_retention_	static u8 reportRefKeyOut[2] =
+_attribute_ble_data_retention_	static u8 reportKeyOut[1];
+_attribute_ble_data_retention_	static u8 reportRefKeyOut[2] =
              { HID_REPORT_ID_KEYBOARD_INPUT, HID_REPORT_TYPE_OUTPUT };
 
 // Consumer Control input Report
-_attribute_data_retention_	static u8 reportConsumerControlIn[2];
-_attribute_data_retention_	static u8 reportConsumerControlInCCC[2] = {0,0};
-_attribute_data_retention_	static u8 reportRefConsumerControlIn[2] =
+_attribute_ble_data_retention_	static u8 reportConsumerControlIn[2];
+_attribute_ble_data_retention_	static u8 reportConsumerControlInCCC[2] = {0,0};
+_attribute_ble_data_retention_	static u8 reportRefConsumerControlIn[2] =
 			 { HID_REPORT_ID_CONSUME_CONTROL_INPUT, HID_REPORT_TYPE_INPUT };
 
 // Boot Keyboard Input Report
-_attribute_data_retention_	static u8 bootKeyInReport;
-_attribute_data_retention_	static u8 bootKeyInReportCCC[2] = {0,0};
+_attribute_ble_data_retention_	static u8 bootKeyInReport;
+_attribute_ble_data_retention_	static u8 bootKeyInReportCCC[2] = {0,0};
 
 // Boot Keyboard Output Report
-_attribute_data_retention_	static u8 bootKeyOutReport;
+_attribute_ble_data_retention_	static u8 bootKeyOutReport;
 
 // HID Information characteristic
 static const u8 hidInformation[] =
@@ -165,7 +165,7 @@ static const u8 hidInformation[] =
 };
 
 // HID Control Point characteristic
-_attribute_data_retention_	static u8 controlPoint;
+_attribute_ble_data_retention_	static u8 controlPoint;
 
 // HID Report Map characteristic
 // Keyboard report descriptor (using format for Boot interface descriptor)
@@ -236,13 +236,13 @@ static const u8 reportMap[] =
 };
 
 // HID External Report Reference Descriptor for report map
-_attribute_data_retention_	static u16 extServiceUUID;
+_attribute_ble_data_retention_	static u16 extServiceUUID;
 
 
 //////////////////////// OTA //////////////////////////////////
 static const  u8 my_OtaServiceUUID[16]				= WRAPPING_BRACES(TELINK_OTA_UUID_SERVICE);
 static const  u8 my_OtaUUID[16]						= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
-_attribute_data_retention_	static 		  u8 my_OtaData 						= 0x00;
+_attribute_ble_data_retention_	static 		  u8 my_OtaData 						= 0x00;
 static const u8  my_OtaName[] = {'O', 'T', 'A'};
 
 
@@ -258,12 +258,12 @@ static const u8 TelinkSppDataClient2ServerUUID[16]      = WRAPPING_BRACES(TELINK
 
 
 // Spp data from Server to Client characteristic variables
-_attribute_data_retention_	static u8 SppDataServer2ClientDataCCC[2]  				= {0};
+_attribute_ble_data_retention_	static u8 SppDataServer2ClientDataCCC[2]  				= {0};
 //this array will not used for sending data(directly calling HandleValueNotify API), so cut array length from 20 to 1, saving some SRAM
-_attribute_data_retention_	static u8 SppDataServer2ClientData[1] 					= {0};  //SppDataServer2ClientData[20]
+_attribute_ble_data_retention_	static u8 SppDataServer2ClientData[1] 					= {0};  //SppDataServer2ClientData[20]
 // Spp data from Client to Server characteristic variables
 //this array will not used for receiving data(data processed by Attribute Write CallBack function), so cut array length from 20 to 1, saving some SRAM
-_attribute_data_retention_	static u8 SppDataClient2ServerData[1] 					= {0};  //SppDataClient2ServerData[20]
+_attribute_ble_data_retention_	static u8 SppDataClient2ServerData[1] 					= {0};  //SppDataClient2ServerData[20]
 
 
 //SPP data descriptor

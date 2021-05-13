@@ -108,18 +108,18 @@ ble_sts_t   ble_status = BLE_SUCCESS;
 
 
 
-_attribute_data_retention_	u8  app_advSet_buffer[ADV_SET_PARAM_LENGTH * APP_ADV_SETS_NUMBER];
+_attribute_ble_data_retention_	u8  app_advSet_buffer[ADV_SET_PARAM_LENGTH * APP_ADV_SETS_NUMBER];
 
-_attribute_data_retention_	u8 	app_advData_buffer[APP_MAX_LENGTH_ADV_DATA * APP_ADV_SETS_NUMBER];
+_attribute_ble_data_retention_	u8 	app_advData_buffer[APP_MAX_LENGTH_ADV_DATA * APP_ADV_SETS_NUMBER];
 
-_attribute_data_retention_	u8 	app_scanRspData_buffer[APP_MAX_LENGTH_SCAN_RESPONSE_DATA * APP_ADV_SETS_NUMBER];
+_attribute_ble_data_retention_	u8 	app_scanRspData_buffer[APP_MAX_LENGTH_SCAN_RESPONSE_DATA * APP_ADV_SETS_NUMBER];
 
-_attribute_data_retention_	u8	testAdvData[APP_MAX_LENGTH_ADV_DATA];
-_attribute_data_retention_  u8  testScanRspData[APP_MAX_LENGTH_SCAN_RESPONSE_DATA];
+_attribute_ble_data_retention_	u8	testAdvData[APP_MAX_LENGTH_ADV_DATA];
+_attribute_ble_data_retention_  u8  testScanRspData[APP_MAX_LENGTH_SCAN_RESPONSE_DATA];
 
-//_attribute_data_retention_	u8	app_primaryAdvPkt_buffer[MAX_LENGTH_PRIMARY_ADV_PKT * APP_ADV_SETS_NUMBER];
+//_attribute_ble_data_retention_	u8	app_primaryAdvPkt_buffer[MAX_LENGTH_PRIMARY_ADV_PKT * APP_ADV_SETS_NUMBER];
 
-//_attribute_data_retention_	u8	app_secondary_adv_pkt[MAX_LENGTH_SECOND_ADV_PKT * APP_ADV_SETS_NUMBER];
+//_attribute_ble_data_retention_	u8	app_secondary_adv_pkt[MAX_LENGTH_SECOND_ADV_PKT * APP_ADV_SETS_NUMBER];
 
 
 

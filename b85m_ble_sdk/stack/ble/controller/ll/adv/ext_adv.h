@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef LL_EXT_ADV_H_
 #define LL_EXT_ADV_H_
@@ -51,10 +51,10 @@
 
 
 /* maximum number of advertising sets this SDK can support, periodic advertising is included. */
-#define			ADV_SETS_NUMBER_MAX								3
+#define			ADV_SETS_NUMBER_MAX								4
 
 //TODO:
-#define 		ADV_SET_PARAM_LENGTH							(sizeof(ll_ext_adv_t))   //sizeof(ll_ext_adv_t) =  ,  must 4 byte aligned
+#define 		ADV_SET_PARAM_LENGTH							(sizeof(st_ext_adv_t))   //sizeof(st_ext_adv_t) =  ,  must 4 byte aligned
 
 
 
@@ -120,9 +120,7 @@ void 		blc_ll_initExtAdvDataBuffer(u8 *pExtAdvData, int max_len_advData);
 
 /**
  * @brief      initialize Advertising Data buffer for specific adv_set.
- *			   notice that:
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @param[in]  pExtAdvData -
  * @param[in]  max_len_advData -
  * @return     Status - 0x00: succeed.
@@ -140,9 +138,7 @@ void 		blc_ll_initExtScanRspDataBuffer(u8 *pScanRspData, int max_len_scanRspData
 
 /**
  * @brief      initialize Scan Response Data Buffer buffer for specific adv_set.
- *			   notice that:
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @param[in]  pScanRspData -
  * @param[in]  max_len_scanRspData -
  * @return     Status - 0x00: succeed.
@@ -158,8 +154,7 @@ ble_sts_t 	blc_ll_initExtScanRspDataBuffer_by_advHandle(u8 adv_handle, u8 *pScan
 
 /**
  * @brief      This function is used to set the advertising parameters
- * @param[in]  adv_handle - equal to adv_set_index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02.
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @param[in]  adv_evt_prop -
  * @param[in]  pri_advInter_min & pri_advInter_max
  * @param[in]
@@ -181,8 +176,7 @@ ble_sts_t 	blc_ll_setExtAdvParam(  u8 adv_handle, 		 			advEvtProp_type_t adv_ev
 /**
  * @brief      This function is used to set the data used in advertising PDU that have a data field
  * 			   notice that: setting legacy ADV data also use this API, data length can not exceed 31
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @param[in]  *advData -
  * @param[in]  advData_len -
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
@@ -197,8 +191,7 @@ ble_sts_t	blc_ll_setExtAdvData (u8 adv_handle, int advData_len, u8 *advData);
 /**
  * @brief      This function is used to provide scan response data used in scanning response PDUs.
  * 			   notice that: setting legacy scan response data also use this API, data length can not exceed 31
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @param[in]  scanRspData_len -
  * @param[in]  *scanRspData -
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
@@ -213,8 +206,7 @@ ble_sts_t 	blc_ll_setExtScanRspData(u8 adv_handle, int scanRspData_len, u8 *scan
  * @brief      This function is used to request the Controller to enable or disable one or more advertising sets using the
 			   advertising sets identified by the adv_handle
  * @param[in]  enable -
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @param[in]  duration -	the duration for which that advertising set is enabled
  * 							Range: 0x0001 to 0xFFFF, Time = N * 10 ms, Time Range: 10 ms to 655,350 ms
  * @param[in]  max_extAdvEvt - Maximum number of extended advertising events the Controller shall
@@ -226,10 +218,10 @@ ble_sts_t 	blc_ll_setExtAdvEnable(adv_en_t enable, u8 adv_handle, u16 duration, 
 
 
 /**
- * @brief      This function is used to set the random device address specified by the Random_Address parameter.
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
- * @param[in]  *rand_addr -
+ * @brief      This function is used by the Host to set the random device address specified by the Random_Address
+			   parameter
+ * @param[in]  adv_handle - Used to identify an advertising set
+ * @param[in]  *rand_addr - Random Device Address
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
 ble_sts_t	blc_ll_setAdvRandomAddr(u8 adv_handle, u8* rand_addr);
@@ -237,9 +229,8 @@ ble_sts_t	blc_ll_setAdvRandomAddr(u8 adv_handle, u8* rand_addr);
 
 
 /**
- * @brief      This function is used to remove the adv set based on the ADV handle..
- * @param[in]  adv_handle - equal to adv_set index here. So if using single adv_set, adv_handle can only be 0x00;
- *                          if using multiple adv_set, for example 3, adv_handle can be 0x00,0x01 and 0x02
+ * @brief      This function is is used to remove an advertising set from the Controller.
+ * @param[in]  adv_handle - Used to identify an advertising set
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
 ble_sts_t	blc_ll_removeAdvSet(u8 adv_handle);
@@ -247,17 +238,11 @@ ble_sts_t	blc_ll_removeAdvSet(u8 adv_handle);
 
 
 /**
- * @brief      This function is used to clear the adv sets.
+ * @brief      This function is used to remove all existing advertising sets from the Controller.
  * @param[in]  none.
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
 ble_sts_t	blc_ll_clearAdvSets(void);
-
-
-// if Coded PHY is used, this API set default S2/S8 mode for Extended ADV
-//ble_sts_t		blc_ll_setDefaultExtAdvCodingIndication(u8 advHandle, le_ci_prefer_t prefer_CI);
-
-
 
 
 

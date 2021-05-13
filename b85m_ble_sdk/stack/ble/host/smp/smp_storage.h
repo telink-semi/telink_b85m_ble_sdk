@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,11 +41,20 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef SMP_STORAGE_H_
 #define SMP_STORAGE_H_
 
+
+
+
+/*
+ *  Address resolution is not supported by default. After pairing and binding, we need to obtain the central Address Resolution
+ *  feature value of the opposite end to determine whether the opposite end supports the address resolution function, and write
+ *  the result to smp_bonding_flg. Currently, we leave it to the user to obtain this feature.
+ */
+#define 	IS_PEER_ADDR_RES_SUPPORT(peerAddrResSuppFlg)	(!(peerAddrResSuppFlg & BIT(7)))
 
 
 typedef enum {
@@ -168,6 +177,47 @@ void			blc_smp_eraseAllBondingInfo(void);
  */
 bool 			blc_smp_isBondingInfoStorageLowAlarmed(void);
 
+
+/**
+ * @brief      This function is used to load bonding information according to the peer device address and device address type.
+ * @param[in]  isMaster - Is it a Master role: 0: slave role, others: master role.
+ * @param[in]  slaveDevIdx - Address.
+ * @param[in]  addr_type - Address type.
+ * @param[in]  addr - Address.
+ * @param[out] smp_param_load - bonding information.
+ * @return     0: Failed to find the binding information; others: FLASH address of the bonding information area.
+ */
+u32				blc_smp_loadBondingInfoByAddr(u8 isMaster, u8 slaveDevIdx, u8 addr_type, u8* addr, smp_param_save_t* smp_param_load);
+
+
+/**
+ * @brief      This function is used to get the bonding information numbers.
+ * @param[in]  isMaster - Is it a Master role: 0: slave role, others: master role.
+ * @param[in]  slaveDevIdx - Address.
+ * @return     0: The number of bound devices is 0; others: Number of bound devices.
+ */
+u8				blc_smp_param_getCurrentBondingDeviceNumber(u8 isMasterRole, u8 slaveDevIdx);
+
+
+/**
+ * @brief      This function is used to load bonding information according to the index.
+ * @param[in]  isMaster - Is it a Master role: 0: slave role, others: master role.
+ * @param[in]  slaveDevIdx - Address.
+ * @param[in]  index - bonding index.
+ * @param[out] smp_param_load - bonding information.
+ * @return     0: Failed to find the binding information; others: FLASH address of the bonding information area.
+ */
+u32				blc_smp_loadBondingInfoFromFlashByIndex(u8 isMaster, u8 slaveDevIdx, u8 index, smp_param_save_t* smp_param_load);
+
+
+/**
+ * @brief      This function is used to delete binding information according to the peer device address and device address type.
+ * @param[in]  peer_addr_type - Address type.
+ * @param[in]  peer_addr - Address.
+ * @return     0: Failed to delete binding information;
+ *             others: FLASH address of the deleted information area.
+ */
+int				blc_smp_setPeerAddrResSupportFlg(u32 flash_addr, u8 support);
 
 
 #endif /* SMP_STORAGE_H_ */

@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef LLMS_INIT_H_
 #define LLMS_INIT_H_
@@ -56,9 +56,9 @@
  * @param	   none
  * @return     none
  */
-void 		blc_ll_initInitiating_module(void);
+void 		blc_ll_initLegacyInitiating_module(void);
 
-
+#define	blc_ll_initInitiating_module	blc_ll_initLegacyInitiating_module
 
 /**
  * @brief      This function is used to create an ACL connection to a connectable advertiser.
@@ -76,25 +76,11 @@ void 		blc_ll_initInitiating_module(void);
  * @param[in]  ce_max - informative parameters providing the Controller with the expected maximum length of the connection events.
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t 	blc_ll_createConnection( scan_inter_t scan_interval, scan_wind_t scan_window, init_fp_t filter_policy, u8 adr_type, u8  *mac, own_addr_type_t own_adr_type,
-									 conn_inter_t conn_min, conn_inter_t conn_max, u16 conn_latency, conn_tm_t timeout, u16 ce_min, u16 ce_max );
-
-/**
- * @brief      This function is is used to cancel the HCI_LE_Create_Connection or HCI_LE_Extended_Create_Connection commands.
- * @param	   none
- * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
- */
-ble_sts_t 	blc_ll_createConnectionCancel (void);
+ble_sts_t 	blc_ll_createConnection( scan_inter_t scanInter, scan_wind_t scanWindow, init_fp_t fp, u8 peerAdrType, u8 *peerAddr, own_addr_type_t ownAdrType,
+									 conn_inter_t conn_min,  conn_inter_t conn_max, u16 conn_latency, conn_tm_t timeout, u16 ce_min,   u16 ce_max );
 
 
 
-
-/**
- * @brief      This function is used to set the timeout of ACL connection establishment, unit: ms.
- * @param	   none
- * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
- */
-ble_sts_t 	blc_ll_setCreateConnectionTimeout (u32 timeout_ms);
 
 
 

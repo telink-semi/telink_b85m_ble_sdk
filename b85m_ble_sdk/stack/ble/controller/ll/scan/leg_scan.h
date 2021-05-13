@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef LLMS_SCAN_H_
 #define LLMS_SCAN_H_
@@ -66,10 +66,10 @@ void 		blc_ll_initLegacyScanning_module(void);
  * @param[in]  scan_interval - time interval from when the Controller started its last LE scan until it begins the subsequent LE scan
  * @param[in]  scan_window - The duration of the LE scan.
  * @param[in]  ownAddrType - Own_Address_Type
- * @param[in]  scanFilterPolicy
+ * @param[in]  scan_fp - Scanning_Filter_Policy
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t 	blc_ll_setScanParameter (scan_type_t scan_type, u16 scan_interval, u16 scan_window, own_addr_type_t  ownAddrType, scan_fp_type_t scanFilterPolicy);
+ble_sts_t 	blc_ll_setScanParameter (scan_type_t scan_type, scan_inter_t scan_interval, scan_wind_t scan_window, own_addr_type_t  ownAddrType, scan_fp_type_t scan_fp);
 
 
 
@@ -85,6 +85,13 @@ ble_sts_t 	blc_ll_setScanParameter (scan_type_t scan_type, u16 scan_interval, u1
 ble_sts_t 	blc_ll_setScanEnable (scan_en_t scan_enable, dupFilter_en_t filter_duplicate);
 
 
+/**
+ * @brief      This function is used to enable the private LegScan filter to filter specific private BIGInfo
+ * 			   packets according to the SID value of the received ExtAdv packet
+ * @param[in]  sid - The value of SID in the received ExtAdv packet
+ * @return     none
+ */
+void		blc_ll_enPrivLegScanFilterByExtAdvSid(u8 sid);
 
 
 #endif /* LLMS_SCAN_H_ */

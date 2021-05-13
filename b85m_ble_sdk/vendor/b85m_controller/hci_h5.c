@@ -322,6 +322,10 @@ bool HCI_H5_Send(u8 h5Type, u8 *pPacket, u32 len)
  */
 void HCI_H5_SendData(void)
 {
+	if(hciH5Cb.txSlidWinSize >= hciH5Cb.config.slidWinSize){
+		return;
+	}
+
 	hci_fifo_t *pHciTxFifo = hciH5Cb.pHciTxFifo;
 	if(pHciTxFifo->wptr == pHciTxFifo->rptr+hciH5Cb.txSlidWinSize){
 		return;//have no data to send.
@@ -565,11 +569,7 @@ void HCI_H5_ReSendCheck(void)
 	else
 	{
 		H5_TRACK_INFO("local device need resend packet...\n");
-		while(hciH5Cb.rxAck != hciH5Cb.txSeq){
-			hciH5Cb.txSeq = (hciH5Cb.txSeq - 1) & 0x07;
-			hciH5Cb.txSlidWinSize--;
-		}
-		pHciTxFifo->rptr += hciH5Cb.txSlidWinSize;
+		hciH5Cb.txSeq = hciH5Cb.rxAck;
 		hciH5Cb.txSlidWinSize = 0;
 	}
 }

@@ -8,29 +8,29 @@
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #include "tl_common.h"
 #include "drivers.h"
@@ -78,25 +78,25 @@ u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL_SLAVE_TX_FIFO_NUM * SLAVE_MAX_
 /***************************** HCI TX & RX data FIFO allocation, Begin *********************************************/
 #if (HCI_NEW_FIFO_FEATURE_ENABLE)
 
-//_attribute_data_retention_
+//_attribute_ble_data_retention_
 u8	app_bltHci_rxfifo[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};
-//_attribute_data_retention_
+//_attribute_ble_data_retention_
 u8	app_bltHci_txfifo[HCI_TX_FIFO_SIZE * HCI_TX_FIFO_NUM] = {0};
-//_attribute_data_retention_
+//_attribute_ble_data_retention_
 u8	app_hci_aclDataFifo[HCI_ACL_DATA_FIFO_SIZE * HCI_ACL_DATA_FIFO_NUM] = {0};
 #else
-//_attribute_data_retention_
+//_attribute_ble_data_retention_
 							u8 		 	hci_rxfifo_b[HCI_RX_FIFO_SIZE * HCI_RX_FIFO_NUM] = {0};
-_attribute_data_retention_	my_fifo_t	hci_rxfifo = {
+_attribute_ble_data_retention_	my_fifo_t	hci_rxfifo = {
 												HCI_RX_FIFO_SIZE,
 												HCI_RX_FIFO_NUM,
 												0,
 												0,
 												hci_rxfifo_b,};
 
-//_attribute_data_retention_
+//_attribute_ble_data_retention_
 							u8 		 	hci_txfifo_b[HCI_TX_FIFO_SIZE * HCI_TX_FIFO_NUM] = {0};
-_attribute_data_retention_	my_fifo_t	hci_txfifo = {
+_attribute_ble_data_retention_	my_fifo_t	hci_txfifo = {
 												HCI_TX_FIFO_SIZE,
 												HCI_TX_FIFO_NUM,
 												0,

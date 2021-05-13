@@ -251,7 +251,7 @@
 							<builder buildPath="${workspace_loc:/ble_lt_ms/Debug}" id="com.telink.tc32eclipse.target.builder.TC32Win.app.debug.1546189783" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder" parallelBuildOn="true" parallelizationNumber="8" superClass="com.telink.tc32eclipse.target.builder.TC32Win.app.debug"/>
 							<tool id="com.telink.tc32eclipse.tool.assembler.TC32Win.app.debug.1879022779" name="TC32 CC/Assembler" superClass="com.telink.tc32eclipse.tool.assembler.TC32Win.app.debug">
 								<option id="com.telink.tc32eclipse.assembler.option.debug.level.1784156647" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.assembler.option.debug.level" value="com.telink.tc32eclipse.assembler.option.debug.level.none" valueType="enumerated"/>
-								<option id="com.telink.tc32eclipse.asm.option.flags.980928625" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_STARTUP_8278_RET_32K" valueType="string"/>
+								<option id="com.telink.tc32eclipse.asm.option.flags.980928625" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" value="-DMCU_STARTUP_8278" valueType="string"/>
 								<inputType id="com.telink.tc32eclipse.tool.assembler.input.884364428" superClass="com.telink.tc32eclipse.tool.assembler.input"/>
 							</tool>
 							<tool command="tc32-elf-gcc -ffunction-sections -fdata-sections" id="com.telink.tc32eclipse.tool.compiler.TC32Win.app.debug.212749227" name="TC32 Compiler" superClass="com.telink.tc32eclipse.tool.compiler.TC32Win.app.debug">
