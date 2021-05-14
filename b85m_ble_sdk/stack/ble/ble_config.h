@@ -54,7 +54,8 @@
 
 #define 	BQB_TEST_EN      										1
 
-
+//HCI DFU for xiaomi
+#define  HCI_DFU_EN                                                 1
 
 ///////////////////  Feature ////////////////////////////
 #ifndef		LL_MULTI_SLAVE_MAC_ENABLE

@@ -65,11 +65,7 @@
 #include "service/uuid.h"
 
 
-/*********************************************************/
-//Remove when file merge to SDK //
 
-//#include "service/ota/ota_stack.h"
-/*********************************************************/
 
 
 
