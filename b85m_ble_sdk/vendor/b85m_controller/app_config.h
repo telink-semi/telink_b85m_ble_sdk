@@ -64,13 +64,12 @@
 
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
-#define UI_LED_ENABLE								1
+#define UI_LED_ENABLE								0
 #define	UI_KEYBOARD_ENABLE							1
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
 #define DEBUG_GPIO_ENABLE							0
-#define UART_PRINT_DEBUG_ENABLE                     1  //printf
-#define CONFIG_PAIRING_INFO_FLASH_DIS               1  //not change.
+#define UART_PRINT_DEBUG_ENABLE                     0  //printf
 
 
 

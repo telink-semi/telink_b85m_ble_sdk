@@ -47,7 +47,6 @@
 #define ISO_H_
 
 
-
 /**
  * @brief      for user to initialize CIS ISO TX FIFO.
  * @param[in]  pRxbuf - TX FIFO buffer address(Tx buffer must concern all CISes).
@@ -102,6 +101,14 @@ ble_sts_t	blc_ll_initBisTxFifo(u8 *pTxbuf, int fifo_size, int fifo_number);
  */
 //ble_sts_t	blc_ll_initBisRxFifo(u8 *pRxbuf, int fifo_size, int fifo_number);
 ble_sts_t blc_ll_initBisRxFifo(u8 *pRxbuf, int full_size, int fifo_number, u8 bis_sync_num);
+
+/**
+ * @brief      this function is used by the Host to enable LL feature of Isochronous channels,
+ * @param[in]  en - 1:enable 0: disable.
+ * @return     status, 0x00:  succeed
+ * 			           other: failed
+ */
+ble_sts_t	blc_setHostFeatureISOChannel_en(u8 en);
 
 
 #endif

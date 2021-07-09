@@ -50,7 +50,10 @@
 #include "app_config.h"
 #include "app_buffer.h"
 
+
 #if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
+
+
 
 /********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
 
@@ -67,7 +70,7 @@ _attribute_ble_data_retention_	u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_
  *  ACL MASTER TX buffer should be defined only when ACl connection master role is used.
  *  ACL SLAVE  TX buffer should be defined only when ACl connection slave role is used.
  */
-//_attribute_ble_data_retention_	u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
+_attribute_ble_data_retention_	u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
 _attribute_ble_data_retention_	u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL_SLAVE_TX_FIFO_NUM * SLAVE_MAX_NUM] = {0};
 
 /******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
@@ -78,12 +81,22 @@ _attribute_ble_data_retention_	u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL
 
 
 /***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, Begin ********************************/
-//_attribute_ble_data_retention_	u8 mtu_m_rx_fifo[MASTER_MAX_NUM * MTU_M_BUFF_SIZE_MAX];
+_attribute_ble_data_retention_	u8 mtu_m_rx_fifo[MASTER_MAX_NUM * MTU_M_BUFF_SIZE_MAX];
 
 _attribute_ble_data_retention_	u8 mtu_s_rx_fifo[SLAVE_MAX_NUM * MTU_S_BUFF_SIZE_MAX];
 _attribute_ble_data_retention_	u8 mtu_s_tx_fifo[SLAVE_MAX_NUM * MTU_S_BUFF_SIZE_MAX];
 /***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, End **********************************/
 
 
-#endif ///#if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
+
+
+
+
+
+#endif
+
+
+
+
+
 

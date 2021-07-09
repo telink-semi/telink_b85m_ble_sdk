@@ -47,7 +47,7 @@
 #define BIS_SYNC_H_
 
 
-#define 		BIG_SYNC_PARAM_LENGTH		(sizeof(ll_big_sync_t)) //4B aligned
+#define 		BIG_SYNC_PARAM_LENGTH		(696) // Note: user can't modify this value,and this value must 4 byte aligned
 
 
 
@@ -89,6 +89,13 @@ ble_sts_t 	blc_hci_le_bigTerminateSync(u8 bigHandle, u8* pRetParam);
  */
 void		blc_ll_enPrivLegScanForBigBync(void);
 
+
+/**
+ * @brief      Used to enable scan to get BIGINFO for BIG SYNC
+ * @param	   none
+ * @return     none
+ */
+void		blc_ll_enScanForBigBync(void);
 
 /**
  * @brief

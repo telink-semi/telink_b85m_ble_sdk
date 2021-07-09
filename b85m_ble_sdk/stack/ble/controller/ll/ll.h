@@ -184,4 +184,25 @@ ble_sts_t	blc_hci_le_setHostFeature(u8 bit_number, ll_feature_value_t bit_value)
 ble_sts_t	blc_controller_check_appBufferInitialization(void);
 
 
+
+/**
+ * @brief      this function is used by the Host to specify a channel classification based on its local information,
+ *             only the master role is valid.
+ * @param[in]  *map - channel map
+ * @return     status, 0x00:  succeed
+ * 			           other: failed
+ */
+ble_sts_t 	blc_ll_setHostChannel(u8 * chnMap);
+
+
+/**
+ * @brief      this function is used to reset module of all.
+ * @param	   none
+ * @return     status, 0x00:  succeed, no buffer error
+ * 					   other: buffer error code
+ */
+ble_sts_t  	blc_hci_reset(void);
+ble_sts_t 	blc_hci_le_getRemoteSupportedFeatures(u16 connHandle);
+ble_sts_t 	blc_hci_le_readChannelMap(u16 connHandle, u8 *returnChannelMap);
+
 #endif /* LL_H_ */

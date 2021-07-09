@@ -47,9 +47,8 @@
 #define BIS_H_
 
 
-
-#define		BIS_PARAM_LENGTH		(sizeof(ll_bis_t))   //sizeof(ll_bis_t) =  ,  must 4 byte aligned
-
+//Note: user can't modify this value,and this value must 4 byte aligned
+#define		BIS_PARAM_LENGTH		(192)
 
 
 

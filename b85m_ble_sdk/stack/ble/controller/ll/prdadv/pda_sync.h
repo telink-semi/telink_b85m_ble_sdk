@@ -47,13 +47,14 @@
 #ifndef STACK_BLE_CONTROLLER_LL_PRDADV_PDA_SYNC_H_
 #define STACK_BLE_CONTROLLER_LL_PRDADV_PDA_SYNC_H_
 
-#if (LL_FEATURE_ENABLE_LE_PERIODIC_ADVERTISING_SYNC)
+
 /**
  * @brief      for user to initialize periodic advertising synchronization module
  * @param	   none
  * @return     none
  */
 void 		blc_ll_initPeriodicAdvertisingSynchronization_module(void);
+
 
 /**
  * @brief      this function is used to synchronize with a periodic advertising train from an advertiser and begin
@@ -122,7 +123,9 @@ ble_sts_t 	blc_ll_clearPeriodicAdvertiserList (void);
  */
 ble_sts_t 	blc_ll_readPeriodicAdvertiserListSize (u8 *perdAdvListSize);
 
-#endif
+ble_sts_t 	blc_hci_le_periodic_advertising_create_sync(hci_le_periodicAdvCreateSync_cmdParam_t* cmdPara);
+
+
 
 
 #endif /* STACK_BLE_CONTROLLER_LL_PRDADV_PDA_SYNC_H_ */

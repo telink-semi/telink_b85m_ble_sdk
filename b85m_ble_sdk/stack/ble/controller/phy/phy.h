@@ -57,28 +57,4 @@
 void		blc_ll_init2MPhyCodedPhy_feature(void);
 
 
-/**
- * @brief       this function is used to set PHY type for connection
- * @param[in]	connHandle - Connection_Handle Range:0x0000 to 0x0EFF
- * @param[in]	all_phys - preference PHY for TX & RX
- * @param[in]	tx_phys - preference PHY for TX
- * @param[in]	rx_phys - preference PHY for RX
- * @param[in]	phy_options - LE coding indication prefer
- * @return     status, 0x00:  succeed
- * 					   other: failed
- */
-ble_sts_t  	blc_ll_setPhy (	u16 connHandle,					le_phy_prefer_mask_t all_phys,
-							le_phy_prefer_type_t tx_phys, 	le_phy_prefer_type_t rx_phys,
-							le_ci_prefer_t phy_options);
-
-
-/**
- * @brief       This function is used to set LE Coded PHY preference, S2 or S8, or no specific preference.
- * @param[in]	prefer_CI - Reference structure: hci_le_readPhyCmd_retParam_t.
- * @return      status, 0x00:  succeed
- * 					    other: failed
- */
-ble_sts_t	blc_ll_setDefaultConnCodingIndication(le_ci_prefer_t prefer_CI);
-
-
 #endif /* PHY_H_ */

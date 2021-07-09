@@ -29,12 +29,9 @@
 #define HW_ECC_H_
 
 #include "algorithm/ecc/hw_ecc.h"
+#include "algorithm/ecc/ecc_curve.h"
 
-
-#define			hECC_BYTES			32
-
-
-
+#if ( (MCU_CORE_TYPE == MCU_CORE_827x) || (MCU_CORE_TYPE == MCU_CORE_9518) )
 
 /* hECC_RNG_Function type
 The RNG function should fill 'size' random bytes into 'dest'. It should return 1 if
@@ -58,9 +55,10 @@ void			hwECC_set_rng(hECC_rng_func rng_func);
  * @brief		get ECCP key pair(the key pair could be used in ECDH).
  * @param[out]	public_key	- public key, big--endian.
  * @param[out]	private_key	- private key, big--endian.
- * @return		PKE_SUCCESS(success), other(error).
+ * @param[in]	curve_sel	- ecc_curve select, e.g.: p-256r1.
+ * @return		1(success), 0(error).
  */
-unsigned char 	hwECC_make_key(unsigned char public_key[hECC_BYTES*2], unsigned char private_key[hECC_BYTES]);
+unsigned char 	hwECC_make_key(unsigned char *public_key, unsigned char *private_key, ecc_curve_t curve_sel);
 
 
 /**
@@ -68,17 +66,17 @@ unsigned char 	hwECC_make_key(unsigned char public_key[hECC_BYTES*2], unsigned c
  * @param[in]	local_prikey	- local private key, big--endian.
  * @param[in]	public_key		- peer public key, big--endian.
  * @param[out]	dhkey			- output dhkey, big--endian.
- * @Return		0(success); other(error).
+ * @param[in]	curve_sel		- ecc_curve select, e.g.: p-256r1.
+ * @Return		1(success); 0(error).
  */
-unsigned char hwECC_shared_secret(const unsigned char public_key[hECC_BYTES*2],
-								  const unsigned char private_key[hECC_BYTES],
-		                          unsigned char secret[hECC_BYTES]);
+unsigned char	hwECC_shared_secret(const unsigned char *public_key, const unsigned char *private_key,
+									unsigned char *secret, ecc_curve_t curve_sel);
 
 
 
 
 #endif /* HW_ECC_H_ */
 
-
+#endif /* The end of #if((MCU_CORE_TYPE == MCU_CORE_827x) || (MCU_CORE_TYPE == MCU_CORE_9518)) */
 
 

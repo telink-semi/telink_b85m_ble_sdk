@@ -66,7 +66,7 @@
 /*! HCI UART transport pin define */
 #define HCI_TR_RX_PIN        GPIO_PB0
 #define HCI_TR_TX_PIN        GPIO_PA2
-#define HCI_TR_BAUDRATE      (1000000)/*<! unused. */
+#define HCI_TR_BAUDRATE      (115200)
 
 
 typedef void (*HciH5PacketHandler_t)(u8 *pPacket, u32 len);
@@ -74,7 +74,7 @@ typedef void (*HciH5PacketHandler_t)(u8 *pPacket, u32 len);
 /*! HCI transport layer API. */
 
 /**
- * @brief : HCI transport initializaiton.
+ * @brief : HCI transport initialization.
  * @param : none.
  * @param : none.
  */

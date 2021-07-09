@@ -172,9 +172,10 @@ void key_change_proc(void)
 		{
 			u16 consumer_key = 0;
 			//Here is just Telink Demonstration effect. for all slave in connection, send release for previous "Vol+" or "Vol-" to master
-			for(int i=0; i < conn_slave_num; i++){ //slave number in connection is "conn_slave_num"
-				//slave index in device list table is from MASTER_MAX_NUM to MASTER_MAX_NUM + conn_slave_num - 1
-				blc_gatt_pushHandleValueNotify (  conn_dev_list[MASTER_MAX_NUM + i].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (u8 *)&consumer_key, 2);
+			for(int i=MASTER_MAX_NUM; i < (MASTER_MAX_NUM + SLAVE_MAX_NUM); i++){ //slave index is from "MASTER_MAX_NUM" to "MASTER_MAX_NUM + SLAVE_MAX_NUM - 1"
+				if(conn_dev_list[i].conn_state){
+					blc_gatt_pushHandleValueNotify ( conn_dev_list[i].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (u8 *)&consumer_key, 2);
+				}
 			}
 		}
 		else if(key_type == KEYBOARD_KEY)

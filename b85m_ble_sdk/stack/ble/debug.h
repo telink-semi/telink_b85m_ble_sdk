@@ -127,6 +127,14 @@
 #define DEB_BIG_SYNC_EN											0
 #endif
 
+#ifndef DEB_ISO_TEST_EN
+#define	DEG_ISO_TEST_EN											0
+#endif
+
+#ifndef DEB_STRUCT_BUFFER_SIZE_CHECK
+#define	DEB_STRUCT_BUFFER_SIZE_CHECK							0
+#endif
+
 
 #if (DBG_SLAVE_CONN_UPDATE)
 #define			SLET_upt_cmd_1				10

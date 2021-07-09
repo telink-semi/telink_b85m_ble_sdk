@@ -53,11 +53,11 @@
 /* maximum number of advertising sets this SDK can support, periodic advertising is included. */
 #define			ADV_SETS_NUMBER_MAX								4
 
-//TODO:
-#define 		ADV_SET_PARAM_LENGTH							(sizeof(st_ext_adv_t))   //sizeof(st_ext_adv_t) =  ,  must 4 byte aligned
 
-
-
+/* Note: user can't modify this value,and this value must 4 byte aligned
+ *  if use BLUETOOTH_VER_5_2 this value is 680 other than 572
+ */
+#define 		ADV_SET_PARAM_LENGTH							572 //680
 
 
 

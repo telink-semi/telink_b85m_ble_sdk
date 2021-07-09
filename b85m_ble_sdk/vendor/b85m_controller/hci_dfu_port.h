@@ -19,6 +19,8 @@ void MCU_Reset(void);
 bool UART_IsBusy(void);
 
 void Hci_Reset(void);
+u16  Hci_Revision(void);
+void Hci_SetRevision(u16 revison);
 void Hci_SendCmdCmplEvt(u16 opcode, u8 *pParam, u32 len);
 void Hci_SendCmdCmplStatusEvt(u16 opcode, u8 status);
 void Hci_SendCmdStatusEvt(u16 opcode, u8 status);

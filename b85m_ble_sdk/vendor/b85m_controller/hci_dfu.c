@@ -57,7 +57,7 @@ void HCI_VS_StartDfuCmdHandler(u8 *pParam, u32 len)
 	}
 	case DFU_MODE_FW_UPD_LATEST:
 	{
-		u16 localVer = HCI_REVISION;
+		u16 localVer = Hci_Revision();
 		if(fwVer <= localVer){
 			Hci_SendCmdCmplStatusEvt(opcode, HCI_ERR_FW_VER);
 		}else{
@@ -67,7 +67,7 @@ void HCI_VS_StartDfuCmdHandler(u8 *pParam, u32 len)
 	}
 	case DFU_MODE_FW_UPD_OLDER:
 	{
-		u16 localVer = HCI_REVISION;
+		u16 localVer = Hci_Revision();
 		if(fwVer >= localVer){
 			Hci_SendCmdCmplStatusEvt(opcode, HCI_ERR_FW_VER);
 		}else{
@@ -251,7 +251,7 @@ void HCI_VS_CmdHandler(u8 *pHciTrPkt, u32 len)
 		u8 *p = buf;
 		UINT8_TO_BSTREAM(p,  HCI_SUCCESS);   //status
 		UINT8_TO_BSTREAM(p,  BLUETOOTH_VER); //HCI version
-		UINT16_TO_BSTREAM(p, HCI_REVISION);  //HCI revision
+		UINT16_TO_BSTREAM(p, Hci_Revision());//HCI revision
 		UINT8_TO_BSTREAM(p,  BLUETOOTH_VER); //LMP version
 		UINT16_TO_BSTREAM(p, VENDOR_ID);     //Company id
 		UINT16_TO_BSTREAM(p, 0x0000);        //LMP subversion
@@ -336,6 +336,8 @@ void DFU_Init(void)
 			FLASH_EraseSector(dfuCb.nextFwAddrStart + i);
 		}
 	}
+
+	Hci_SetRevision(DFU_FW_VERSION);
 }
 
 void DFU_TaskStart(void)

@@ -50,7 +50,7 @@
 
 /*! H5 transport buffer config macro. */
 #define HCI_H5_TR_RX_BUF_SIZE    MEM_SIZE_ALIGN16(2 + (HCI_H5_HEAD_LEN + HCI_ACL_BUF_SIZE + HCI_H5_CRC_LEN) * 2 * 2)
-#define HCI_H5_TR_RX_BUF_NUM     8
+#define HCI_H5_TR_RX_BUF_NUM     4
 
 
 /**

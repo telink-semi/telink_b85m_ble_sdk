@@ -139,6 +139,15 @@ int 	dev_char_info_insert_by_conn_event(hci_le_connectionCompleteEvt_t* pConnEvt
 
 
 /**
+ * @brief       Used for add device information to conn_dev_list.
+ * @param[in]   pConnEvt - LE enhanced connection complete event data buffer address.
+ * @return      0 ~ DEVICE_CHAR_INFO_MAX_NUM - 1: new connection index, insert success
+ *              0xFF: insert failed
+ */
+int dev_char_info_insert_by_enhanced_conn_event(hci_le_enhancedConnCompleteEvt_t* pConnEvt);
+
+
+/**
  * @brief       Used for delete device information from conn_dev_list by connHandle
  * @param[in]   connhandle       - connection handle.
  * @return      0: success

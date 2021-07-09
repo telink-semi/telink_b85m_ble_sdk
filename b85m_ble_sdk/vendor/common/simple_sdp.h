@@ -86,6 +86,26 @@ typedef struct {
 } att_db_uuid128_t;			//20-byte
 
 
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u8  datalen;
+	u8  data[1];			// character_handle / property / value_handle / value
+}ble_att_readByTypeRsp_t;
+
+
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u8 	value[22];
+}ble_att_readRsp_t;
+
 
 
 

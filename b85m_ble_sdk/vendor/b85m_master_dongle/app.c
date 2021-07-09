@@ -79,9 +79,11 @@ int app_le_adv_report_event_handle(u8 *p)
 	#endif
 
 	/*********************** Master Create connection demo: Key press or ADV pair packet triggers pair  ********************/
+#if (BLE_MASTER_SMP_ENABLE)
 	if(master_smp_pending){ 	 //if previous connection SMP not finish, can not create a new connection
 		return 1;
 	}
+#endif
 
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 	if(master_sdp_pending){ 	 //if previous connection SDP not finish, can not create a new connection
@@ -147,10 +149,10 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 	if(pConnEvt->status == BLE_SUCCESS){
 
-	#if (1)//(UI_LED_ENABLE)
+	#if (UI_LED_ENABLE)
 		//led show connection state
 		master_connected_led_on = 1;
-//		gpio_write(GPIO_LED_RED, LED_ON_LEVAL);     //red on
+		gpio_write(GPIO_LED_RED, LED_ON_LEVAL);     //red on
 		gpio_write(GPIO_LED_WHITE, !LED_ON_LEVAL);  //white off
 	#endif
 
@@ -284,8 +286,7 @@ int app_le_connection_update_complete_event_handle(u8 *p)
 	hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
 
 	if(pUpt->status == BLE_SUCCESS){
-		//u32 display_data = pUpt->connHandle<<16 | pUpt->connInterval;
-		//my_dump_str_data(APP_DUMP_EN, "update complete event", &display_data, 4);
+
 	}
 
 	return 0;
@@ -563,7 +564,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
  * @param[in]	none
  * @return      none
  */
-void user_init_normal(void)
+_attribute_no_inline_ void user_init_normal(void)
 {
 	/* random number generator must be initiated here( in the beginning of user_init_nromal).
 	 * When deepSleep retention wakeUp, no need initialize again */
@@ -698,10 +699,11 @@ void user_init_normal(void)
 
 
 //////////////////////////// User Configuration for BLE application ////////////////////////////
-	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_INTERVAL_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 
@@ -777,7 +779,7 @@ int main_idle_loop (void)
  * @param[in]  none.
  * @return     none.
  */
-void main_loop (void)
+_attribute_no_inline_ void main_loop (void)
 {
 	main_idle_loop ();
 

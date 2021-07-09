@@ -104,7 +104,7 @@ int  blt_soft_timer_sort(void)
  */
 int blt_soft_timer_add(blt_timer_callback_t func, u32 interval_us)
 {
-	int i;
+	//int i;
 	u32 now = clock_time();
 
 	if(blt_timer.currentNum >= MAX_TIMER_NUM){  //timer full
@@ -118,7 +118,7 @@ int blt_soft_timer_add(blt_timer_callback_t func, u32 interval_us)
 
 		blt_soft_timer_sort();
 
-		bls_pm_setAppWakeupLowPower(blt_timer.timer[0].t,  1);
+		blc_pm_setAppWakeupLowPower(blt_timer.timer[0].t,  1);
 
 		return  1;
 	}
@@ -146,6 +146,8 @@ int  blt_soft_timer_delete_by_index(u8 index)
 	}
 
 	blt_timer.currentNum --;
+
+	return 0;
 }
 
 /**
@@ -165,10 +167,10 @@ int 	blt_soft_timer_delete(blt_timer_callback_t func)
 			if(i == 0){  //The most recent timer is deleted, and the time needs to be updated
 
 				if( (u32)(blt_timer.timer[0].t - clock_time()) < 3000 *  SYSTEM_TIMER_TICK_1MS){
-					bls_pm_setAppWakeupLowPower(blt_timer.timer[0].t,  1);
+					blc_pm_setAppWakeupLowPower(blt_timer.timer[0].t,  1);
 				}
 				else{
-					bls_pm_setAppWakeupLowPower(0, 0);  //disable
+					blc_pm_setAppWakeupLowPower(0, 0);  //disable
 				}
 
 			}
@@ -194,7 +196,7 @@ void  	blt_soft_timer_process(int type)
 
 	u32 now = clock_time();
 	if(!blt_timer.currentNum){
-		bls_pm_setAppWakeupLowPower(0, 0);  //disable
+		blc_pm_setAppWakeupLowPower(0, 0);  //disable
 		return;
 	}
 
@@ -236,15 +238,15 @@ void  	blt_soft_timer_process(int type)
 		}
 
 		if( (u32)(blt_timer.timer[0].t - now) < 3000 *  SYSTEM_TIMER_TICK_1MS){
-			bls_pm_setAppWakeupLowPower(blt_timer.timer[0].t,  1);
+			blc_pm_setAppWakeupLowPower(blt_timer.timer[0].t,  1);
 		}
 		else{
-			bls_pm_setAppWakeupLowPower(0, 0);  //disable
+			blc_pm_setAppWakeupLowPower(0, 0);  //disable
 		}
 
 	}
 	else{
-		bls_pm_setAppWakeupLowPower(0, 0);  //disable
+		blc_pm_setAppWakeupLowPower(0, 0);  //disable
 	}
 
 }
@@ -256,7 +258,7 @@ void  	blt_soft_timer_process(int type)
  */
 void 	blt_soft_timer_init(void)
 {
-	bls_pm_registerAppWakeupLowPowerCb(blt_soft_timer_process);
+	blc_pm_registerAppWakeupLowPowerCb(blt_soft_timer_process);
 }
 
 

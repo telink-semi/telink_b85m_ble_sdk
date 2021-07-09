@@ -63,26 +63,30 @@
 
 #define TEST_WHITELIST									4
 
-#define TEST_SMP_SECURITY								5
+#define TEST_SMP										5
 
 #define TEST_GATT_API									6
 
-#define TEST_EXT_ADV									7   //  Extended ADV demo
+#define TEST_EXT_ADV									7   //Extended ADV demo
 
-#define TEST_EXT_SCAN									8   //  Extended Scan demo
+#define TEST_EXT_SCAN									8   //Extended Scan demo
 
-#define TEST_PER_ADV									9   //  Periodic ADV demo
+#define TEST_PER_ADV									9   //Periodic ADV demo
 
-#define TEST_SOFT_TIMER                                 10
+#define TEST_PER_ADV_SYNC								30	//Periodic ADV Sync demo
+
+#define TEST_LL_PRIVACY									14  //Only legAdv and slave role support LL_Privacy1.2
 
 #define TEST_OTA										20
+
+#define TEST_SOFT_TIMER                                 22
 
 #define TEST_MISC_FUNC									190
 
 #define TEST_FEATURE_BACKUP								200
 
 
-#define FEATURE_TEST_MODE								TEST_SOFT_TIMER//TEST_OTA//TEST_FEATURE_BACKUP
+#define FEATURE_TEST_MODE								TEST_PER_ADV//TEST_OTA//TEST_FEATURE_BACKUP
 
 
 

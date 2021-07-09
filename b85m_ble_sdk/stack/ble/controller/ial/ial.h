@@ -50,6 +50,7 @@
 
 
 #include "stack/ble/controller/ll/iso/iso.h"
+#include "stack/ble/hci/hci_cmd.h"
 
 
 

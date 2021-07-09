@@ -75,6 +75,16 @@ typedef struct
   u16 timeout;
 } gap_periConnectParams_t;
 
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u16 handle;
+	u8 value;
+}ble_rf_packet_att_write_t;
+
 static const u16 clientCharacterCfgUUID = GATT_UUID_CLIENT_CHAR_CFG;
 
 static const u16 extReportRefUUID = GATT_UUID_EXT_REPORT_REF;
@@ -385,7 +395,7 @@ static const u8 my_OtaCharVal[19] = {
 	TELINK_SPP_DATA_OTA,
 };
 
-int spp_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
+int spp_onReceiveData(u16 connHandle, ble_rf_packet_att_write_t *p)
 {
 	if(spp_write_cb){
 		spp_write_cb(connHandle, p);

@@ -12,6 +12,7 @@
 #include "drivers.h"
 #include "common/string.h"
 #include "stack/ble/hci/hci_stack.h"
+#include "stack/ble/hci/hci.h"
 #include "stack/ble/ble_common.h"
 
 /**
@@ -21,7 +22,6 @@
  */
 _attribute_ram_code_ void FLASH_WritePage(u32 addr, u8 *pData, u32 len)
 {
-#if 0
 	u32 offset = 0;
 	while(len)
 	{
@@ -32,9 +32,6 @@ _attribute_ram_code_ void FLASH_WritePage(u32 addr, u8 *pData, u32 len)
 		offset += dataLen;
 		len    -= dataLen;
 	}
-#else
-	flash_write_page(addr, len, pData);
-#endif
 }
 
 _attribute_ram_code_ void FLASH_ReadPage(u32 addr, u8 *pData, u32 len)
@@ -66,6 +63,16 @@ void Hci_Reset(void)
 {
 	extern ble_sts_t blc_hci_reset(void);
 	blc_hci_reset();
+}
+
+u16 Hci_Revision(void)
+{
+	return hci_get_revision();
+}
+
+void Hci_SetRevision(u16 revison)
+{
+	hci_set_revision(revison);
 }
 
 extern hci_fifo_t bltHci_txfifo;

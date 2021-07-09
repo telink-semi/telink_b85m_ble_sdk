@@ -50,7 +50,13 @@
 
 #if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
 
-extern int 	key_not_released;
+extern 	int	master_pairing_enable;
+extern 	int master_unpair_enable;
+
+extern	int master_disconnect_connhandle;
+
+extern	int master_auto_connect;
+extern	int user_manual_pairing;
 
 
 /**
@@ -63,6 +69,13 @@ extern int 	key_not_released;
 void proc_keyboard (u8 e, u8 *p, int n);
 
 /**
+ * @brief   BLE Unpair handle for master
+ * @param   none.
+ * @return  none.
+ */
+void proc_master_role_unpair(void);
+
+/**
  * @brief      callback function of LinkLayer Event "BLT_EV_FLAG_SUSPEND_ENTER"
  * @param[in]  e - LinkLayer Event type
  * @param[in]  p - data pointer of event
@@ -71,6 +84,6 @@ void proc_keyboard (u8 e, u8 *p, int n);
  */
 void  app_set_gpio_wakeup (u8 e, u8 *p, int n);
 
-#endif ///#if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
+#endif //end of FEATURE_TEST_MODE == xxx
 
 #endif /* APP_UI_H_ */

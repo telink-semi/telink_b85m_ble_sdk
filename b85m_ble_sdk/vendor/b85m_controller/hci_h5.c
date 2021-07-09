@@ -68,14 +68,16 @@ typedef struct{
 	hci_fifo_t    *pTxQ;
 
 	HciH5Config_t  config;
-	u32            tick;
+	u32            tick;          /*!< link state control timer. */
 	u8             linkState;
 	u8             rxSlidWinSize; /*!< range 1~7 */
 	u8             txSlidWinSize; /*!< range 1~7 */
-	u8             txSeq;
-	u8             txAck;
-	u8             rxAck;
-	u8             recvd[2];
+	u8             txSeq;         /*!< peer expect packet SN.  */
+	u8             txAck;         /*!< local expect packet SN. */
+	u8             rxAck;         /*!< peer expect packet SN.  */
+	u8             isReliable;    /*!< reliable packet flag.   */
+	u8             recvd;
+	u32            txTick;        /*!< use for re-send monitor. */
 }HciH5Cb_t;
 
 static HciH5Cb_t hciH5Cb;
@@ -104,6 +106,8 @@ void HCI_H5_Init(hci_fifo_t *pHciRxFifo, hci_fifo_t *pHciTxFifo)
 	hciH5Cb.txAck = 0;
 	hciH5Cb.rxAck = 0;
 	hciH5Cb.tick = clock_time()|1;
+	hciH5Cb.txTick = 0;
+	hciH5Cb.isReliable = true;
 
 	/* Register Slip handler. */
 	HCI_Slip_RegisterPktHandler(HCI_H5_PakcetHandler);
@@ -316,7 +320,7 @@ bool HCI_H5_Send(u8 h5Type, u8 *pPacket, u32 len)
 }
 
 /**
- * @brief : Send HCI packet.
+ * @brief : Send HCI reliable packet.
  * @param : none.
  * @return: none.
  */
@@ -351,6 +355,8 @@ void HCI_H5_SendData(void)
 	}
 	else{
 		hciH5Cb.rxSlidWinSize = 0;
+
+		hciH5Cb.txTick = clock_time()|1;
 	}
 }
 
@@ -565,6 +571,8 @@ void HCI_H5_ReSendCheck(void)
 		H5_TRACK_INFO("local packet is received by peer corrently...\n");
 		pHciTxFifo->rptr += hciH5Cb.txSlidWinSize;
 		hciH5Cb.txSlidWinSize = 0;
+
+		hciH5Cb.txTick = 0;
 	}
 	else
 	{
@@ -737,7 +745,20 @@ void HCI_H5_Poll(void)
 	}
 	else if(hciH5Cb.linkState == HCI_H5_LINK_STATE_ACTIVE)
 	{
-		HCI_H5_SendData();
+		if(!uart_tx_is_busy()){
+			HCI_H5_SendData();
+		}
+
+	#if 0
+		/* If peer is not response after local send data, local must re-send until peer response*/
+		if(hciH5Cb.isReliable && hciH5Cb.txSlidWinSize >= hciH5Cb.config.slidWinSize &&
+		   hciH5Cb.txTick && clock_time_exceed(hciH5Cb.txTick, 250*1000))
+		{
+			hciH5Cb.txTick = 0;
+			HCI_H5_ReSendCheck();
+			HCI_H5_SendData();
+		}
+	#endif
 	}
 }
 

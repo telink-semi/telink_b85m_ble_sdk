@@ -46,9 +46,7 @@
 #ifndef LL_PM_H_
 #define LL_PM_H_
 
-#ifndef 	BLS_USER_TIMER_WAKEUP_ENABLE
-#define		BLS_USER_TIMER_WAKEUP_ENABLE	0
-#endif
+
 
 /**
  *  @brief
@@ -68,7 +66,7 @@ typedef enum {
  */
 /* DeepSleepRetention_Enable */
 typedef enum {
-	PM_DeepRetn_DISABLE = 0x00,
+	PM_DeepRetn_Disable = 0x00,
 	PM_DeepRetn_Enable  = 0x01,
 } deep_retn_en_t;
 
@@ -139,8 +137,28 @@ void 		blc_pm_setDeepsleepRetentionEarlyWakeupTiming(u32 earlyWakeup_us);
  */
 void 		blc_pm_setDeepsleepRetentionType(SleepMode_TypeDef sleep_type);
 
+
+
+/**
+ * @brief	application wake up low power mode process callback function
+ */
 typedef 	void (*pm_appWakeupLowPower_callback_t)(int);
-void 		bls_pm_setAppWakeupLowPower(u32 wakeup_tick, u8 enable);
-void 		bls_pm_registerAppWakeupLowPowerCb(pm_appWakeupLowPower_callback_t cb);
+
+/**
+ * @brief	for user to set application wake up low power mode
+ * @param	wakeup_tick - low power mode wake up time
+ * @param	enable - low power mode application wake up enable
+ * @return	none
+ */
+void 		blc_pm_setAppWakeupLowPower(u32 wakeup_tick, u8 enable);
+
+/**
+ * @brief	for user to register the callback for application wake up low power mode process
+ * @param	cb - the pointer of callback function
+ * @return  none.
+ */
+void 		blc_pm_registerAppWakeupLowPowerCb(pm_appWakeupLowPower_callback_t cb);
+
+
 
 #endif /* LL_PM_H_ */

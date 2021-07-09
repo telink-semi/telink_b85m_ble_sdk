@@ -43,8 +43,8 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef LLMS_SLAVE_H_
-#define LLMS_SLAVE_H_
+#ifndef ACL_SLAVE_H_
+#define ACL_SLAVE_H_
 
 
 
@@ -61,4 +61,4 @@ void 		blc_ll_initAclSlaveRole_module(void);
 
 
 
-#endif /* LLMS_SLAVE_H_ */
+#endif /* ACL_SLAVE_H_ */

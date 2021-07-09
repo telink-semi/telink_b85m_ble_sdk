@@ -49,7 +49,7 @@
 
 
 
-#define 		CIG_MST_PARAM_LEN				(sizeof(ll_cig_mst_t))   //sizeof(ll_cig_mst_t) =  ,  must 4 byte aligned
+#define 		CIG_MST_PARAM_LEN				(436)   //Note: user can't modify this value,and this value must 4 byte aligned
 #define 		CIG_ID_0						0
 #define 		CIG_ID_1		      			1
 #define 		CIG_ID_2		              	2
@@ -64,7 +64,7 @@
  * @param	   none
  * @return     none
  */
-void 		blc_ll_initCisMst_module(void);
+void 		blc_ll_initCisMaster_module(void);
 
 
 /**
@@ -72,7 +72,7 @@ void 		blc_ll_initCisMst_module(void);
  * @param	   none
  * @return     none
  */
-void 		blc_ll_initCisMstParameters( u8 *pCigPara, int cig_mst_num);
+void 		blc_ll_initCisMasterParameters( u8 *pCigPara, int cig_mst_num);
 
 
 /**

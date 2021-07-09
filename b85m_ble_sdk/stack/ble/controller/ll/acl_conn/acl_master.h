@@ -43,8 +43,8 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef LLMS_MASTER_H_
-#define LLMS_MASTER_H_
+#ifndef ACL_MASTER_H_
+#define ACL_MASTER_H_
 
 
 
@@ -82,17 +82,4 @@ ble_sts_t	blc_ll_setAclMasterConnectionInterval(conn_inter_t conn_interval);
 ble_sts_t 	blc_ll_updateConnection(u16 connHandle, conn_inter_t conn_min, conn_inter_t conn_max, u16 conn_latency, conn_tm_t timeout, u16 ce_min, u16 ce_max);
 
 
-
-/**
- * @brief      this function is used by the Host to specify a channel classification based on its local information,
- *             only the master role is valid.
- * @param[in]  *map - channel map
- * @return     status, 0x00:  succeed
- * 			           other: failed
- */
-ble_sts_t 	blc_ll_setHostChannel(u8 * chnMap);
-
-
-
-
-#endif /* LLMS_MASTER_H_ */
+#endif /* ACL_MASTER_H_ */

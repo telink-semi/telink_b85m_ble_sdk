@@ -47,6 +47,7 @@
 #define BLE_H_
 
 
+#include "ble_config.h"
 #include "ble_common.h"
 #include "ble_format.h"
 
@@ -63,7 +64,6 @@
 #include "service/device_information.h"
 #include "service/hids.h"
 #include "service/uuid.h"
-
 
 
 

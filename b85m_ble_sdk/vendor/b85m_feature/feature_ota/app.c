@@ -62,18 +62,13 @@ int	master_smp_pending = 0; 		// SMP: security & encryption;
 
 
 
+_attribute_ble_data_retention_  u32 connect_event_occurTick[MASTER_SLAVE_MAX_NUM];
+_attribute_ble_data_retention_  u32 mtuExchange_check_tick[MASTER_SLAVE_MAX_NUM];
 
+_attribute_ble_data_retention_ u8 mtuExchange_started_flg[MASTER_SLAVE_MAX_NUM];
+_attribute_ble_data_retention_ u8 dle_started_flg[MASTER_SLAVE_MAX_NUM];
 
-
-#if (OTA_SERVER_SUPPORT_BIG_PDU_ENABLE || OTA_CLIENT_SUPPORT_BIG_PDU_ENABLE)
-	_attribute_ble_data_retention_  u32 connect_event_occurTick[MASTER_SLAVE_MAX_NUM];
-	_attribute_ble_data_retention_  u32 mtuExchange_check_tick[MASTER_SLAVE_MAX_NUM];
-
-	_attribute_ble_data_retention_ u8 mtuExchange_started_flg[MASTER_SLAVE_MAX_NUM];
-	_attribute_ble_data_retention_ u8 dle_started_flg[MASTER_SLAVE_MAX_NUM];
-
-	u32 mtu_tick[MASTER_SLAVE_MAX_NUM];
-#endif
+u32 mtu_tick[MASTER_SLAVE_MAX_NUM];
 
 
 
@@ -135,7 +130,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
-								 CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_2S, \
+								 CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 
 		if(status == BLE_SUCCESS){ //create connection success
@@ -199,7 +194,7 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 
 /**
- * @brief      BLE Disonnection event handler
+ * @brief      BLE Disconnection event handler
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
@@ -409,14 +404,6 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 
 
-
-//int app_att_read_by_type_response_handle(connHandle, pkt)
-//{
-//	rf_packet_att_data_readByTypeRsp_t *pRsp = (rf_packet_att_data_readByTypeRsp_t*)pkt;
-//	return 0;
-//}
-
-
 /**
  * @brief      BLE GATT data handler call-back.
  * @param[in]  connHandle     connection handle.
@@ -438,7 +425,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
 				{
 
-					#if (BLE_OTA_CLIENT_ENABLE)
+					#if (BLE_OTA_CLIENT_ENABLE && !OTA_LEGACY_PROTOCOL)
 						if(blotaClt.ota_update_flow){
 							app_ota_process_handle_value_notify(pAtt);
 						}
@@ -525,7 +512,7 @@ _attribute_no_inline_ void user_init_normal(void)
 
 
 
-	blc_ll_setMaxConnectionNumber(1, 1);  //MASTER_MAX_NUM SLAVE_MAX_NUM
+	blc_ll_setMaxConnectionNumber(MASTER_MAX_NUM, SLAVE_MAX_NUM);
 
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
@@ -623,7 +610,7 @@ _attribute_no_inline_ void user_init_normal(void)
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
 	blc_ll_setAdvParam(ADV_INTERVAL_50MS, ADV_INTERVAL_50MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-//	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
+	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
 	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
 	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
@@ -641,7 +628,6 @@ _attribute_no_inline_ void user_init_normal(void)
 
 
 	my_dump_str_data(APP_DUMP_EN,"OTA client user init", 0, 0);
-
 }
 
 

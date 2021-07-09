@@ -183,6 +183,50 @@ int dev_char_info_insert_by_conn_event(hci_le_connectionCompleteEvt_t* pConnEvt)
 
 
 /**
+ * @brief       Used for add device information to conn_dev_list.
+ * @param[in]   pConnEvt - LE enhanced connection complete event data buffer address.
+ * @return      0 ~ DEVICE_CHAR_INFO_MAX_NUM - 1: new connection index, insert success
+ *              0xFF: insert failed
+ */
+int dev_char_info_insert_by_enhanced_conn_event(hci_le_enhancedConnCompleteEvt_t* pConnEvt)
+{
+	int index = INVALID_CONN_IDX;
+	if( pConnEvt->role == LL_ROLE_MASTER ){  //master
+		for(int i = 0; i < MASTER_MAX_NUM; i++){
+			if(conn_dev_list[i].conn_state == 0){
+				index = i;
+				conn_master_num ++;
+				break;
+			}
+		}
+	}
+	else if( pConnEvt->role == LL_ROLE_SLAVE ){  //slave
+		for(int i = MASTER_MAX_NUM; i < MASTER_MAX_NUM + SLAVE_MAX_NUM; i++){
+			if(conn_dev_list[i].conn_state == 0){
+				index = i;
+				conn_slave_num ++;
+				break;
+			}
+		}
+	}
+
+	if(index != INVALID_CONN_IDX){
+		memset(&conn_dev_list[index], 0, sizeof(dev_char_info_t));
+
+		conn_dev_list[index].conn_handle = pConnEvt->connHandle;
+		conn_dev_list[index].conn_role = pConnEvt->role;
+		conn_dev_list[index].conn_state = 1;
+		conn_dev_list[index].peer_adrType = pConnEvt->PeerAddrType;
+		memcpy(conn_dev_list[index].peer_addr, pConnEvt->PeerAddr, 6);
+	}
+
+	return index;
+}
+
+
+
+
+/**
  * @brief       Used for delete device information from conn_dev_list by connHandle
  * @param[in]   connhandle       - connection handle.
  * @return      0: success

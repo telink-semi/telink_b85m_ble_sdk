@@ -46,8 +46,8 @@
 #ifndef BIS_BCST_H_
 #define BIS_BCST_H_
 
-
-#define 		BIG_BCST_PARAM_LENGTH		(sizeof(ll_big_bcst_t)) //4B aligned
+//Note: user can't modify this value,and this value must 4 byte aligned
+#define 		BIG_BCST_PARAM_LENGTH		(672) //4B aligned
 
 
 /**

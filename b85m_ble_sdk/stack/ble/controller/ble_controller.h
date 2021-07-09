@@ -47,6 +47,7 @@
 #define BLE_CONTROLLER_H_
 
 
+#include "stack/ble/ble_config.h"
 #include "stack/ble/ble_common.h"
 #include "stack/ble/ble_format.h"
 
@@ -92,6 +93,7 @@
 #include "stack/ble/controller/ll/iso/cis.h"
 #include "stack/ble/controller/ll/iso/cis_master.h"
 #include "stack/ble/controller/ll/iso/cis_slave.h"
+#include "stack/ble/controller/ll/aoa_aod/aoa_aod.h"
 
 
 #include "stack/ble/controller/whitelist/whitelist.h"
@@ -102,11 +104,7 @@
 #include "stack/ble/controller/phy/phy.h"
 #include "stack/ble/controller/phy/phy_test.h"
 
-
-#include "algorithm/ecc/ecc_ll.h"
-#include "algorithm/aes_ccm/aes_ccm.h"
-#include "algorithm/crypto/crypto_alg.h"
-#include "stack/ble/ble_config.h"
+#include "algorithm/algorithm.h"
 
 
 #endif /* BLE_H_ */

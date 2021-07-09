@@ -119,6 +119,7 @@ typedef enum{
 	ADV_INTERVAL_90MS		 =					 144,
 	ADV_INTERVAL_100MS       =                   160,
 	ADV_INTERVAL_150MS       =                   240,
+	ADV_INTERVAL_195MS       =                   312,
 	ADV_INTERVAL_200MS       =                   320,
 	ADV_INTERVAL_250MS       =                   400,
 	ADV_INTERVAL_300MS       =                   480,
@@ -891,6 +892,77 @@ typedef struct{
 	u16		Sync_CTE_Type;
 } hci_le_periodicAdvCreateSync_cmdParam_t;
 
+/**
+ * @brief  Command Parameters for "7.8.80 LE Set Connectionless CTE Transmit Parameters command"
+ */
+typedef struct{
+	u8		Advertising_Handle;
+	u8		CTE_length;
+	u8		CTE_type;
+	u8		CTE_count;
+
+	u8		Switch_pattern_len;
+	u8		Antenna_IDs[1];
+}hci_le_setConnectionless_CTETransmitParam_t;
+
+
+typedef struct{
+	adv_handle_t	adv_handle;
+	u8 				CTE_enable;
+}hci_le_CTE_enable_type;
+
+typedef struct{
+	u16		Sync_Handle;
+	u8		Sampling_Enable;
+	u8		Slot_Duration;
+
+	u8		Max_Sampled_CTEs;
+	u8		Switching_pattern_len;
+	u8		Antenna_IDs[1];
+}hci_le_setConnectionless_IQsampleEn_t;
+
+
+typedef struct{
+	u8		conn_handle;
+	u8		sampling_en;
+	u8		slot_duration;
+	u8		switch_pattern_len;
+
+	u8		antenna_ids[1];
+}hci_le_setConnection_CTERevParams_t;
+
+typedef struct{
+	u8		conn_handle;
+	u8		CTE_type;
+	u8		switching_pattern_len;
+	u8		antenna_IDs[1];
+}hci_le_setConnection_CTETransmitParams_t;
+
+typedef struct{
+	u8	status;
+	u8	support_switch_sample_rate;
+	u8	antenna_num;
+	u8	max_switch_pattern_len;
+
+	u8	max_cte_len;
+
+}cte_antenna_infor_t;
+
+typedef struct{
+	u8		conn_handle;
+	u8		cte_req_en;
+	u16		cte_req_intvl;
+
+	u8		req_cte_len;
+	u8		req_cte_type;
+}hci_le_cteReqEn_t;
+
+typedef struct{
+	u8		conn_handle;
+	u8		rsp_enable;
+}hci_le_cteRspEn_t;
+
+
 /* Options */
 typedef enum {
 
@@ -955,7 +1027,7 @@ typedef struct {
 	u16 	max_trans_lat_m2s;
 	u16 	max_trans_lat_s2m;
 	u8		cis_count;
-	u8*		restparam;
+	u8		restparam[1];
 } hci_le_setCigParam_cmdParam_t;
 
 typedef struct{
@@ -1154,7 +1226,7 @@ typedef struct
 	u8		mse;				/* The Controller can schedule reception of any number of subevents up to NSE */
   	u16		big_sync_timeout;	/* Synchronization timeout for the BIG, Time = N*10 ms, Time Range: 100 ms to 163.84 s */
   	u8  	num_bis; 			/* Total number of BISes to synchronize */
-  	u8*     bis;				/* List of indices of BISes */
+  	u8      bis[1];				/* List of indices of BISes */
 } hci_le_bigCreateSyncParams_t;
 
 
@@ -1178,7 +1250,22 @@ typedef struct
 }hci_le_setupIsoDataPathCmdParams_t;
 
 
+/**
+ * @brief Command Parameters for "7.8.111 LE ISO Transmit Test command"
+ */
+typedef struct
+{
+	u16 handle;
+	u8  payload_type;
+}hci_le_isoTransmitTestCmdParams_t;
 
-
+/**
+ * @brief Command Parameters for "7.8.112 LE ISO Receive Test command"
+ */
+typedef struct
+{
+	u16 handle;
+	u8  payload_type;
+}hci_le_isoReceiveTestCmdParams_t;
 
 #endif /* HCI_CMD_H_ */

@@ -56,8 +56,8 @@
  * @param[in]	none
  * @return      none
  */
-
 void user_init_normal(void);
+
 
 /**
  * @brief		user initialization when MCU wake_up from deepSleep_retention mode
@@ -112,6 +112,5 @@ int app_host_event_callback (u32 h, u8 *para, int n);
 int app_gatt_data_handler (u16 connHandle, u8 *pkt);
 
 
-#endif ///#if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
-
+#endif
 #endif /* VENDOR_APP_H_ */

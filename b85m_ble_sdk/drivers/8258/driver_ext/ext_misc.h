@@ -49,6 +49,9 @@
 
 #include <tl_common.h>
 
+//#define GET_WORD_LEN(bitLen)     ((bitLen+31)/32)
+//#define GET_BYTE_LEN(bitLen)     ((bitLen+7)/8)
+
 /***************************************************************************/
 //for debug
 #define	DBG_SRAM_ADDR					0x40000

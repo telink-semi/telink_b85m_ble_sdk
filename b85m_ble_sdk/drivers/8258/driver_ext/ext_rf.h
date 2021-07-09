@@ -156,6 +156,27 @@ static inline void rf_trigle_codedPhy_accesscode(void)
 	WRITE_REG8(0x405, REG_ADDR8(0x405) | BIT(7));
 }
 
+
+typedef enum{
+	FSM_BTX 	= 0x81,
+	FSM_BRX 	= 0x82,
+	FSM_STX 	= 0x85,
+	FSM_SRX 	= 0x86,
+	FSM_TX2RX	= 0x87,
+	FSM_RX2TX	= 0x88,
+}fsm_mode_e;
+
+
+/**
+ * @brief     	This function serves to RF trigger RF state machine.
+ * @param[in] 	mode  - FSM mode.
+ * @param[in] 	tx_addr  - DMA TX buffer, if not TX, must be "NULL"
+ * @param[in] 	tick  - FAM Trigger tick.
+ * @return	   	none.
+ */
+void rf_start_fsm(fsm_mode_e mode, void* tx_addr, unsigned int tick);
+
+
 //TODO: need debug
 #define 	LL_TX_STL_TIFS_1M								63
 #define 	LL_TX_STL_TIFS_2M								(LL_TX_STL_TIFS_1M + 24)

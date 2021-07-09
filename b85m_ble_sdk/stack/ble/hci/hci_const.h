@@ -238,7 +238,7 @@
 #define HCI_CMD_WRITE_INQUIRY_SCAN_TYPE								 0x43
 #define HCI_CMD_WRITE_INQUIRY_MODE									 0x45
 #define HCI_CMD_WRITE_PAGE_SCAN_TYPE								 0x47
-
+#define HCI_CMD_SET_EVT_MASK_PAGE_2                                  0x63
 
 //Informational Parameters
 //-- OGF --

@@ -649,8 +649,6 @@ void HCI_Tr_H4RxHandler(void)
 			 memcpy(p, pPacket, pktLen);
 			 pHciRxFifo->wptr++;
 
-			 array_printf(pPacket, pktLen);
-
 			 len -= pktLen;
 			 pPacket += pktLen;
 	    }
@@ -691,7 +689,7 @@ void HCI_Tr_H4IRQHandler(void)
 		reg_dma_irq_status = BIT(0);
 
 		hci_fifo_t *pRxFifo = hciH4TrCB.pRxFifo;
-		if(pRxFifo->wptr - pRxFifo->rptr > pRxFifo->num){
+		if(pRxFifo->wptr - pRxFifo->rptr >= pRxFifo->num){
 			return; //have no memory.
 		}
 

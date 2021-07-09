@@ -47,11 +47,16 @@
 #define OTA_H_
 
 
-
+/**
+ * @brief 	Legacy OTA command
+ */
 #define CMD_OTA_VERSION						0xFF00	//client -> server
 #define CMD_OTA_START						0xFF01	//client -> server
 #define CMD_OTA_END							0xFF02	//client -> server
 
+/**
+ * @brief 	Extended OTA command, optional
+ */
 #define CMD_OTA_START_EXT					0xFF03	//client -> server
 #define CMD_OTA_FW_VERSION_REQ				0xFF04	//client -> server
 #define CMD_OTA_FW_VERSION_RSP				0xFF05	//server -> client
@@ -63,7 +68,7 @@ extern int	ota_program_offset;
 
 
 /**
- * @brief 	Multiple boot address enumarion
+ * @brief 	Multiple boot address enumeration
  */
 typedef enum{
 	MULTI_BOOT_ADDR_0x20000 	= 0x20000,	//128 K

@@ -92,7 +92,8 @@ void feature_dle_test_mainloop (void)
 			{
 				if(i < MASTER_MAX_NUM)
 				{
-					if(BLE_SUCCESS ==blc_gatt_pushWriteCommand (connHandle, SPP_CLIENT_TO_SERVER_DP_H, &app_test_data[i][0], ATT_MTU_MASTER_RX_MAX_SIZE-3))
+					u16 dataLen = min(mtuExchange_started_flg[i]-3, ATT_MTU_MASTER_RX_MAX_SIZE-3);
+					if(BLE_SUCCESS == blc_gatt_pushWriteCommand (connHandle, SPP_CLIENT_TO_SERVER_DP_H, &app_test_data[i][0], dataLen))
 					{
 						mtu_tick[i] = clock_time();
 						app_test_data[i][0] ++;
@@ -100,7 +101,8 @@ void feature_dle_test_mainloop (void)
 				}
 				else
 				{
-					if(BLE_SUCCESS == blc_gatt_pushHandleValueNotify (connHandle, SPP_SERVER_TO_CLIENT_DP_H, &app_test_data[i][0], ATT_MTU_SLAVE_RX_MAX_SIZE-3))
+					u16 dataLen = min(mtuExchange_started_flg[i]-3, ATT_MTU_MASTER_RX_MAX_SIZE-3);
+					if(BLE_SUCCESS == blc_gatt_pushHandleValueNotify (connHandle, SPP_SERVER_TO_CLIENT_DP_H, &app_test_data[i][0], dataLen))
 					{
 						mtu_tick[i] = clock_time();
 						app_test_data[i][0] ++;
@@ -155,7 +157,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
-								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_2S, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 
 
@@ -203,6 +205,11 @@ int app_le_connection_complete_event_handle(u8 *p)
 					user_tbl_slave_mac_add(pConnEvt->peerAddrType, pConnEvt->peerAddr);
 				}
 			#endif
+
+			gpio_write(GPIO_LED_GREEN, 1);
+		}
+		else{
+			gpio_write(GPIO_LED_RED, 1);
 		}
 	}
 
@@ -212,7 +219,7 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 
 /**
- * @brief      BLE Disonnection event handler
+ * @brief      BLE Disconnection event handler
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
@@ -235,7 +242,12 @@ int 	app_disconnect_event_handle(u8 *p)
 
 	}
 
-
+	if(dev_char_get_conn_role_by_connhandle(pCon->connHandle) == LL_ROLE_MASTER){
+		gpio_write(GPIO_LED_GREEN, 0);
+	}
+	else{
+		gpio_write(GPIO_LED_RED, 0);
+	}
 
 	//if previous connection SMP & SDP not finished, clear flag
 #if (BLE_MASTER_SMP_ENABLE)
@@ -392,7 +404,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 			gap_gatt_mtuSizeExchangeEvt_t *pEvt = (gap_gatt_mtuSizeExchangeEvt_t *)para;
 
 			u8 conn_idx = dev_char_get_conn_index_by_connhandle(pEvt->connHandle);
-			mtuExchange_started_flg[conn_idx] = 1;   //set MTU size exchange flag here
+			mtuExchange_started_flg[conn_idx] = pEvt->effective_MTU;//1;   //set MTU size exchange flag here
 
 			my_dump_str_data(APP_DUMP_EN, "Effective_MTU = ", &pEvt->effective_MTU, 2);
 		}

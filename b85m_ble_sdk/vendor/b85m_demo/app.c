@@ -60,7 +60,9 @@ _attribute_ble_data_retention_		int	master_smp_pending = 0; 		// SMP: security &
 
 
 
-
+/**
+ * @brief	BLE Advertising data
+ */
 const u8	tbl_advData[] = {
 	 11, DT_COMPLETE_LOCAL_NAME, 				'm','u','l','t','i','_','c','o','n','n',
 	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
@@ -68,6 +70,9 @@ const u8	tbl_advData[] = {
 	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
+/**
+ * @brief	BLE Scan Response Packet data
+ */
 const u8	tbl_scanRsp [] = {
 	 11, DT_COMPLETE_LOCAL_NAME, 				'm','u','l','t','i','_','c','o','n','n',
 };
@@ -98,15 +103,17 @@ int app_le_adv_report_event_handle(u8 *p)
 	#endif
 
 	/*********************** Master Create connection demo: Key press or ADV pair packet triggers pair  ********************/
-	if(master_smp_pending){ 	 //if previous connection SMP not finish, can not create a new connection
-		return 1;
-	}
+	#if (BLE_MASTER_SMP_ENABLE)
+		if(master_smp_pending){ 	 //if previous connection SMP not finish, can not create a new connection
+			return 1;
+		}
+	#endif
 
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-	if(master_sdp_pending){ 	 //if previous connection SDP not finish, can not create a new connection
-		return 1;
-	}
-#endif
+	#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+		if(master_sdp_pending){ 	 //if previous connection SDP not finish, can not create a new connection
+			return 1;
+		}
+	#endif
 
 	if (master_disconnect_connhandle){ //one master connection is in un_pair disconnection flow, do not create a new one
 		return 1;
@@ -133,7 +140,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
-								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_48P75MS, 0, CONN_TIMEOUT_2S, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_48P75MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 
 
@@ -248,17 +255,17 @@ int 	app_disconnect_event_handle(u8 *p)
 	}
 
 
-	//if previous connection SMP & SDP not finished, clear flag
-#if (BLE_MASTER_SMP_ENABLE)
-	if(master_smp_pending == pCon->connHandle){
-		master_smp_pending = 0;
-	}
-#endif
-#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-	if(master_sdp_pending == pCon->connHandle){
-		master_sdp_pending = 0;
-	}
-#endif
+	/* if previous connection SMP & SDP not finished, clear flag */
+	#if (BLE_MASTER_SMP_ENABLE)
+		if(master_smp_pending == pCon->connHandle){
+			master_smp_pending = 0;
+		}
+	#endif
+	#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+		if(master_sdp_pending == pCon->connHandle){
+			master_sdp_pending = 0;
+		}
+	#endif
 
 	if(master_disconnect_connhandle == pCon->connHandle){  //un_pair disconnection flow finish, clear flag
 		master_disconnect_connhandle = 0;
@@ -367,15 +374,15 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 		case GAP_EVT_SMP_PAIRING_FAIL:
 		{
-		#if (BLE_MASTER_SMP_ENABLE)
-			gap_smp_pairingFailEvt_t *p = (gap_smp_pairingFailEvt_t *)para;
+			#if (BLE_MASTER_SMP_ENABLE)
+				gap_smp_pairingFailEvt_t *p = (gap_smp_pairingFailEvt_t *)para;
 
-			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
-				if(master_smp_pending == p->connHandle){
-					master_smp_pending = 0;
+				if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
+					if(master_smp_pending == p->connHandle){
+						master_smp_pending = 0;
+					}
 				}
-			}
-		#endif
+			#endif
 		}
 		break;
 
@@ -388,20 +395,21 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 		case GAP_EVT_SMP_SECURITY_PROCESS_DONE:
 		{
 			gap_smp_connEncDoneEvt_t* p = (gap_smp_connEncDoneEvt_t*)para;
-		#if (BLE_MASTER_SMP_ENABLE)
+
 			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
 
-				if(master_smp_pending == p->connHandle){
-					master_smp_pending = 0;
-				}
-			}
-		#endif
+				#if (BLE_MASTER_SMP_ENABLE)
+					if(master_smp_pending == p->connHandle){
+						master_smp_pending = 0;
+					}
+				#endif
 
-		#if (BLE_MASTER_SIMPLE_SDP_ENABLE)  //SMP finish
-			if(master_sdp_pending == p->connHandle){  //SDP is pending
-				app_register_service(&app_service_discovery);  //start SDP now
+				#if (BLE_MASTER_SIMPLE_SDP_ENABLE)  //SMP finish
+					if(master_sdp_pending == p->connHandle){  //SDP is pending
+						app_register_service(&app_service_discovery);  //start SDP now
+					}
+				#endif
 			}
-		#endif
 		}
 		break;
 
@@ -678,7 +686,7 @@ _attribute_no_inline_ void user_init_normal(void)
 //////////////////////////// User Configuration for BLE application ////////////////////////////
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
+	blc_ll_setAdvParam(ADV_INTERVAL_50MS, ADV_INTERVAL_50MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
 
 	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_50MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);

@@ -52,20 +52,40 @@
 #include "drivers.h"
 #include "tl_common.h"
 
-#define 	BQB_TEST_EN      										1
+#define 	BQB_TEST_EN      										0
+//BQB Test
+#if BQB_TEST_EN
+	#define BQB_TEST_PHY_EN         1
+    #define BQB_TEST_CONN_UPD_EN    1
+    #define BQB_TEST_CHN_MAP_EN     1
+#else
+    #define BQB_TEST_PHY_EN         0
+    #define BQB_TEST_CONN_UPD_EN    0
+    #define BQB_TEST_CHN_MAP_EN     0
+#endif
 
-//HCI DFU for xiaomi
-#define  HCI_DFU_EN                                                 1
+//the following just for xiaomi project.
+#define  	HCI_DFU_EN  			1
+#define		XIAOMI_EXTSCAN_EN		1
+///
 
 ///////////////////  Feature ////////////////////////////
 #ifndef		LL_MULTI_SLAVE_MAC_ENABLE
 #define		LL_MULTI_SLAVE_MAC_ENABLE				    			0
 #endif
 
-//Used for private BIS SYNCHRONIZED RECEIVER
+//////////////////////////////////////////////////////////////////////
+//note both the following two macro XXX_PRIVATE_XXX and XXX_NORMAL_XXX
+//CAN NOT be set 1 at the same time.One is private,another is standard.
 #ifndef		LL_FEATURE_PRIVATE_BIS_SYNC_RECEIVER
 #define 	LL_FEATURE_PRIVATE_BIS_SYNC_RECEIVER					0
 #endif
+
+#ifndef		LL_FEATURE_NORMAL_BIS_SYNC_RECEIVER
+#define		LL_FEATURE_NORMAL_BIS_SYNC_RECEIVER						1
+#endif
+//////////////////////////////////////////////////////////////////////
+
 
 #if(MCU_CORE_TYPE == MCU_CORE_825x)
 	#define	FIX_HW_CRC24_EN											1
@@ -108,20 +128,28 @@
 #define LL_FEATURE_SUPPORT_LE_CODED_PHY								1
 #endif
 
+#ifndef LL_FEATURE_SUPPORT_LE_AOA_AOD
+#define LL_FEATURE_SUPPORT_LE_AOA_AOD								0
+#endif
+
 #ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING
 #define LL_FEATURE_SUPPORT_LE_EXTENDED_ADVERTISING					1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_SCANNING
-#define LL_FEATURE_SUPPORT_LE_EXTENDED_SCANNING						0
+#define LL_FEATURE_SUPPORT_LE_EXTENDED_SCANNING						1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_EXTENDED_INITIATE
-#define LL_FEATURE_SUPPORT_LE_EXTENDED_INITIATE						0
+#define LL_FEATURE_SUPPORT_LE_EXTENDED_INITIATE						1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING
-#define LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING					0
+#define LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING					1
+#endif
+
+#ifndef LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING_SYNC
+#define LL_FEATURE_SUPPORT_LE_PERIODIC_ADVERTISING_SYNC				1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_CHANNEL_SELECTION_ALGORITHM2
@@ -132,25 +160,30 @@
 
 
 
+
 //core_5.2 feature begin
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER
-#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		0
+#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE
-#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE		0
+#define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_SLAVE		1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_ISOCHRONOUS_BROADCASTER
-#define LL_FEATURE_SUPPORT_ISOCHRONOUS_BROADCASTER					0
+#define LL_FEATURE_SUPPORT_ISOCHRONOUS_BROADCASTER					1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_SYNCHRONIZED_RECEIVER
-#define LL_FEATURE_SUPPORT_SYNCHRONIZED_RECEIVER					0
+#define LL_FEATURE_SUPPORT_SYNCHRONIZED_RECEIVER					1
 #endif
 
 #ifndef LL_FEATURE_SUPPORT_ISOCHRONOUS_CHANNELS
-#define LL_FEATURE_SUPPORT_ISOCHRONOUS_CHANNELS						0
+#define LL_FEATURE_SUPPORT_ISOCHRONOUS_CHANNELS						1
+#endif
+
+#ifndef	LL_FEATURE_SUPPORT_ISOCHRONOUS_TEST_MODE
+#define	LL_FEATURE_SUPPORT_ISOCHRONOUS_TEST_MODE					1
 #endif
 //core_5.2 feature end
 
@@ -161,13 +194,14 @@
 #endif
 
 
-#ifndef L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN
-#define L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN						0
-#endif
-
 
 #ifndef HCI_NEW_FIFO_FEATURE_ENABLE
 #define HCI_NEW_FIFO_FEATURE_ENABLE									1
+#endif
+
+
+#ifndef HCI_SEND_NUM_OF_CMP_AFT_ACK
+#define HCI_SEND_NUM_OF_CMP_AFT_ACK									0
 #endif
 
 
@@ -175,7 +209,9 @@
 #define L2CAP_DATA_2_HCI_DATA_BUFFER_ENABLE							0  //just for debug
 #endif
 
-
+#ifndef L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN
+#define L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN     				0
+#endif
 
 
 #ifndef UPPER_TESTER_DBG_EN

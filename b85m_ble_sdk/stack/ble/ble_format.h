@@ -50,25 +50,6 @@
 #include "stack/ble/ble_common.h"
 
 
-/******************************************** Link Layer **************************************************************/
-
-typedef struct {
-	u8 type;
-	u8 address[6];//BLE_ADDR_LEN];
-} addr_t;
-
-
-
-typedef struct {
-    u8 llid   :2;
-    u8 nesn   :1;
-    u8 sn     :1;
-    u8 md     :1;
-    u8 rfu1   :3;
-}rf_data_head_t;
-
-
-
 typedef struct {
     u8 llid   :2;
     u8 nesn   :1;
@@ -102,172 +83,6 @@ typedef struct {
 }rf_bis_data_hdr_t;
 
 
-
-typedef struct{
-	u32 dma_len;
-
-	u8 type   :4;
-	u8 rfu1   :1;
-	u8 chan_sel:1;
-	u8 txAddr :1;
-	u8 rxAddr :1;
-
-	u8  rf_len;				//LEN(6)_RFU(2)
-
-	u8	advA[6];			//address
-	u8	data[31];
-}rf_packet_adv_t;
-
-
-
-typedef struct{
-	u32 dma_len;
-
-	u8  type   :4;
-	u8  rfu1   :1;
-	u8  chan_sel:1;
-	u8  txAddr :1;
-	u8  rxAddr :1;
-
-	u8  rf_len;				//LEN(6)_RFU(2)
-
-	u8	scanA[6];			//
-	u8	advA[6];			//
-}rf_packet_scan_req_t;
-
-typedef struct{
-	u32 dma_len;
-
-	u8  type   :4;
-	u8  rfu1   :1;
-	u8  chan_sel:1;
-	u8  txAddr :1;
-	u8  rxAddr :1;
-
-	u8  rf_len;				//LEN(6)_RFU(2)
-
-	u8	advA[6];			//address
-	u8	data[31];			//0-31 byte
-}rf_packet_scan_rsp_t;
-
-typedef struct{
-	u32 dma_len;
-
-	u8  type   :4;
-	u8  rfu1   :1;
-	u8  chan_sel:1;
-	u8  txAddr :1;
-	u8  rxAddr :1;
-
-	u8  rf_len;				//LEN(6)_RFU(2)
-	u8	initA[6];			//scanA
-	u8	advA[6];			//
-	u8	accessCode[4];		// access code
-	u8	crcinit[3];
-	u8	winSize;
-	u16	winOffset;
-	u16 interval;
-	u16 latency;
-	u16 timeout;
-	u8	chm[5];
-	u8	hop;				//sca(3)_hop(5)
-}rf_packet_connect_t;
-
-typedef struct {
-	u8	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8 	winSize;
-	u16 winOffset;
-	u16 interval;
-	u16 latency;
-	u16 timeout;
-	u16 instant;
-} rf_packet_ll_updateConnPara_t;
-
-
-typedef struct {
-	u8 	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8 	winSize;
-	u16 winOffset;
-	u16 interval;
-	u16 latency;
-	u16 timeout;
-	u16 instant;
-}rf_packet_connect_upd_req_t;
-
-typedef struct {
-	u8 	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8 	chm[5];
-	u16 instant;
-} rf_packet_chm_upd_req_t;
-
-typedef struct {
-	u8 	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8 	rand[8];
-	u16 ediv;
-	u8	skdm[8];
-	u8	ivm[4];
-} rf_packet_ll_enc_req_t;
-
-typedef struct {
-	u8 	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8	skds[8];
-	u8	ivs[4];
-} rf_packet_ll_enc_rsp_t;
-
-typedef struct {
-	u8 	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8	unknownType;
-} rf_packet_ll_unknown_rsp_t;
-
-typedef struct {
-	u8 	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8	featureSet[8];
-} rf_packet_ll_feature_exg_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8  versNr;
-	u16 compId;
-	u16 subVersNr;
-}rf_packet_version_ind_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8  errCode;
-}rf_packet_ll_reject_ind_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u8 	opcode;
-	u8	rejectOpcode;
-	u8  errCode;
-}rf_packet_ll_reject_ext_ind_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u8	opcode;
-	u8	reason;
-}rf_packet_ll_terminate_t;
 
 typedef struct{
 	u8	type;
@@ -333,13 +148,7 @@ typedef struct{
 	u8	errorCode;
 }rf_packet_ll_cis_terminate_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
 
-	u8	opcode;				//
-	u8	dat[1];				//
-}rf_packet_ll_control_t;
 
 typedef struct{
 	union{
@@ -362,20 +171,12 @@ typedef struct{
 
 
 
-/******************************************** L2CAP **************************************************************/
 
-typedef struct{
-	rf_data_head_t	header;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 data[1];
-}rf_packet_l2cap_t;
+
 
 
 typedef struct{
-	rf_data_head_t	header;
+	u8	type;
 	u8  rf_len;
 	u16	l2capLen;
 	u16	chanId;
@@ -385,131 +186,6 @@ typedef struct{
 }rf_packet_att_t;
 
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 data[1];
-}rf_packet_l2cap_req_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  code;
-	u8  id;
-	u16 dataLen;
-	u16  result;
-}rf_pkt_l2cap_sig_connParaUpRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  code;
-	u8  id;
-	u16 length;
-	u16 psm;
-	u16 mtu;
-	u16 mps;
-	u16 init_credits;
-	u16 scid[5];
-}rf_pkt_l2cap_credit_based_connection_req_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  code;
-	u8  id;
-	u16 length;
-	u16 mtu;
-	u16 mps;
-	u16 init_credits;
-	u16 result;
-	u16 dcid[5];
-}rf_pkt_l2cap_credit_based_connection_rsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  code;
-	u8  id;
-	u16 length;
-	u16 mtu;
-	u16 mps;
-	u16 dcid[5];
-}rf_pkt_l2cap_credit_based_reconfigure_req_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  code;
-	u8  id;
-	u16 length;
-	u16 result;
-}rf_pkt_l2cap_credit_based_reconfigure_rsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 data[1];
-}rf_pkt_l2cap_req_t;
-
-typedef struct{
-	u8	llid;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8	id;
-	u16 data_len;
-	u16 min_interval;
-	u16 max_interval;
-	u16 latency;
-	u16 timeout;
-}rf_packet_l2cap_connParaUpReq_t;
-
-typedef struct{
-	u8	llid;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8	id;
-	u16 length;
-	u16 spsm;
-	u16 mtu;
-	u16 mps;
-	u16 init_credits;
-	u16 scid[5];
-}rf_packet_l2cap_credit_based_connection_req_t;
-
-typedef struct{
-	u8	llid;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8	id;
-	u16 data_len;
-	u16 result;
-}rf_packet_l2cap_connParaUpRsp_t;
-
-
-/******************************************** ATT **************************************************************/
 typedef struct{
 	u8	type;
 	u8  rf_len;
@@ -523,221 +199,16 @@ typedef struct{
 
 }rf_packet_att_data_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 	errOpcode;
-	u16 errHandle;
-	u8  errReason;
-}rf_packet_att_errRsp_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
 
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8	startingHandle;
-	u8	startingHandle1;
-	u8	endingHandle;
-	u8	endingHandle1;
-	u8	attType[2];				//
-}rf_packet_att_readByType_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
 
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8	startingHandle;
-	u8	startingHandle1;
-	u8	endingHandle;
-	u8	endingHandle1;
-	u8	attType[2];
-	u8  attValue[2];
-}rf_packet_att_findByTypeReq_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
 
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u16 	data[1];
-}rf_packet_att_findByTypeRsp_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 handle;
-	u8 handle1;
-}rf_packet_att_read_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 handle;
-	u8 handle1;
-	u8 offset0;
-	u8 offset1;
-}rf_packet_att_readBlob_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 	value[22];
-}rf_packet_att_readRsp_t;
 
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  datalen;
-	u8  data[1];			// character_handle / property / value_handle / value
-}rf_pkt_att_readByTypeRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  datalen;
-	u8  data[1];			// character_handle / property / value_handle / value
-}rf_packet_att_readByTypeRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  datalen;
-	u8  data[1];			// character_handle / property / value_handle / value
-}rf_packet_att_data_readByTypeRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  datalen;
-	u8  data[3];
-}rf_packet_att_readByGroupTypeRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  format;
-	u8  data[1];			// character_handle / property / value_handle / value
-}rf_packet_att_findInfoReq_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 flags;
-}rf_packet_att_executeWriteReq_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 handle;
-	u8 handle1;
-	u8 value;
-}rf_packet_att_write_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 handle[2];
-	u8 data;
-}rf_packet_att_notification_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 mtu[2];
-}rf_packet_att_mtu_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 mtu[2];
-}rf_packet_att_mtu_exchange_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-}rf_packet_att_writeRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  datalen;
-	u8  data[1];			// character_handle / property / value_handle / value
-}att_readByTypeRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8  format;
-	u8  data[1];			// character_handle / property / value_handle / value
-}att_findInfoRsp_t;
-
-typedef struct{
-	u8	type;
-	u8  rf_len;
-	u16	l2capLen;
-	u16	chanId;
-	u8  opcode;
-	u8 	value[22];
-}att_readRsp_t;
 
 
 #endif	/* BLE_FORMAT_H */

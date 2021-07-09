@@ -316,7 +316,7 @@ void HCI_Tr_H5IRQHandler(void)
 		reg_dma_irq_status = BIT(0);
 
 		hci_fifo_t *pFifo = hciH5TrCb.pRxFifo;
-		if(pFifo->wptr - pFifo->rptr > pFifo->mask+1){
+		if(pFifo->wptr - pFifo->rptr >= pFifo->mask+1){
 			return; //have no memory.
 		}
 

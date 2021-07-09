@@ -77,6 +77,7 @@ const  u8 vendor_OtaUUID[16]	= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
  * @param[in]	none
  * @return      none
  */
+_attribute_no_inline_
 void blc_readFlashSize_autoConfigCustomFlashSector(void)
 {
 	u8 temp_buf[4];

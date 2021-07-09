@@ -51,17 +51,17 @@
 
 
 
-#define		CIG_SLV_PARAM_LEN		(sizeof(ll_cig_slv_t))   //sizeof(ll_cig_slv_t) =  ,  must 4 byte aligned
+#define		CIG_SLV_PARAM_LEN		(416)   //Note: user can't modify this value,and this value must 4 byte aligned
 
 
 
 
 /**
- * @brief      for user to initialize CIG slave module.
+ * @brief      for user to initialize CIS slave module.
  * @param	   none
  * @return     none
  */
-void 		blc_ll_initCigSlave_module(void);
+void 		blc_ll_initCisSlave_module(void);
 
 
 /**
@@ -70,7 +70,7 @@ void 		blc_ll_initCigSlave_module(void);
  * @param
  * @return     ble_sts_t
  */
-ble_sts_t 	blc_ll_initCigSlvParameters( u8 *pCisSlavePara, int cig_slv_num);
+ble_sts_t 	blc_ll_initCisSlaveParameters( u8 *pCisSlavePara, int cis_slv_num);
 
 
 /**

@@ -58,7 +58,7 @@
 #if (ADV_SET_MODE == SINGLE_ADV_SET)
 
 
-extern	u8	tbl_advData[25];
+extern	u8	tbl_advData[22];
 extern	u8	tbl_scanRsp[12];
 ble_sts_t   ble_status = BLE_SUCCESS;
 
@@ -87,14 +87,7 @@ ble_sts_t   ble_status = BLE_SUCCESS;
 #define ADV_EVENT_PROP__EXT_SCAN_UNDIRECTED											14
 
 // Extended, Connectable, Undirected
-#define ADV_EVENT_PROP__EXT_CONN_UNDIRECTED											15 //TODO: not ok
-
-
-/* for user to select adv_event_property when single adv_set is tested */
-#define ADV_EVENT_PROPERTY_SELECT													15
-
-
-
+#define ADV_EVENT_PROP__EXT_CONN_UNDIRECTED											15
 
 /** Number of Supported Advertising Sets, no exceed "ADV_SETS_NUMBER_MAX" */
 #define	APP_ADV_SETS_NUMBER															1
@@ -106,7 +99,13 @@ ble_sts_t   ble_status = BLE_SUCCESS;
 #define APP_MAX_LENGTH_SCAN_RESPONSE_DATA		  									1024
 
 
+/* for user to select adv_event_property when single adv_set is tested */
+#define ADV_EVENT_PROPERTY_SELECT													13
 
+
+_attribute_ble_data_retention_	u32 my_adv_interval_min = ADV_INTERVAL_30MS;
+
+_attribute_ble_data_retention_	u32 my_adv_interval_max = ADV_INTERVAL_30MS;
 
 _attribute_ble_data_retention_	u8  app_advSet_buffer[ADV_SET_PARAM_LENGTH * APP_ADV_SETS_NUMBER];
 
@@ -115,6 +114,7 @@ _attribute_ble_data_retention_	u8 	app_advData_buffer[APP_MAX_LENGTH_ADV_DATA * 
 _attribute_ble_data_retention_	u8 	app_scanRspData_buffer[APP_MAX_LENGTH_SCAN_RESPONSE_DATA * APP_ADV_SETS_NUMBER];
 
 _attribute_ble_data_retention_	u8	testAdvData[APP_MAX_LENGTH_ADV_DATA];
+
 _attribute_ble_data_retention_  u8  testScanRspData[APP_MAX_LENGTH_SCAN_RESPONSE_DATA];
 
 //_attribute_ble_data_retention_	u8	app_primaryAdvPkt_buffer[MAX_LENGTH_PRIMARY_ADV_PKT * APP_ADV_SETS_NUMBER];
@@ -122,29 +122,20 @@ _attribute_ble_data_retention_  u8  testScanRspData[APP_MAX_LENGTH_SCAN_RESPONSE
 //_attribute_ble_data_retention_	u8	app_secondary_adv_pkt[MAX_LENGTH_SECOND_ADV_PKT * APP_ADV_SETS_NUMBER];
 
 
-
-void app_single_adv_set_test(void)
+void app_single_adv_set_register_buffer(void)
 {
-
 	blc_ll_initExtendedAdvertising_module();
-
 
 	blc_ll_initExtendedAdvSetBuffer(app_advSet_buffer, APP_ADV_SETS_NUMBER);
 
-
 	blc_ll_initExtAdvDataBuffer(app_advData_buffer, APP_MAX_LENGTH_ADV_DATA);
 
-
 	blc_ll_initExtScanRspDataBuffer(app_scanRspData_buffer, APP_MAX_LENGTH_SCAN_RESPONSE_DATA);
+}
 
 
-	blc_ll_init2MPhyCodedPhy_feature(); //if use 2M or Coded PHY
-
-
-	u32 my_adv_interval_min = ADV_INTERVAL_20MS;  //30mS timing error
-	u32 my_adv_interval_max = ADV_INTERVAL_20MS;
-
-
+void app_single_adv_set_test(void)
+{
 #if (ADV_EVENT_PROPERTY_SELECT == ADV_EVENT_PROP__LEGACY_UNCONNECTABLE)
 	//Legacy, non_connectable_non_scannable
 	blc_ll_setExtAdvParam( ADV_HANDLE0, 		ADV_EVT_PROP_LEGACY_NON_CONNECTABLE_NON_SCANNABLE_UNDIRECTED,  my_adv_interval_min, 			my_adv_interval_max,
@@ -225,11 +216,11 @@ void app_single_adv_set_test(void)
 		testAdvData[i] = i;
 	}
 
-//	blc_ll_setExtAdvData( ADV_HANDLE0,    31, (u8 *)testAdvData);
-	blc_ll_setExtAdvData( ADV_HANDLE0, 	 200, testAdvData);
+//	blc_ll_setExtAdvData( ADV_HANDLE0,    31, testAdvData);
+//	blc_ll_setExtAdvData( ADV_HANDLE0, 	 200, testAdvData);
 //	blc_ll_setExtAdvData( ADV_HANDLE0, 	 400, testAdvData);
 //	blc_ll_setExtAdvData( ADV_HANDLE0, 	 600, testAdvData);
-//	blc_ll_setExtAdvData( ADV_HANDLE0,  1024, testAdvData);
+	blc_ll_setExtAdvData( ADV_HANDLE0,  1024, testAdvData);
 
 	blc_ll_setExtAdvEnable( BLC_ADV_ENABLE, ADV_HANDLE0, 0 , 0);
 

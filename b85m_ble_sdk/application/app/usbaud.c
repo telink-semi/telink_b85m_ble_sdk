@@ -44,7 +44,6 @@
  *
  *******************************************************************************************************/
 #include "drivers.h"
-
 #include "usbaud.h"
 #include "application/usbstd/usbhw.h"
 #include "application/usbstd/usbhw_i.h"

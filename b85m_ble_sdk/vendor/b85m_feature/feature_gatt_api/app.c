@@ -224,7 +224,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
-								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_2S, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 
 
@@ -710,6 +710,8 @@ int main_idle_loop (void)
 		gatt_api_testStarttick = clock_time();
 
 		feature_gatt_api_test_mainloop();
+
+		gpio_toggle(GPIO_LED_RED);
 	}
 
 

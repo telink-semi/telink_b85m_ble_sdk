@@ -53,6 +53,28 @@
 
 #if (FEATURE_TEST_MODE == TEST_OTA)
 
+
+
+
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u8  datalen;
+	u8  data[1];			// character_handle / property / value_handle / value
+}ble_att_data_readByTypeRsp_t;
+
+
+
+
+
+
+
+
+
+
 static const  u8 my_OtaUUID[16]	= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
 
 
@@ -147,7 +169,7 @@ void app_ota_process_read_by_type_response(u8 *pkt)
 {
 	if(blotaClt.ota_update_flow == OTA_STEP_4_WAIT_OTA_HANDLE){
 
-		rf_packet_att_data_readByTypeRsp_t *pRsp = (rf_packet_att_data_readByTypeRsp_t*)pkt;
+		ble_att_data_readByTypeRsp_t *pRsp = (ble_att_data_readByTypeRsp_t*)pkt;
 		blotaClt.ota_attHandle = pRsp->data[0] | pRsp->data[1]<<8;
 
 		app_updateOtaFlow( OTA_STEP_5_REQ_FW_VERSION);
@@ -177,7 +199,7 @@ void app_ota_process_handle_value_notify(rf_packet_att_t * pAtt)
 		}
 		else if(ota_cmd == CMD_OTA_RESULT){
 			ota_result_t *pResult = (ota_result_t *)pAtt->dat;
-			//if(blotaClt.ota_update_flow == OTA_STEP_10_WAIT_OTA_RESULT)
+			if(blotaClt.ota_update_flow == OTA_STEP_10_WAIT_OTA_RESULT)
 			{
 				app_ota_set_result(pResult->result);
 			}
@@ -278,7 +300,7 @@ void app_proc_ota_update(void)
 	{
 		u8 status;
 
-		#if 1  // use CMD_OTA_START_EXT
+		#if (!OTA_LEGACY_PROTOCOL)  // use CMD_OTA_START_EXT
 				ota_startExt_t *pExtStart = (ota_startExt_t *)ota_buffer;
 				pExtStart->ota_cmd = CMD_OTA_START_EXT;
 				pExtStart->pdu_length = OTA_PDU_LENGTH;
@@ -409,10 +431,20 @@ void app_proc_ota_update(void)
 	}
 	else if(blotaClt.ota_update_flow == OTA_STEP_10_WAIT_OTA_RESULT)
 	{
-		//wait result timeout control
-		if(blotaClt.wait_result_begin_tick && clock_time_exceed(blotaClt.wait_result_begin_tick, 5000000)){  //5S
 
-		}
+		#if (OTA_LEGACY_PROTOCOL)
+			if(blc_ll_getTxFifoNumber(blotaClt.ota_connHandle) == 0){  //all data send over, OTA end send OK
+				app_ota_set_result(OTA_SUCCESS);
+			}
+			else if(blotaClt.wait_result_begin_tick && clock_time_exceed(blotaClt.wait_result_begin_tick, 3000000)){
+				app_ota_set_result(OTA_SUCCESS);
+			}
+		#else
+			//wait result timeout control
+			if(blotaClt.wait_result_begin_tick && clock_time_exceed(blotaClt.wait_result_begin_tick, 5000000)){  //5S
+
+			}
+		#endif
 	}
 #endif
 }
@@ -503,7 +535,17 @@ void app_process_ota_connection_terminate(u16 connHandle)
 {
 	if(connHandle == blotaClt.ota_connHandle){ //connection match
 		if(blotaClt.ota_update_flow){ //OTA not finish, but connection terminate
-			app_ota_set_result(OTA_FAIL_DUE_TO_CONNECTION_TERMIANTE);
+			#if (OTA_LEGACY_PROTOCOL)
+				if(blotaClt.ota_update_flow == OTA_STEP_10_WAIT_OTA_RESULT && blc_ll_getTxFifoNumber(blotaClt.ota_connHandle) == 0){
+					//all data send over, OTA end send OK
+					app_ota_set_result(OTA_SUCCESS);
+				}
+				else{
+					app_ota_set_result(OTA_FAIL_DUE_TO_CONNECTION_TERMIANTE);
+				}
+			#else
+				app_ota_set_result(OTA_FAIL_DUE_TO_CONNECTION_TERMIANTE);
+			#endif
 		}
 	}
 }

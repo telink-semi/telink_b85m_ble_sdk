@@ -112,6 +112,7 @@
 
 
 extern	u8	app_acl_rxfifo[];
+extern	u8	app_acl_mstTxfifo[];
 extern	u8	app_acl_slvTxfifo[];
 /******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***************************************************/
 
@@ -132,7 +133,7 @@ extern	u8	app_acl_slvTxfifo[];
 #define	MTU_S_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_SLAVE_RX_MAX_SIZE)
 
 
-//extern	u8 mtu_m_rx_fifo[];
+extern	u8 mtu_m_rx_fifo[];
 
 extern	u8 mtu_s_rx_fifo[];
 extern	u8 mtu_s_tx_fifo[];
@@ -141,6 +142,7 @@ extern	u8 mtu_s_tx_fifo[];
 
 
 
-#endif ///#if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
 
 #endif /* APP_BUFFER_H_ */
+
+#endif

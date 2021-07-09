@@ -362,7 +362,7 @@ typedef enum {
 
 #define		BIS_PDU_ALLIGN4_TXBUFF(n)			DATA_LENGTH_ALLIGN4((CAL_LL_ISO_TX_FIFO_SIZE(n) + DATA_LENGTH_ALLIGN4(sizeof(bis_tx_pdu_t) - sizeof(rf_packet_ll_data_t))))
 
-#define		BIS_PDU_ALLIGN4_RXBUFF(n)			DATA_LENGTH_ALLIGN4(CAL_LL_ISO_RX_FIFO_SIZE(n) + 12)
+#define		BIS_PDU_ALLIGN4_RXBUFF(n)			DATA_LENGTH_ALLIGN4(BIS_LL_RX_PDU_FIFO_SIZE(n))
 
 #define		IAL_SDU_ALLIGN4_BUFF(n) 			(((n + 16) + 3) / 4 * 4)
 

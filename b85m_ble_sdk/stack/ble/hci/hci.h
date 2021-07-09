@@ -74,12 +74,23 @@ typedef int (*blc_hci_tx_handler_t) (void);
 #define 		HCI_MAX_DATA_BUFFERS_SALVE              	8
 #define 		HCI_MAX_DATA_BUFFERS_MASTER              	8
 
+#define			HCI_ADV_REPORT_EVT_RSVD_FIFO				3
+
 extern	blc_hci_rx_handler_t	blc_hci_rx_handler;
 extern	blc_hci_tx_handler_t	blc_hci_tx_handler;
 
 
 
 extern  my_fifo_t	hci_tx_iso_fifo;
+
+typedef	struct {
+	u32		size;
+	u8		num;
+	u8		mask;
+	u8		wptr;
+	u8		rptr;
+	u8*		p;
+}hci_fifo_t;
 
 
 /**
@@ -123,7 +134,7 @@ typedef enum{
  */
 typedef enum{
 	HCI_ISO_VALID_DATA				=	0x00, //Valid data. The complete ISO_SDU was received correctly
-	HCI_ISO_POSSIBLE_VALID_DATA		=	0x01, //Possibly invalid data
+	HCI_ISO_POSSIBLE_INVALID_DATA	=	0x01, //Possibly invalid data
 	HCI_ISO_LOST_DATA				=	0x02, //Part(s) of the ISO_SDU were not received correctly. This is reported as "lost data"
 } iso_ps_flag_t;
 
@@ -144,8 +155,11 @@ extern u32		hci_le_eventMask;
 extern u32		hci_le_eventMask_2;
 extern hci_event_handler_t		blc_hci_event_handler;
 extern hci_data_handler_t		blc_hci_data_handler;
+extern hci_fifo_t				bltHci_rxfifo;
+extern hci_fifo_t			    bltHci_txfifo;
 
-
+void hci_set_revision(u16 revision);
+u16  hci_get_revision(void);
 
 /**
  * @brief      for user to initialize HCI TX FIFO.

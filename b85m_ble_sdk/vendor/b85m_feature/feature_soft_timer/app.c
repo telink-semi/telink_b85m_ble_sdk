@@ -52,26 +52,84 @@
 #include "app_buffer.h"
 #include "../default_att.h"
 #include "app_ui.h"
-#include "application/keyboard/keyboard.h"
+
 
 #if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
 
+
 _attribute_ble_data_retention_	int	master_smp_pending = 0; 		// SMP: security & encryption;
-_attribute_ble_data_retention_	u8 ota_is_working = 0;
+
+
+
 
 
 
 const u8	tbl_advData[] = {
-	 11, DT_COMPLETE_LOCAL_NAME, 				's','l','a','v','e','_', 'd','e','m','o',
+	 10, DT_COMPLETE_LOCAL_NAME, 				's', 'o', 'f', 't', 'T', 'i', 'm', 'e', 'r',
 	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
 	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
 	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
 const u8	tbl_scanRsp [] = {
-	 11, DT_COMPLETE_LOCAL_NAME, 				's','l','a','v','e','_', 'd','e','m','o',
+	 10, DT_COMPLETE_LOCAL_NAME, 				's', 'o', 'f', 't', 'T', 'i', 'm', 'e', 'r',
 };
 
+
+
+/**
+ * @brief      BLE Adv report event handler
+ * @param[in]  p         Pointer point to event parameter buffer.
+ * @return
+ */
+int app_le_adv_report_event_handle(u8 *p)
+{
+	event_adv_report_t *pa = (event_adv_report_t *)p;
+	s8 rssi = pa->data[pa->len];
+
+
+	/*********************** Master Create connection demo: Key press or ADV pair packet triggers pair  ********************/
+	if(master_smp_pending ){ 	 //if previous connection SMP not finish, can not create a new connection
+		return 1;
+	}
+	if (master_disconnect_connhandle){ //one master connection is in un_pair disconnection flow, do not create a new one
+		return 1;
+	}
+
+	int master_auto_connect = 0;
+	int user_manual_pairing = 0;
+
+	//manual pairing methods 1: key press triggers
+	user_manual_pairing = master_pairing_enable && (rssi > -66);  //button trigger pairing(RSSI threshold, short distance)
+
+	#if (BLE_MASTER_SMP_ENABLE)
+		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
+	#else
+		//search in slave mac_address table to find whether this device is an old device which has already paired with master
+	#endif
+
+
+	if(master_auto_connect || user_manual_pairing){
+
+
+		/* send create connection command to Controller, trigger it switch to initiating state. After this command, Controller
+		 * will scan all the ADV packets it received but not report to host, to find the specified device(mac_adr_type & mac_adr),
+		 * then send a "CONN_REQ" packet, enter to connection state and send a connection complete event
+		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
+		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
+								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S, \
+								 0, 0xFFFF);
+
+		if(status == BLE_SUCCESS){ //create connection success
+
+		}
+	}
+	/*********************** Master Create connection demo code end  *******************************************************/
+
+
+	return 0;
+}
 
 
 /**
@@ -87,9 +145,16 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
-		if(pConnEvt->role == LL_ROLE_SLAVE){
-	//		bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S);
-			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_62P5MS, CONN_INTERVAL_62P5MS, 0, CONN_TIMEOUT_4S);
+		if( pConnEvt->role == LL_ROLE_MASTER ) // master role, process SMP and SDP if necessary
+		{
+			#if (BLE_MASTER_SMP_ENABLE)
+				master_smp_pending = pConnEvt->connHandle; // this connection need SMP
+			#else
+
+			#endif
+		}
+		else if(pConnEvt->role == LL_ROLE_SLAVE){
+			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 9, CONN_TIMEOUT_4S);
 		}
 	}
 
@@ -124,28 +189,26 @@ int 	app_disconnect_event_handle(u8 *p)
 
 
 
+	//if previous connection SMP & SDP not finished, clear flag
+#if (BLE_MASTER_SMP_ENABLE)
+	if(master_smp_pending == pCon->connHandle){
+		master_smp_pending = 0;
+	}
+#endif
+
+	if(master_disconnect_connhandle == pCon->connHandle){  //un_pair disconnection flow finish, clear flag
+		master_disconnect_connhandle = 0;
+	}
+
 	dev_char_info_delete_by_connhandle(pCon->connHandle);
 
 
+
+
 	return 0;
 }
 
 
-/**
- * @brief      BLE Connection update complete event handler
- * @param[in]  p         Pointer point to event parameter buffer.
- * @return
- */
-int app_le_connection_update_complete_event_handle(u8 *p)
-{
-	hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
-
-	if(pUpt->status == BLE_SUCCESS){
-
-	}
-
-	return 0;
-}
 
 //////////////////////////////////////////////////////////
 // event call back
@@ -180,12 +243,14 @@ int app_controller_event_callback (u32 h, u8 *p, int n)
 			//--------hci le event: le adv report event ----------------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_ADVERTISING_REPORT)	// ADV packet
 			{
+				//after controller is set to scan state, it will report all the adv packet it received by this event
 
+				app_le_adv_report_event_handle(p);
 			}
 			//------hci le event: le connection update complete event-------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE)	// connection update
 			{
-				app_le_connection_update_complete_event_handle(p);
+
 			}
 		}
 	}
@@ -213,19 +278,25 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 	{
 		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
-
 		}
 		break;
 
 		case GAP_EVT_SMP_PAIRING_SUCCESS:
 		{
-
 		}
 		break;
 
 		case GAP_EVT_SMP_PAIRING_FAIL:
 		{
+		#if (BLE_MASTER_SMP_ENABLE)
+			gap_smp_pairingFailEvt_t *p = (gap_smp_pairingFailEvt_t *)para;
 
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
+				if(master_smp_pending == p->connHandle){
+					master_smp_pending = 0;
+				}
+			}
+		#endif
 		}
 		break;
 
@@ -237,34 +308,19 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 
 		case GAP_EVT_SMP_SECURITY_PROCESS_DONE:
 		{
+		#if (BLE_MASTER_SMP_ENABLE)
+			gap_smp_connEncDoneEvt_t* p = (gap_smp_connEncDoneEvt_t*)para;
 
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
+
+				if(master_smp_pending == p->connHandle){
+					master_smp_pending = 0;
+				}
+
+			}
+		#endif
 		}
 		break;
-
-		case GAP_EVT_SMP_TK_DISPALY:
-		{
-
-		}
-		break;
-
-		case GAP_EVT_SMP_TK_REQUEST_PASSKEY:
-		{
-
-		}
-		break;
-
-		case GAP_EVT_SMP_TK_REQUEST_OOB:
-		{
-
-		}
-		break;
-
-		case GAP_EVT_SMP_TK_NUMERIC_COMPARE:
-		{
-
-		}
-		break;
-
 		case GAP_EVT_ATT_EXCHANGE_MTU:
 		{
 
@@ -285,6 +341,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 }
 
 
+
 /**
  * @brief      BLE GATT data handler call-back.
  * @param[in]  connHandle     connection handle.
@@ -294,7 +351,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
 
-	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER )   //GATT data for Master
+	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
 			//so any ATT data before service discovery will be dropped
 			dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
@@ -302,7 +359,6 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 			{
 				//-------	user process ------------------------------------------------
 				rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
-				//u16 attHandle = pAtt->handle;
 
 				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
 				{
@@ -327,39 +383,19 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 
 
 
-
-
-
-
-
-
-/**
- * @brief      callBack function of LinkLayer Event "BLT_EV_FLAG_SUSPEND_EXIT"
- * @param[in]  e - LinkLayer Event type
- * @param[in]  p - data pointer of event
- * @param[in]  n - data length of event
- * @return     none
- */
-_attribute_ram_code_ void	user_set_rf_power (u8 e, u8 *p, int n)
-{
-	rf_set_power_level_index (RF_POWER_P0dBm);
-}
-
 int gpio_test0(void)
 {
-	//gpio 0 toggle to see the effect
-//	DBG_CHN3_TOGGLE;
+	//GPIO toggle to see the effect
+	DBG_CHN4_TOGGLE;
 
 	return 0;
 }
 
 _attribute_ble_data_retention_	static u8 timer_change_flg = 0;
-#if 0
 int gpio_test1(void)
 {
-	//gpio 1 toggle to see the effect
-	DBG_CHN4_TOGGLE;
-
+	//GPIO toggle to see the effect
+	DBG_CHN5_TOGGLE;
 
 	timer_change_flg = !timer_change_flg;
 	if(timer_change_flg){
@@ -370,32 +406,11 @@ int gpio_test1(void)
 	}
 
 }
-#else
-int gpio_test1(void)
-{
-	//gpio 1 toggle to see the effect
-	DBG_CHN6_TOGGLE;
-//	static u8 toggle_cnt;
-//	toggle_cnt++;
-//	gpio_set_output_en(GPIO_PA4, 1);
-//	gpio_write(GPIO_PA4, toggle_cnt&0x01);
-
-
-	timer_change_flg = !timer_change_flg;
-	if(timer_change_flg){
-		return 100000; ///100ms
-	}
-	else{
-		return 80000; ///80ms
-	}
-
-}
-#endif
 
 int gpio_test2(void)
 {
-	//gpio 2 toggle to see the effect
-//	DBG_CHN5_TOGGLE;
+	//GPIO toggle to see the effect
+	DBG_CHN6_TOGGLE;
 
 	//timer last for 5 second
 	if(clock_time_exceed(0, 5000000)){
@@ -411,11 +426,26 @@ int gpio_test2(void)
 
 int gpio_test3(void)
 {
-	//gpio 3 toggle to see the effect
-	DBG_CHN6_TOGGLE;
+	//GPIO toggle to see the effect
+	DBG_CHN7_TOGGLE;
 
 	return 0;
 }
+
+
+/**
+ * @brief      callBack function of LinkLayer Event "BLT_EV_FLAG_SUSPEND_EXIT"
+ * @param[in]  e - LinkLayer Event type
+ * @param[in]  p - data pointer of event
+ * @param[in]  n - data length of event
+ * @return     none
+ */
+_attribute_ram_code_ void	user_set_rf_power (u8 e, u8 *p, int n)
+{
+	rf_set_power_level_index (RF_POWER_P3dBm);
+}
+
+
 
 /**
  * @brief		user initialization when MCU power on or wake_up from deepSleep mode
@@ -442,21 +472,32 @@ _attribute_no_inline_ void user_init_normal(void)
 
     blc_ll_initLegacyAdvertising_module(); 	//adv module: 		 mandatory for BLE slave,
 
+    blc_ll_initLegacyScanning_module(); 	//scan module: 		 mandatory for BLE master
+
 	blc_ll_initInitiating_module();			//initiate module: 	 mandatory for BLE master
 
 	blc_ll_initAclConnection_module();
-
+	blc_ll_initAclMasterRole_module();
 	blc_ll_initAclSlaveRole_module();
 
-	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, 2); //SLAVE_MAX_NUM
+
+
+	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
 
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
 	/* all ACL connection share same RX FIFO */
 	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
-
+	/* ACL Master TX FIFO */
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
 	/* ACL Slave TX FIFO */
 	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
+
+
+
+	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
+
+	rf_set_power_level_index (RF_POWER_P3dBm);
 
 
 	//////////// LinkLayer Initialization  End /////////////////////////
@@ -491,12 +532,12 @@ _attribute_no_inline_ void user_init_normal(void)
 	/* GAP initialization must be done before any other host feature initialization !!! */
 	blc_gap_init();
 
-	/* L2CAP buffer Initialization */
+	/* L2CAP Initialization */
+	blc_l2cap_initAclConnMasterMtuBuffer(mtu_m_rx_fifo, MTU_M_BUFF_SIZE_MAX, 			0,					 0);
 	blc_l2cap_initAclConnSlaveMtuBuffer(mtu_s_rx_fifo, MTU_S_BUFF_SIZE_MAX, mtu_s_tx_fifo, MTU_S_BUFF_SIZE_MAX);
 
 	/* GATT Initialization */
 	my_gatt_init();
-
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
@@ -508,6 +549,12 @@ _attribute_no_inline_ void user_init_normal(void)
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
 		blc_smp_setSecurityLevel_slave(No_Security);
+	#endif
+
+	#if (BLE_MASTER_SMP_ENABLE) //Master SMP Enable
+		blc_smp_setSecurityLevel_master(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
+	#else
+		blc_smp_setSecurityLevel_master(No_Security);
 	#endif
 
 	blc_smp_smpParamInit();
@@ -525,60 +572,52 @@ _attribute_no_inline_ void user_init_normal(void)
 
 
 
-
 //////////////////////////// User Configuration for BLE application ////////////////////////////
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_300MS, ADV_INTERVAL_300MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
+	blc_ll_setAdvParam(ADV_INTERVAL_50MS, ADV_INTERVAL_50MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
+
+	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_50MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+//	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 
 	user_set_rf_power(0, 0, 0);
 
 
-	#if (BLE_APP_PM_ENABLE)
-		blc_ll_initPowerManagement_module();
-		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
+#if (BLE_APP_PM_ENABLE)
+	blc_ll_initPowerManagement_module();
+	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
 
-		#if (PM_DEEPSLEEP_RETENTION_ENABLE)
-			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
-			blc_pm_setDeepsleepRetentionThreshold(50);
-			blc_pm_setDeepsleepRetentionEarlyWakeupTiming(330);
-		#else
-			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_DISABLE);
-		#endif
-
-		blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SUSPEND_EXIT, &user_set_rf_power);
-
-
-		#if (UI_KEYBOARD_ENABLE)
-			u32 pin[] = KB_DRIVE_PINS;
-			for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-				cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
-			}
-
-			blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SLEEP_ENTER, &app_set_gpio_wakeup);
-			blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, &proc_keyboard);
-		#endif
-
+	#if (PM_DEEPSLEEP_RETENTION_ENABLE)
+		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
+		blc_pm_setDeepsleepRetentionThreshold(95);
+		blc_pm_setDeepsleepRetentionEarlyWakeupTiming(330);
+	#else
+		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Disable);
 	#endif
 
+	blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SUSPEND_EXIT, &user_set_rf_power);
 
-	#if (BLE_OTA_SERVER_ENABLE)
-		/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddress"(if used), and before any other OTA API.*/
-		blc_ota_initOtaServer_module();
-		blc_ota_setOtaProcessTimeout(30);
+	#if (UI_KEYBOARD_ENABLE)
+		u32 pin[] = KB_DRIVE_PINS;
+		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
+			cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
+		}
+
+		blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SLEEP_ENTER, &app_set_gpio_wakeup);
+		blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, &proc_keyboard);
 	#endif
+#endif
+
+
 
 #if (BLT_SOFTWARE_TIMER_ENABLE)
-	//common/blt_soft_timer.h   #define		BLT_SOFTWARE_TIMER_ENABLE				1
 	blt_soft_timer_init();
-//	blt_soft_timer_add(&gpio_test0, 23000);//23ms
-//	blt_soft_timer_add(&gpio_test1, 7000); //7ms <-> 17ms
-//	blt_soft_timer_add(&gpio_test2, 13000);//13ms
-	blt_soft_timer_add(&gpio_test3, 100000);//27ms  27000
+	blt_soft_timer_add(&gpio_test0, 23000);//23ms
+	blt_soft_timer_add(&gpio_test1, 7000); //7ms <-> 17ms
+	blt_soft_timer_add(&gpio_test2, 13000);//13ms
+	blt_soft_timer_add(&gpio_test3, 100000);//100ms
 #endif
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 }
 
 
@@ -590,25 +629,20 @@ _attribute_no_inline_ void user_init_normal(void)
  */
 _attribute_ram_code_ void user_init_deepRetn(void)
 {
-
 #if (PM_DEEPSLEEP_RETENTION_ENABLE)
 
 	blc_ll_initBasicMCU();   //mandatory
 
 	user_set_rf_power(0, 0, 0);
 
-
-	DBG_CHN0_HIGH;    //debug
 	blc_ll_recoverDeepRetention();
+
+	DBG_CHN0_HIGH;	//debug
+
 	irq_enable();
 
-
-	if(	pm_is_deepPadWakeup() ){ //GPIO PAD wake_up deepSleep retention
-		proc_keyboard (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, 0, 0);
-	}
-
-
 	#if (UI_KEYBOARD_ENABLE)
+		/////////// keyboard GPIO wakeup init ////////
 		u32 pin[] = KB_DRIVE_PINS;
 		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
 			cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
@@ -622,16 +656,15 @@ _attribute_ram_code_ void user_init_deepRetn(void)
 void app_process_power_management(void)
 {
 #if (BLE_APP_PM_ENABLE)
-
 	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
-	blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
 
-	int user_task_flg = ota_is_working || scan_pin_need || key_not_released;
+	extern u32	scan_pin_need;
+	extern int 	key_not_released;
+	int user_task_flg = scan_pin_need || key_not_released;
 
 	if(user_task_flg){
-		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_DISABLE);
+		blc_pm_setSleepMask(PM_SLEEP_DISABLE);
 	}
-
 #endif
 }
 
@@ -647,10 +680,10 @@ void app_process_power_management(void)
  */
 int main_idle_loop (void)
 {
-
 	#if (BLT_SOFTWARE_TIMER_ENABLE)
 		blt_soft_timer_process(MAINLOOP_ENTRY);
 	#endif
+
 	////////////////////////////////////// BLE entry /////////////////////////////////
 	blc_sdk_main_loop();
 
@@ -662,7 +695,6 @@ int main_idle_loop (void)
 
 	////////////////////////////////////// PM entry /////////////////////////////////
 	app_process_power_management();
-
 
 	return 0; //must return 0 due to SDP flow
 }
@@ -679,7 +711,7 @@ _attribute_no_inline_ void main_loop (void)
 	main_idle_loop ();
 }
 
+#endif
 
 
-#endif ///#if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
 

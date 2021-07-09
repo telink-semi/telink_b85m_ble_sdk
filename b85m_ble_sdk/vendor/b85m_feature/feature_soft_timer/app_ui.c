@@ -58,6 +58,19 @@
 
 #if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
 
+int	master_pairing_enable = 0;
+int master_unpair_enable = 0;
+
+int master_disconnect_connhandle;   //mark the master connection which is in un_pair disconnection flow
+
+
+
+
+int master_auto_connect = 0;
+int user_manual_pairing;
+
+
+
 #if (UI_KEYBOARD_ENABLE)
 
 _attribute_ble_data_retention_	int 	key_not_released;
@@ -93,11 +106,9 @@ void key_change_proc(void)
 			u16 consumer_key;
 			if(key0 == CR_VOL_UP){  	//volume up
 				consumer_key = MKEY_VOL_UP;
-				my_dump_str_data(APP_DUMP_EN, "UI send Vol+", 0, 0);
 			}
 			else if(key0 == CR_VOL_DN){ //volume down
 				consumer_key = MKEY_VOL_DN;
-				my_dump_str_data(APP_DUMP_EN, "UI send Vol-", 0, 0);
 			}
 
 
@@ -113,6 +124,30 @@ void key_change_proc(void)
 			}
 		}
 		else{
+			key_type = PAIR_UNPAIR_KEY;
+
+			if(key0 == BTN_PAIR)   //Manual pair triggered by Key Press
+			{
+				master_pairing_enable = 1;
+			}
+			else if(key0 == BTN_UNPAIR) //Manual un_pair triggered by Key Press
+			{
+				/*Here is just Telink Demonstration effect. Cause the demo board has limited key to use, only one "un_pair" key is
+				 available. When "un_pair" key pressed, we will choose and un_pair one device in connection state */
+				if(conn_master_num){ //at least 1 master connection exist
+
+					if(!master_disconnect_connhandle){  //if one master un_pair disconnection flow not finish, here new un_pair not accepted
+
+						/* choose one master connection to disconnect */
+						for(int i=0; i < MASTER_MAX_NUM; i++){ //slave index is from 0 to "MASTER_MAX_NUM - 1"
+							if(conn_dev_list[i].conn_state){
+								master_unpair_enable = conn_dev_list[i].conn_handle;  //mark connHandle on master_unpair_enable
+								break;
+							}
+						}
+					}
+				}
+			}
 
 		}
 
@@ -135,14 +170,18 @@ void key_change_proc(void)
 
 		}
 		else if(key_type == PAIR_UNPAIR_KEY){
+			if(master_pairing_enable){
+				master_pairing_enable = 0;
+			}
 
+			if(master_unpair_enable){
+				master_unpair_enable = 0;
+			}
 		}
 	}
 
 
 }
-
-
 
 
 #define GPIO_WAKEUP_KEYPROC_CNT				3
@@ -182,8 +221,6 @@ void proc_keyboard (u8 e, u8 *p, int n)
 }
 
 
-
-
 /**
  * @brief      callback function of LinkLayer Event "BLT_EV_FLAG_SUSPEND_ENTER"
  * @param[in]  e - LinkLayer Event type
@@ -193,12 +230,13 @@ void proc_keyboard (u8 e, u8 *p, int n)
  */
 _attribute_ram_code_ void  app_set_gpio_wakeup (u8 e, u8 *p, int n)
 {
+#if (BLE_APP_PM_ENABLE)
 	/* suspend time > 50ms.add GPIO wake_up */
-	if(((u32)(blc_pm_getWakeupSystemTick() - clock_time())) > 50 * SYSTEM_TIMER_TICK_1MS){
+	if(((u32)(blc_pm_getWakeupSystemTick() - clock_time())) > 100 * SYSTEM_TIMER_TICK_1MS){
 		blc_pm_setWakeupSource(PM_WAKEUP_PAD);  //GPIO PAD wake_up
 	}
+#endif
 }
-
 
 
 #endif   //end of UI_KEYBOARD_ENABLE
@@ -206,31 +244,4 @@ _attribute_ram_code_ void  app_set_gpio_wakeup (u8 e, u8 *p, int n)
 
 
 
-#endif ///#if (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif

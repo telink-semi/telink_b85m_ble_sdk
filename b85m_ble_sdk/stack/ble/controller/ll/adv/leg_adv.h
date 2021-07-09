@@ -43,8 +43,8 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef LLMS_ADV_H_
-#define LLMS_ADV_H_
+#ifndef LEG_ADV_H_
+#define LEG_ADV_H_
 
 
 /**
@@ -88,8 +88,8 @@ ble_sts_t 	blc_ll_setScanRspData(u8 *data, u8 len);
  * @param[in]  advFilterPolicy - Advertising_Filter_Policy
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
-ble_sts_t   blc_ll_setAdvParam( u16 intervalMin,  u16 intervalMax,  adv_type_t 	advType,  		  own_addr_type_t ownAddrType,  \
-							    u8 peerAddrType, u8  *peerAddr,     adv_chn_map_t adv_channelMap,   adv_fp_type_t   advFilterPolicy);
+ble_sts_t   blc_ll_setAdvParam( adv_inter_t intervalMin, adv_inter_t intervalMax, adv_type_t 	advType,  		own_addr_type_t ownAddrType,  \
+							    u8 peerAddrType, 		 u8  *peerAddr,     	  adv_chn_map_t adv_channelMap, adv_fp_type_t   advFilterPolicy);
 
 
 /**
@@ -119,4 +119,4 @@ void 		blc_ll_setAdvCustomedChannel (u8 chn0, u8 chn1, u8 chn2);
 
 
 
-#endif /* LLMS_ADV_H_ */
+#endif /* LEG_ADV_H_ */

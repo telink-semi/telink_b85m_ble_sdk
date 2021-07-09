@@ -81,26 +81,16 @@ void blc_ota_initOtaServer_module(void);
 
 
 
-#if (MCU_CORE_TYPE == MCU_CORE_9518)
-	/**
-	 * @brief      This function is used to set OTA new firmware storage address on Flash.
-	 * @param[in]  new_fw_addr - new firmware storage address, can only choose from multiple boot address
-	 * 							 supported by MCU
-	 * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
-	 */
-	ble_sts_t blc_ota_setNewFirmwwareStorageAddress(multi_boot_addr_e new_fw_addr);
 
-#else
-	/**
-	 * @brief      This function is used to set OTA new firmware storage address on Flash.
-	 * 			   note: this function must be called before "cpu_wakeup_init".
-	 * @param[in]  firmware_size_k - set the firmware size. i.e. OTA erase flash size.note: unit is 1K(1024B)
-	 * @param[in]  new_fw_addr - new firmware storage address, 1.choose from multiple boot address
-	 * 							 supported by MCU.2.Also according to MCU flash size to select storage address.
-	 * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
-	 */
-	void blc_ota_setFirmwareSizeAndBootAddress(int firmware_size_k, multi_boot_addr_e new_fw_addr);
-#endif
+/**
+ * @brief      This function is used to set OTA new firmware storage address on Flash.
+ * 			   note: this function must be called before "sys_init" or "cpu_wakeup_init".
+ * @param[in]  firmware_size_k - set the firmware size. i.e. OTA erase flash size.note: unit is 1K(1024B)
+ * @param[in]  new_fw_addr - new firmware storage address, 1.choose from multiple boot address
+ * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
+ */
+ble_sts_t blc_ota_setFirmwareSizeAndBootAddress(int firmware_size_k, multi_boot_addr_e new_fw_addr);
+
 
 
 
@@ -177,15 +167,12 @@ ble_sts_t blc_ota_setOtaDataPacketTimeout(int timeout_second);
 
 
 
-
-extern int otaWrite(u16 connHandle, void * p);
-
-
-
-
-
-void bls_ota_clearNewFwDataArea(void);
-
+/**
+ * @brief      This function is used to write OTA data to flash
+ * @param[in]  connHandle - ACL connection handle
+ * @return     p - GATT data buffer pointer of write_req or write_cmd
+ */
+int	otaWrite(u16 connHandle, void * p);
 
 
 

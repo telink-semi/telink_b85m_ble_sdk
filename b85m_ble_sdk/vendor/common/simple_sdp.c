@@ -54,6 +54,17 @@
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 
 
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u8  format;
+	u8  data[1];			// character_handle / property / value_handle / value
+}ble_att_findInfoRsp_t;
+
+
 int	master_sdp_pending = 0;			// SDP: service discovery
 
 
@@ -64,7 +75,6 @@ main_service_t		main_service = 0;
 
 
 static const  u8 my_OtaUUID[16]						= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
-static const  u8 my_MicUUID[16]                     = WRAPPING_BRACES(TELINK_MIC_DATA);
 
 
 ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16, att_db_uuid128_t *p128, int n128);
@@ -98,7 +108,6 @@ void app_service_discovery (void)
 
 	if ( master_sdp_pending && host_att_discoveryService (master_sdp_pending, db16, ATT_DB_UUID16_NUM, db128, ATT_DB_UUID128_NUM) == BLE_SUCCESS)	// service discovery OK
 	{
-		cur_sdp_device.char_handle[0] = blm_att_findHandleOfUuid128 (db128, my_MicUUID);            //MIC
 		cur_sdp_device.char_handle[2] = blm_att_findHandleOfUuid128 (db128, my_OtaUUID);			//OTA
 		cur_sdp_device.char_handle[3] = blm_att_findHandleOfUuid16 (db16, CHARACTERISTIC_UUID_HID_REPORT,
 					HID_REPORT_ID_CONSUME_CONTROL_INPUT | (HID_REPORT_TYPE_INPUT<<8));		//consume report(media key report)
@@ -152,7 +161,7 @@ volatile u32	host_att_req_busy = 0;
  */
 int host_att_client_handler (u16 connHandle, u8 *p)
 {
-	att_readByTypeRsp_t *p_rsp = (att_readByTypeRsp_t *) p;
+	ble_att_readByTypeRsp_t *p_rsp = (ble_att_readByTypeRsp_t *) p;
 	if (p_att_response)
 	{
 		if ((connHandle & 7) == (host_att_req_busy & 7) && p_rsp->chanId == 0x04 &&
@@ -282,7 +291,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 		}
 
 		// process response data
-		att_readByTypeRsp_t *p_rsp = (att_readByTypeRsp_t *) dat;
+		ble_att_readByTypeRsp_t *p_rsp = (ble_att_readByTypeRsp_t *) dat;
 		if (p_rsp->opcode != ATT_OP_READ_BY_TYPE_RSP)
 		{
 			break;
@@ -336,7 +345,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 				return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
 			}
 
-			att_findInfoRsp_t *p_rsp = (att_findInfoRsp_t *) dat;
+			ble_att_findInfoRsp_t *p_rsp = (ble_att_findInfoRsp_t *) dat;
 			if (p_rsp->opcode == ATT_OP_FIND_INFO_RSP && p_rsp->format == 1)
 			{
 				int n = p_rsp->l2capLen - 2;
@@ -357,7 +366,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 							return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
 						}
 
-						att_readRsp_t *pr = (att_readRsp_t *) dat;
+						ble_att_readRsp_t *pr = (ble_att_readRsp_t *) dat;
 						if (pr->opcode == ATT_OP_READ_RSP)
 						{
 							p16->ref = pr->value[0] | (pr->value[1] << 8);
@@ -453,7 +462,6 @@ int		dev_char_info_store_peer_att_handle(dev_char_info_t* pdev_char)
 //			 char_handle[5] :
 //			 char_handle[6] :  BLE Module, SPP Server to Client
 //			 char_handle[7] :  BLE Module, SPP Client to Server
-			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 0*2,  2, (u8 *)&pdev_char->char_handle[0]);   //save MIC att_handle
 			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 2*2,  2, (u8 *)&pdev_char->char_handle[2]);   //save OTA att_handle
 			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 3*2,  2, (u8 *)&pdev_char->char_handle[3]);   //save Consume Report att_handle
 			flash_write_page( current_flash_adr + OFFSETOF(dev_att_t, char_handle) + 4*2,  2, (u8 *)&pdev_char->char_handle[4]);   //save Key Report att_handle

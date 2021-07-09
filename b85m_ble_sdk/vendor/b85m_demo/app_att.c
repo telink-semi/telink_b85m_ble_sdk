@@ -167,6 +167,18 @@ static const u8 hidInformation[] =
 // HID Control Point characteristic
 _attribute_ble_data_retention_	static u8 controlPoint;
 
+
+
+typedef struct{
+	u8	type;
+	u8  rf_len;
+	u16	l2capLen;
+	u16	chanId;
+	u8  opcode;
+	u16 handle;
+	u8 value;
+}ble_rf_packet_att_write_t;
+
 // HID Report Map characteristic
 // Keyboard report descriptor (using format for Boot interface descriptor)
 
@@ -380,13 +392,9 @@ static const u8 my_OtaCharVal[19] = {
 	TELINK_SPP_DATA_OTA,
 };
 
-int spp_onReceiveData(u16 connHandle, rf_packet_att_write_t *p)
-{
-	u8 len = p->l2capLen - 3;
-	if(len > 0)
-	{
 
-	}
+int spp_onReceiveData(u16 connHandle, ble_rf_packet_att_write_t *p)
+{
 
 	return 0;
 }

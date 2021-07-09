@@ -117,7 +117,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
-								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_2S, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 		(void)status;
 	}
@@ -157,7 +157,7 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 
 /**
- * @brief      BLE Disonnection event handler
+ * @brief      BLE Disconnection event handler
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
@@ -516,24 +516,17 @@ _attribute_no_inline_ void user_init_normal(void)
 
 
 //////////////////////////// User Configuration for BLE application ////////////////////////////
-#if (1)
-	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
-	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
-//	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
-//	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
-//#else
 	#if ( ADV_SET_MODE == SINGLE_ADV_SET )
+		extern void app_single_adv_set_register_buffer(void);
 		extern void app_single_adv_set_test(void);
+		app_single_adv_set_register_buffer();
 		app_single_adv_set_test();
 	#elif( ADV_SET_MODE == MULTI_ADV_SETS )
+		extern void app_multiple_adv_set_register_buffer(void);
 		extern void app_multiple_adv_set_test(void);
+		app_multiple_adv_set_register_buffer();
 		app_multiple_adv_set_test();
 	#endif
-#endif
-
-
 }
 
 

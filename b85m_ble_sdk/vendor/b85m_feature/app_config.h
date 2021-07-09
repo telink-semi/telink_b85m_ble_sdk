@@ -67,16 +67,20 @@
 	#include "feature_gatt_api/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_L2CAP_CONN_PARAM_UPDATE)
 	#include "feature_l2cap_conn_param_update/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_SMP_SECURITY)
-	#include "feature_smp_security/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
-	#include "feature_soft_timer/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_EXT_ADV)
 	#include "feature_ext_adv/app_config.h"
+#elif (FEATURE_TEST_MODE == TEST_PER_ADV)
+	#include "feature_per_adv/app_config.h"
+#elif (FEATURE_TEST_MODE == TEST_PER_ADV_SYNC)
+	#include "feature_per_adv_sync/app_config.h"
+#elif (FEATURE_TEST_MODE == TEST_EXT_SCAN)
+	#include "feature_ext_scan/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_MISC_FUNC)
 	#include "feature_misc/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_OTA)
 	#include "feature_ota/app_config.h"
+#elif (FEATURE_TEST_MODE == TEST_SOFT_TIMER)
+	#include "feature_soft_timer/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_FEATURE_BACKUP)
 	#include "feature_backup/app_config.h"
 #endif

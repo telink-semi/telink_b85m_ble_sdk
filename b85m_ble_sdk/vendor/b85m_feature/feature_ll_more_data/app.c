@@ -323,7 +323,7 @@ int app_le_adv_report_event_handle(u8 *p)
 		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
 		u8 status = blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
 								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
-								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_2S, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S, \
 								 0, 0xFFFF);
 
 
@@ -393,7 +393,7 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 
 /**
- * @brief      BLE Disonnection event handler
+ * @brief      BLE Disconnection event handler
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
@@ -622,7 +622,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 								#if 1
 									irq_disable();
 									#if (MCU_CORE_TYPE == MCU_CORE_9518)
-										write_sram32(0x00014, 0x77);
+										write_dbg32(0x00014, 0x77);
 										gpio_write(GPIO_PB7, 1);  // GPIO_LED_RED
 										while(1){
 											myudb_usb_handle_irq();
@@ -775,7 +775,7 @@ int my_client_2_server_write_callback(u16 connHandle, void * p)
 		#if 1
 			irq_disable();
 			#if (MCU_CORE_TYPE == MCU_CORE_9518)
-				write_sram32(0x00014, 0x99);
+				write_dbg32(0x00014, 0x99);
 				gpio_write(GPIO_PB7, 1);  // GPIO_LED_RED
 				while(1){
 					myudb_usb_handle_irq();

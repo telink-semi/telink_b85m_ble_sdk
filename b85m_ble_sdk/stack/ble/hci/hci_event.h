@@ -339,6 +339,19 @@ typedef struct{
 	u8		data[1];
 } extAdvEvt_info_t;
 
+typedef struct{
+	u8	 sub_code;
+	u16  sync_handle;
+	u8   tx_power;
+
+	u8   rssi;
+	u8   unused;
+	u8   data_status;
+	u8   data_len;
+
+	u8   data[1];
+}le_periodAdvReportEvt_t;
+
 #define EXTADV_INFO_LENGTH				24	 //byte number from "event_type" to "data_length"
 #define EXTADV_RPT_DATA_LEN_MAX			229  //253 - 24 = 229
 

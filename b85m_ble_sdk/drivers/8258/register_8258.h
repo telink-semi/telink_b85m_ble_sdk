@@ -1250,6 +1250,7 @@ enum{
 	FLD_RF_LL_CMD_SRX2TX	= 8,
 };
 
+#define reg_rf_ll_cmd_2B		REG_ADDR16(0xf00)
 #define reg_rf_ll_cmd			REG_ADDR8(0xf00)
 enum{
 	FLD_RF_R_CMD                 =	BIT_RNG(0,3),

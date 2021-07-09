@@ -56,7 +56,7 @@
 
 #include "common/string.h"
 
-#include "common/myudb.h"
+#include "common/usb_dbg/myudb.h"
 
 #include "application/print/u_printf.h"
 

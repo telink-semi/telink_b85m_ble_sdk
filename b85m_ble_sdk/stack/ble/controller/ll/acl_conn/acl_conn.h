@@ -56,6 +56,14 @@ int 		blc_ll_getCurrentConnectionNumber(void);   //master + slave connection num
 
 
 /**
+ * @brief      This function is used to obtain the maximum number of connections that can be supported.
+ * @param[in]  none.
+ * @return     Maximum number of connections that can be supported.
+ */
+int			blc_ll_getSupportedMaxConnNumber(void);
+
+
+/**
  * @brief      This function is used to obtain the number of ACL connections of the Master role.
  * @param[in]  none.
  * @return     The number of currently connected master ACLs.
@@ -99,7 +107,6 @@ u8  		blc_ll_getTxFifoNumber (u16 connHandle);
 ble_sts_t 	blc_ll_disconnect (u16 connHandle, u8 reason);
 
 
-
 /**
  * @brief      This function is used to obtain the connection establishment time point corresponding to the current ACL connection handle.
  * @param[in]  connHandle - ACL connection handle.
@@ -108,6 +115,13 @@ ble_sts_t 	blc_ll_disconnect (u16 connHandle, u8 reason);
  */
 u32 		blc_ll_getConnectionStartTick(u16 connHandle);
 
+
+/**
+ * @brief      This function is used to read remote version with the specified ACL connection handle.
+ * @param[in]  connHandle - ACL connection handle.
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
 ble_sts_t 	blc_ll_readRemoteVersion(u16 connHandle);
 
 
@@ -167,16 +181,6 @@ bool  		blc_ll_isAclConnEstablished(u16 connHandle);
 
 
 /**
- * @brief      send data length extend request.
- * @param[in]  connHandle - ACL connection handle.
- * @param[in]  maxTxOct  - the length to request
- * @return     status, 0x00 :  succeed
- * 					   other: failed
- */
-ble_sts_t 	blc_ll_sendDateLengthExtendReq (u16 connHandle,  u16 maxTxOct);
-
-
-/**
  * @brief      set ACL data length for Master and Slave.
  * @param[in]  maxRxOct - ACL max RX Oct.
  * @param[in]  maxTxOct_master - ACL master max TX Oct
@@ -195,5 +199,67 @@ ble_sts_t	blc_ll_setAclConnMaxOctetsNumber(u8 maxRxOct, u8 maxTxOct_master, u8 m
 void		blc_ll_setDataLengthReqSendingTime_after_connCreate(int time_ms);
 
 
+/**
+ * @brief       this function is used to set PHY type for connection
+ * @param[in]	connHandle - Connection_Handle Range:0x0000 to 0x0EFF
+ * @param[in]	all_phys - preference PHY for TX & RX
+ * @param[in]	tx_phys - preference PHY for TX
+ * @param[in]	rx_phys - preference PHY for RX
+ * @param[in]	phy_options - LE coding indication prefer
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t  	blc_ll_setPhy (	u16 connHandle,					le_phy_prefer_mask_t all_phys,
+							le_phy_prefer_type_t tx_phys, 	le_phy_prefer_type_t rx_phys,
+							le_ci_prefer_t phy_options);
+
+
+/**
+ * @brief       This function is used to set LE Coded PHY preference, S2 or S8, or no specific preference.
+ * @param[in]	prefer_CI - Reference structure: hci_le_readPhyCmd_retParam_t.
+ * @return      status, 0x00:  succeed
+ * 					    other: failed
+ */
+ble_sts_t	blc_ll_setDefaultConnCodingIndication(le_ci_prefer_t prefer_CI);
+
+
+/**
+ * @brief       this function is used to allows the Host to specify its preferred values for the transmitter PHY and
+ *              receiver PHY to be used for all subsequent connections over the LE transport.
+ * @param[in]	all_phys - Reference structure: le_phy_prefer_mask_t:
+ *                         bit0: The Host has no preference among the transmitter PHYs supported by the Controller
+ *                         bit1: The Host has no preference among the receiver PHYs supported by the Controller
+ *                         All other bits: Reserved for future use
+ * @param[in]	tx_phys - Reference structure: le_phy_prefer_mask_t:
+ *                         bit0: The Host prefers to use the LE 1M transmitter PHY (possibly among others)
+ *                         bit1: The Host prefers to use the LE 2M transmitter PHY (possibly among others)
+ *                         bit2: The Host prefers to use the LE Coded transmitter PHY (possibly among others)
+ *                         All other bits: Reserved for future use
+ * @param[in]	rx_phys - Reference structure: le_phy_prefer_mask_t
+ * @return      status, 0x00:  succeed
+ * 					    other: failed
+ */
+ble_sts_t 	blc_ll_setDefaultPhy(le_phy_prefer_mask_t all_phys, le_phy_prefer_type_t tx_phys, le_phy_prefer_type_t rx_phys);
+
+
+/**
+ * @brief       this function is used to read the current transmitter PHY and receiver PHY on the connection identified
+ *              by the Connection_Handle.
+ * @param[in]	connHandle - Connection_Handle Range:0x0000 to 0x0EFF
+ * @param[out]	para - Reference structure: hci_le_readPhyCmd_retParam_t:
+ * 					   Status -  0x00 HCI_LE_Read_PHY command succeeded; 0x01 to 0xFF: HCI_LE_Read_PHY command failed
+ * 					   Connection_Handle - Connection_Handle Range:0x0000 to 0x0EFF
+ *					   TX_PHY - 1:LE 1M; 2: LE 2M; 3: LE Coded.
+ *					   RX_PHY - 1:LE 1M; 2: LE 2M; 3: LE Coded.
+ * @return     status, 0x00:  succeed
+ * 					   other: failed
+ */
+ble_sts_t	blc_ll_readPhy( u16 connHandle, hci_le_readPhyCmd_retParam_t *para);
+
+ble_sts_t 	blc_hci_le_readBufferSize_cmd(u8 *pData);
+ble_sts_t 	blc_hci_le_getLocalSupportedFeatures(u8 *features);
+ble_sts_t 	blc_hci_readSuggestedDefaultTxDataLength (u8 *tx, u8 *txtime);
+ble_sts_t 	blc_hci_writeSuggestedDefaultTxDataLength (u16 tx, u16 txtime);
+ble_sts_t	blc_hci_readMaximumDataLength(hci_le_readMaxDataLengthCmd_retParam_t  *para);
 
 #endif /* ACL_CONN_H_ */

@@ -63,7 +63,7 @@
 	#define NEW_FW_ADDR0								NEW_FW_ADDR_512K
 	#define NEW_FW_ADDR1								NEW_FW_ADDR_768K
 	#define FW_SIZE_MIN									0x04000	 //16K
-	#define FW_SIZE_MAX									0x40000	 //256K
+	#define FW_SIZE_MAX									0x7F000	 //508K
 #else
 	#define NEW_FW_ADDR0								NEW_FW_ADDR_128K
 	#define NEW_FW_ADDR1								NEW_FW_ADDR_256K
@@ -94,15 +94,15 @@
 
 
 
-#define OTA_TIMEOUT_S									30	//user can change
+#define OTA_TIMEOUT_S									100	//user can change
 
 
 
 
-
-#define OTA_FW_VERSION_EXCHANGE_ENABLE					0	//user can change
-#define OTA_FW_VERSION_COMPARE_ENABLE					0	//user can change
-
+#if (!OTA_LEGACY_PROTOCOL)
+	#define OTA_FW_VERSION_EXCHANGE_ENABLE				0	//user can change
+	#define OTA_FW_VERSION_COMPARE_ENABLE				0	//user can change
+#endif
 
 
 
