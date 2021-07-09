@@ -63,8 +63,10 @@
 #define CMD_OTA_RESULT						0xFF06	//server -> client
 
 
-extern int	ota_program_bootAddr;
-extern int	ota_program_offset;
+#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
+	extern int	ota_program_bootAddr;
+	int	ota_program_offset;
+#endif
 
 
 /**
@@ -73,7 +75,10 @@ extern int	ota_program_offset;
 typedef enum{
 	MULTI_BOOT_ADDR_0x20000 	= 0x20000,	//128 K
 	MULTI_BOOT_ADDR_0x40000		= 0x40000,  //256 K
+
+#if (MCU_CORE_TYPE == MCU_CORE_9518)
 	MULTI_BOOT_ADDR_0x80000	    = 0x80000,  //512 K
+#endif
 }multi_boot_addr_e;
 
 

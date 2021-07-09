@@ -79,6 +79,9 @@
 
 
 
+
+
+
 #if (UI_KEYBOARD_ENABLE)   // if test pure power, kyeScan GPIO setting all disabled
 		//---------------  KeyMatrix PB2/PB3/PB4/PB5 -----------------------------
 		#define	MATRIX_ROW_PULL					PM_PIN_PULLDOWN_100K
