@@ -66,7 +66,6 @@
 
 //the following just for xiaomi project.
 #define  	HCI_DFU_EN  			1
-#define		XIAOMI_EXTSCAN_EN		1
 ///
 
 ///////////////////  Feature ////////////////////////////

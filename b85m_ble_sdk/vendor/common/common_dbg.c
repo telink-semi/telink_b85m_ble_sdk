@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	tl_common.h
+ * @file	common_dbg.c
  *
- * @brief	This is the header file for BLE SDK
+ * @brief	This is the source file for BLE SDK
  *
  * @author	BLE GROUP
  * @date	2020.06
@@ -43,30 +43,33 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef TL_COMMON_H_
-#define TL_COMMON_H_
+#include "tl_common.h"
+#include "common_dbg.h"
 
 
-#include "common/types.h"
-#include "common/bit.h"
-#include "common/utility.h"
 
-#include "vendor/common/user_config.h"
-#include "config.h"
 
-#include "common/string.h"
+#if (UART_LOW_POWER_DEBUG_EN)
 
-#include "common/usb_dbg/myudb.h"
 
-#include "application/print/u_printf.h"
+#define UART0_BAUDRATE                  1000000
 
-#include "vendor/common/blt_common.h"
-#include "vendor/common/blt_fw_sign.h"
-#include "vendor/common/blt_led.h"
-#include "vendor/common/blt_soft_timer.h"
-#include "vendor/common/custom_pair.h"
-#include "vendor/common/device_manage.h"
-#include "vendor/common/simple_sdp.h"
-#include "vendor/common/flash_fw_check.h"
-#include "vendor/common/common_dbg.h"
-#endif /* TL_COMMON_H_ */
+#define trans_buff_Len  				32
+
+__attribute__((aligned(4))) unsigned char trans_buff[trans_buff_Len] = {0x0c,0x00,0x00,0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc};
+
+
+int lp_uart_init = 0;  //attention: can not be retention data !!!
+void low_power_uart_debug_init(void)
+{
+	reg_dma_uart_tx_size = trans_buff_Len >> 4;//set DMA TX buffer size.
+	uart_gpio_set(UART_TX_PB1, UART_RX_PB7);// uart tx/rx pin set
+	uart_reset();  //uart module power-on again.
+	uart_init_baudrate(UART0_BAUDRATE, CLOCK_SYS_CLOCK_HZ, PARITY_NONE, STOP_BIT_ONE);
+	uart_dma_enable(0, 1); 	//uart data in hardware buffer moved by dma, so we need enable them first
+	dma_chn_irq_enable(FLD_DMA_CHN_UART_TX, 1);   	//uart Tx dma irq enable
+
+	lp_uart_init = 1;
+}
+
+#endif

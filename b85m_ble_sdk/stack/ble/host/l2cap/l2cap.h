@@ -99,9 +99,23 @@ u8   	bls_l2cap_requestConnParamUpdate (u16 connHandle, u16 min_interval, u16 ma
  * @param[in]	connHandle - connection handle
  * @param[in]	req_id - Request packet identifier
  * @param[in]	result - connect parameter update result
+ * 				0x0001: CONN_PARAM_UPDATE_REJECT
+ * 				0x0000: CONN_PARAM_UPDATE_ACCEPT, need to call the API blm_l2cap_processConnParamUpdatePending() later
  * @return		none.
  */
 void  	blc_l2cap_SendConnParamUpdateResponse(u16 connHandle, u8 req_id, conn_para_up_rsp result);
+
+
+/**
+ * @brief		This function is used to host set connect parameter process pending in master
+ * @param[in]	connHandle - connection handle
+ * @param[in]	min_interval - connect interval minimum
+ * @param[in]	max_interval - connect interval maximum
+ * @param[in]	latency - connect latency
+ * @param[in]	timeout - connect timeout
+ * @return		none.
+ */
+void	blm_l2cap_processConnParamUpdatePending(u16 connHandle, u16 min_interval, u16 max_interval, u16 latency, u16 timeout);
 
 
 /**

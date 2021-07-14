@@ -357,6 +357,7 @@ MZ_MUL2_END:
 
 
 
+#ifdef MCU_STARTUP_8258
 ///////// asm crc24 function 2
 	.section	.ram_code,"ax" //in ram code
 	.align	2
@@ -489,3 +490,4 @@ CRC24_END:
 //		};
 //		//usage
 //		//crc = blt_packet_crc24_opt (dat, length, crc_init, Crc24Lookup);
+#endif

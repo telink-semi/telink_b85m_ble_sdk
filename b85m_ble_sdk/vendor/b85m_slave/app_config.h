@@ -46,9 +46,10 @@
 #pragma once
 
 
-#define	CONN_MAX_NUM_CONFIG							CONN_MAX_NUM_M0_S4
+#define	CONN_MAX_NUM_CONFIG							CONN_MAX_NUM_M0_S2
+
 #define MASTER_MAX_NUM								0
-#define SLAVE_MAX_NUM								4
+#define SLAVE_MAX_NUM								2
 
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
@@ -67,7 +68,7 @@
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
 #define DEBUG_GPIO_ENABLE							0
 #define UART_PRINT_DEBUG_ENABLE                     0  //printf
-#define MASTER_CONNECT_SLAVE_MAC_FILTER_EN			0
+#define UART_LOW_POWER_DEBUG_EN						0
 
 
 
@@ -190,8 +191,6 @@ enum{
 
 
 #if(DEBUG_GPIO_ENABLE)
-
-
 	#define GPIO_CHN0							GPIO_PD0
 	#define GPIO_CHN1							GPIO_PD1
 	#define GPIO_CHN2							GPIO_PD6

@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	ext_pm.h
  *
- * @brief	This is the header file for B91
+ * @brief	This is the header file for BLE SDK
  *
  * @author	BLE Group
  * @date	2020
@@ -46,6 +46,12 @@
 #ifndef DRIVERS_8278_EXT_PM_H_
 #define DRIVERS_8278_EXT_PM_H_
 
+#include "../pm.h"
+
+#ifndef	PM_32k_RC_CALIBRATION_ALGORITHM_EN
+#define PM_32k_RC_CALIBRATION_ALGORITHM_EN	1
+#endif
+
 /**
  * @brief      This function servers to wake up the cpu from sleep mode.
  * @param[in]  sleep_mode - sleep mode type select.
@@ -54,6 +60,21 @@
  * @return     indicate whether the cpu is wake up successful.
  */
 int cpu_long_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+
+
+
+/**********************************  Internal APIs (not for user)***************************************************/
+extern	unsigned int 			g_sleep_32k_rc_cnt;
+extern	unsigned int 			g_sleep_stimer_tick;
+
+
+#define PM_MIN_SLEEP_US			1800  //vulture
+
+
+static inline unsigned int pm_get_latest_offset_cal_time(void)
+{
+	return pmcd.offset_cal_tick;
+}
 
 #endif
 

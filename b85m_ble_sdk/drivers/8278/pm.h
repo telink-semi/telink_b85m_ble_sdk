@@ -52,7 +52,7 @@
 #define PM_LONG_SUSPEND_EN					1
 
 #ifndef PM_TIM_RECOVER_MODE
-#define PM_TIM_RECOVER_MODE			    	1
+#define PM_TIM_RECOVER_MODE			    	0
 #endif
 
 
@@ -197,6 +197,30 @@ typedef struct{
 }pm_para_t;
 
 extern _attribute_aligned_(4) pm_para_t	pmParam;
+
+/**
+ * @brief   pm 32k rc calibration algorithm.
+ */
+typedef struct  pm_clock_drift
+{
+	unsigned int	ref_tick;
+	unsigned int	ref_tick_32k;
+	int				offset;
+	int				offset_dc;
+//	int				offset_cur;
+	unsigned int	offset_cal_tick;
+	int				tc;
+	int				rc32;
+	int				rc32_wakeup;
+	int				rc32_rt;
+	int				s0;
+	unsigned char	calib;
+	unsigned char	ref_no;
+
+} pm_clock_drift_t;
+
+extern pm_clock_drift_t	pmcd;
+
 
 #if (PM_TIM_RECOVER_MODE)
 
@@ -457,6 +481,10 @@ void sleep_start(void);
 unsigned int  pm_get_info0(void);
 
 unsigned int  pm_get_info1(void);
+
+void pm_ble_32k_rc_cal_reset(void);
+
+void pm_ble_cal_32k_rc_offset(int, int);
 
 unsigned int cpu_get_32k_tick(void);
 

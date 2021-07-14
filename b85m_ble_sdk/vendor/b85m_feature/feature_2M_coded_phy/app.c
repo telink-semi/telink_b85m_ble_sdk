@@ -106,51 +106,51 @@ void feature_2m_phy_test_mainloop (void)
 
 	for(u8 i= 0; i < MASTER_SLAVE_MAX_NUM; i++){
 
-			if(conn_dev_list[i].conn_state)
+		if(conn_dev_list[i].conn_state)
+		{
+			connHandle = conn_dev_list[i].conn_handle;
+			/////send data
+			if(clock_time_exceed(test_tick[i], 1*1000*1000))
 			{
-				connHandle = conn_dev_list[i].conn_handle;
-				/////send data
-				if(clock_time_exceed(test_tick[i], 1*1000*1000))
-				{
 
-					u16 att_spp_handle;
+				u16 att_spp_handle;
 
-					if(dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER){
-						att_spp_handle = SPP_CLIENT_TO_SERVER_DP_H;//blc_gatt_pushWriteComand ///blc_gatt_pushHandleValueWriteReq
-						if (BLE_SUCCESS == blc_gatt_pushWriteCommand(connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN)){  //sizeof(spp_data)
-							spp_data[i][0] ++;
-							test_tick[i] = clock_time();
-						}
-					}else{
-						att_spp_handle = SPP_SERVER_TO_CLIENT_DP_H;
-
-						ble_sts_t st = blc_gatt_pushHandleValueNotify (connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN);
-						if (BLE_SUCCESS == st){  //sizeof(spp_data)
-							spp_data[i][0] ++;
-							test_tick[i] = clock_time();
-						}
+				if(dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER){
+					att_spp_handle = SPP_CLIENT_TO_SERVER_DP_H;//blc_gatt_pushWriteComand ///blc_gatt_pushHandleValueWriteReq
+					if (BLE_SUCCESS == blc_gatt_pushWriteCommand(connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN)){  //sizeof(spp_data)
+						spp_data[i][0] ++;
+						test_tick[i] = clock_time();
 					}
+				}else{
+					att_spp_handle = SPP_SERVER_TO_CLIENT_DP_H;
 
+					ble_sts_t st = blc_gatt_pushHandleValueNotify (connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN);
+					if (BLE_SUCCESS == st){  //sizeof(spp_data)
+						spp_data[i][0] ++;
+						test_tick[i] = clock_time();
+					}
 				}
 
-				if( clock_time_exceed(phy_update_agree_ftick[i], 10*1000*1000) ){
-
-					static u32 AAA = 0;
-					phy_update_agree_ftick[i] = clock_time()|0x01;
-
-					if( (AAA&0x03) == 1){
-						blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_2M, 	 PHY_PREFER_2M,    CODED_PHY_PREFER_NONE);
-					}
-					else if( (AAA&0x03)==2){
-						blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_1M, 	 PHY_PREFER_1M,    CODED_PHY_PREFER_NONE);
-					}
-					else
-					{
-						blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_CODED, 	 PHY_PREFER_CODED,    CODED_PHY_PREFER_S8);
-					}
-					AAA++;
-				}
 			}
+
+			if( clock_time_exceed(phy_update_agree_ftick[i], 10*1000*1000) ){
+
+				static u32 AAA = 0;
+				phy_update_agree_ftick[i] = clock_time()|0x01;
+
+				if( (AAA&0x03) == 1){
+					blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_2M, 	 PHY_PREFER_2M,    CODED_PHY_PREFER_NONE);
+				}
+				else if( (AAA&0x03)==2){
+					blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_1M, 	 PHY_PREFER_1M,    CODED_PHY_PREFER_NONE);
+				}
+				else
+				{
+					blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_CODED, 	 PHY_PREFER_CODED,    CODED_PHY_PREFER_S8);
+				}
+				AAA++;
+			}
+		}
 	}
 }
 

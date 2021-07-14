@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	tl_common.h
+ * @file	common_dbg.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,30 +43,33 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef TL_COMMON_H_
-#define TL_COMMON_H_
+#ifndef COMMON_DBG_H_
+#define COMMON_DBG_H_
 
 
-#include "common/types.h"
-#include "common/bit.h"
+
 #include "common/utility.h"
-
 #include "vendor/common/user_config.h"
-#include "config.h"
 
-#include "common/string.h"
 
-#include "common/usb_dbg/myudb.h"
 
-#include "application/print/u_printf.h"
 
-#include "vendor/common/blt_common.h"
-#include "vendor/common/blt_fw_sign.h"
-#include "vendor/common/blt_led.h"
-#include "vendor/common/blt_soft_timer.h"
-#include "vendor/common/custom_pair.h"
-#include "vendor/common/device_manage.h"
-#include "vendor/common/simple_sdp.h"
-#include "vendor/common/flash_fw_check.h"
-#include "vendor/common/common_dbg.h"
-#endif /* TL_COMMON_H_ */
+#ifndef UART_LOW_POWER_DEBUG_EN
+#define UART_LOW_POWER_DEBUG_EN									0
+#endif
+
+
+
+
+#if(UART_LOW_POWER_DEBUG_EN)
+
+extern unsigned char trans_buff[];
+extern int lp_uart_init;
+void low_power_uart_debug_init(void);
+
+#endif
+
+
+
+
+#endif /* COMMON_DBG_H_ */

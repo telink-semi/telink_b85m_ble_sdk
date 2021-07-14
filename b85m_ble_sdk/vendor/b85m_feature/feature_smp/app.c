@@ -182,10 +182,10 @@ int app_le_connection_complete_event_handle(u8 *p)
 				}
 			#endif
 
-			gpio_set_high_level(GPIO_LED_GREEN);
+			gpio_write(GPIO_LED_GREEN, 1);
 		}
 		else{
-			gpio_set_high_level(GPIO_LED_RED);
+			gpio_write(GPIO_LED_RED, 1);
 		}
 	}
 
@@ -219,9 +219,9 @@ int 	app_disconnect_event_handle(u8 *p)
 	}
 
 	if(dev_char_get_conn_role_by_connhandle(pCon->connHandle) == LL_ROLE_MASTER){
-		gpio_set_low_level(GPIO_LED_GREEN);
+		gpio_write(GPIO_LED_GREEN, 0);
 	}else{
-		gpio_set_low_level(GPIO_LED_RED);
+		gpio_write(GPIO_LED_RED, 0);
 	}
 
 
@@ -656,7 +656,7 @@ _attribute_no_inline_ void user_init_normal(void)
 	#endif
 
 #if APP_SMP_SC_EN
-		blc_smp_setEcdhDebugMode(1);//1: enable SC debug mode, 0:disable SC debug mode
+		blc_smp_setEcdhDebugMode(0);//1: enable SC debug mode, 0:disable SC debug mode
 		blc_smp_setPairingMethods(LE_Secure_Connection);
 		blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE);
 		blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);

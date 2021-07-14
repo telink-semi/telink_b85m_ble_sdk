@@ -78,6 +78,7 @@ const u8	tbl_scanRsp [] = {
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
+_attribute_ble_data_retention_ u8 dbg_req_cnt = 0;
 int app_le_connection_complete_event_handle(u8 *p)
 {
 	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
@@ -87,8 +88,36 @@ int app_le_connection_complete_event_handle(u8 *p)
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
 		if(pConnEvt->role == LL_ROLE_SLAVE){
-	//		bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S);
-			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_62P5MS, CONN_INTERVAL_62P5MS, 0, CONN_TIMEOUT_4S);
+			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 99, CONN_TIMEOUT_4S);	// 1 second
+//			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 199, CONN_TIMEOUT_6S);	// 2 second
+//			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 299, CONN_TIMEOUT_8S);	// 3 second
+
+			//test code
+			#if 0
+				dbg_req_cnt ++;
+				if(dbg_req_cnt & 1){
+					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 4, CONN_TIMEOUT_4S);
+				}
+				else{
+					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 5, CONN_TIMEOUT_4S);
+				}
+			#elif 0
+
+				if(dbg_req_cnt == 0){
+					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 99, CONN_TIMEOUT_4S);
+				}
+				else if(dbg_req_cnt == 1){
+					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 199, CONN_TIMEOUT_6S);
+				}
+				else{
+					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 299, CONN_TIMEOUT_8S);
+				}
+
+				dbg_req_cnt ++;
+				if(dbg_req_cnt > 2){
+					dbg_req_cnt = 0;
+				}
+			#endif
 		}
 	}
 
@@ -371,13 +400,11 @@ _attribute_no_inline_ void user_init_normal(void)
 
     blc_ll_initLegacyAdvertising_module(); 	//adv module: 		 mandatory for BLE slave,
 
-	blc_ll_initInitiating_module();			//initiate module: 	 mandatory for BLE master
-
 	blc_ll_initAclConnection_module();
 
 	blc_ll_initAclSlaveRole_module();
 
-	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, 2); //SLAVE_MAX_NUM
+	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, 1); //SLAVE_MAX_NUM
 
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
@@ -386,8 +413,6 @@ _attribute_no_inline_ void user_init_normal(void)
 
 	/* ACL Slave TX FIFO */
 	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
-
-
 	//////////// LinkLayer Initialization  End /////////////////////////
 
 
@@ -458,37 +483,35 @@ _attribute_no_inline_ void user_init_normal(void)
 //////////////////////////// User Configuration for BLE application ////////////////////////////
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_300MS, ADV_INTERVAL_300MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
+	blc_ll_setAdvParam(ADV_INTERVAL_200MS, ADV_INTERVAL_200MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
+	blc_ll_setMaxAdvDelay_for_AdvEvent(MAX_DELAY_0MS);
 
 	user_set_rf_power(0, 0, 0);
 
 
 	#if (BLE_APP_PM_ENABLE)
 		blc_ll_initPowerManagement_module();
-		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
+		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_ACL_SLAVE);
 
 		#if (PM_DEEPSLEEP_RETENTION_ENABLE)
 			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
-			blc_pm_setDeepsleepRetentionThreshold(50);
-			blc_pm_setDeepsleepRetentionEarlyWakeupTiming(330);
+			blc_pm_setDeepsleepRetentionThreshold(95);
+
+			#if(MCU_CORE_TYPE == MCU_CORE_825x)
+				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(260);
+			#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(350);
+			#endif
 		#else
-			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_DISABLE);
+			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Disable);
 		#endif
 
 		blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SUSPEND_EXIT, &user_set_rf_power);
+	#endif
 
-
-		#if (UI_KEYBOARD_ENABLE)
-			u32 pin[] = KB_DRIVE_PINS;
-			for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-				cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
-			}
-
-			blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SLEEP_ENTER, &app_set_gpio_wakeup);
-			blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, &proc_keyboard);
-		#endif
-
+	#if (UI_KEYBOARD_ENABLE)
+		keyboard_init();
 	#endif
 
 
@@ -496,6 +519,11 @@ _attribute_no_inline_ void user_init_normal(void)
 		/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddress"(if used), and before any other OTA API.*/
 		blc_ota_initOtaServer_module();
 		blc_ota_setOtaProcessTimeout(30);
+	#endif
+
+	#if (UART_LOW_POWER_DEBUG_EN)
+		low_power_uart_debug_init();
+		uart_dma_send((u8 *)trans_buff);
 	#endif
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -517,41 +545,42 @@ _attribute_ram_code_ void user_init_deepRetn(void)
 
 	user_set_rf_power(0, 0, 0);
 
+	blc_ll_recoverDeepRetention();
 
 	DBG_CHN0_HIGH;    //debug
-	blc_ll_recoverDeepRetention();
 	irq_enable();
 
-
-	if(	pm_is_deepPadWakeup() ){ //GPIO PAD wake_up deepSleep retention
-		proc_keyboard (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, 0, 0);
-	}
-
-
-	#if (UI_KEYBOARD_ENABLE)
-		u32 pin[] = KB_DRIVE_PINS;
-		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-			cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
-		}
+	#if (UART_LOW_POWER_DEBUG_EN)
+		low_power_uart_debug_init();
 	#endif
 
+	#if (UI_KEYBOARD_ENABLE)
+		/////////// keyboard GPIO wakeup init ////////
+		u32 pin[] = KB_DRIVE_PINS;
+		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
+			cpu_set_gpio_wakeup (pin[i], Level_High, 1);  //drive pin pad high level wakeup deepsleep
+		}
+	#endif
 #endif
 }
+
+
 
 
 void app_process_power_management(void)
 {
 #if (BLE_APP_PM_ENABLE)
 
-	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
-	blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
+	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_ACL_SLAVE );
 
-	int user_task_flg = ota_is_working || scan_pin_need || key_not_released;
+	int user_task_flg = ota_is_working;
+	#if UI_KEYBOARD_ENABLE
+		user_task_flg = user_task_flg || scan_pin_need || key_not_released;
+	#endif
 
 	if(user_task_flg){
-		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_DISABLE);
+		blc_pm_setSleepMask(PM_SLEEP_DISABLE);
 	}
-
 #endif
 }
 
@@ -579,7 +608,6 @@ int main_idle_loop (void)
 
 	////////////////////////////////////// PM entry /////////////////////////////////
 	app_process_power_management();
-
 
 	return 0; //must return 0 due to SDP flow
 }
