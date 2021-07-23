@@ -518,7 +518,6 @@ _attribute_no_inline_ void user_init_normal(void)
 
 	#if (UART_LOW_POWER_DEBUG_EN)
 		low_power_uart_debug_init();
-		uart_dma_send((u8 *)trans_buff);
 	#endif
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

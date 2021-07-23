@@ -328,6 +328,10 @@ typedef enum {
     ATT_ERR_UNSUPPORTED_GRP_TYPE,                        //!< The attribute type is not a supported grouping attribute as defined by a higher layer specification
     ATT_ERR_INSUFFICIENT_RESOURCES,                      //!< Insufficient Resources to complete the request
 }att_err_t;
+
+
+
+
 /******************************************** GAP ***************************************************************/
 
 // https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile/

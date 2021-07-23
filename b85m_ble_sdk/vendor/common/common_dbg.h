@@ -61,11 +61,14 @@
 
 
 
-#if(UART_LOW_POWER_DEBUG_EN)
+#if (UART_LOW_POWER_DEBUG_EN)
 
-extern unsigned char trans_buff[];
+
 extern int lp_uart_init;
 void low_power_uart_debug_init(void);
+#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
+	extern unsigned char uart_trans_buff[];
+#endif
 
 #endif
 

@@ -774,10 +774,6 @@ _attribute_ram_code_ void user_init_deepRetn(void)
 	DBG_CHN0_HIGH;    //debug
 	irq_enable();
 
-	#if (UART_LOW_POWER_DEBUG_EN)
-		low_power_uart_debug_init();
-	#endif
-
 	#if (UI_KEYBOARD_ENABLE)
 		/////////// keyboard GPIO wakeup init ////////
 		u32 pin[] = KB_DRIVE_PINS;

@@ -46,6 +46,7 @@
 #pragma once
 
 
+#define	CONN_MAX_NUM_CONFIG							CONN_MAX_NUM_M0_S4
 #define MASTER_MAX_NUM								0
 #define SLAVE_MAX_NUM								4
 

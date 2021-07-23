@@ -111,8 +111,8 @@ void key_change_proc(void)
 			}
 		}
 		else{
-
-			#if 1
+			//test code
+			#if 0
 				if(key0 == BTN_PAIR){
 					static u8 adv_status = 0;
 					blc_ll_setAdvEnable(adv_status);
