@@ -13,13 +13,14 @@
 #include "hci_dfu_api.h"
 
 #include "drivers.h"
-#include "stack/ble/hci/hci_stack.h"
 #include "stack/ble/ble_common.h"
 #include "stack/ble/hci/hci_const.h"
-#include "stack/ble/ble_stack.h"
-
+#include "stack/ble/hci/hci.h"
 #include "app_buffer.h"
 
+#define			BLUETOOTH_VER_5_0				9
+#define 		BLUETOOTH_VER         			BLUETOOTH_VER_5_0
+#define         VENDOR_ID                       0x0211
 
 extern hci_fifo_t bltHci_txfifo;
 

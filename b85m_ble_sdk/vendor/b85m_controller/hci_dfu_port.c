@@ -11,7 +11,6 @@
 
 #include "drivers.h"
 #include "common/string.h"
-#include "stack/ble/hci/hci_stack.h"
 #include "stack/ble/hci/hci.h"
 #include "stack/ble/ble_common.h"
 

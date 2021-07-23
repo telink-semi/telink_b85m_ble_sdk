@@ -47,7 +47,6 @@
 #define HCI_TR_H4_H_
 
 #include "hci_tr_api.h"
-#include "stack/ble/hci/hci_stack.h"
 
 /*!  H4 transport buffer config macro. */
 #define HCI_H4_TR_RX_BUF_SIZE   (MEM_SIZE_ALIGN16(HCI_ACL_BUF_SIZE)*2)//80 /*! The value of this size must be set according to the size of the HCI RX buffer, and at least twice the size of the HCI RX buffer.*/
