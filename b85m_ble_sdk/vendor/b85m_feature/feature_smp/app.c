@@ -719,7 +719,7 @@ _attribute_no_inline_ void user_init_normal(void)
 
 
 #if APP_SMP_SC_EN
-		blc_smp_setEcdhDebugMode(1);//1: enable SC debug mode, 0:disable SC debug mode
+		blc_smp_setEcdhDebugMode(0);//1: enable SC debug mode, 0:disable SC debug mode
 		blc_smp_setPairingMethods(LE_Secure_Connection);
 		blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE);
 		blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);
