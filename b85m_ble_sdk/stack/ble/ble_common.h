@@ -302,7 +302,32 @@ typedef enum{
 }att_pdu_type;
 
 
+/**
+ *  @brief  Definition for Error Response of ATTRIBUTE PROTOCOL PDUS
+ *  See the Core_v5.0(Vol 3/Part F/3.4.1.1, "Error Response") for more information.
+ */
+typedef enum {
 
+	ATT_SUCCESS = 0,
+
+    ATT_ERR_INVALID_HANDLE,                              //!< The attribute handle given was not valid on this server
+    ATT_ERR_READ_NOT_PERMITTED,                          //!< The attribute cannot be read
+    ATT_ERR_WRITE_NOT_PERMITTED,                         //!< The attribute cannot be written
+    ATT_ERR_INVALID_PDU,                                 //!< The attribute PDU was invalid
+    ATT_ERR_INSUFFICIENT_AUTH,                           //!< The attribute requires authentication before it can be read or written
+    ATT_ERR_REQ_NOT_SUPPORTED,                           //!< Attribute server does not support the request received from the client
+    ATT_ERR_INVALID_OFFSET,                              //!< Offset specified was past the end of the attribute
+    ATT_ERR_INSUFFICIENT_AUTHOR,                         //!< The attribute requires authorization before it can be read or written
+    ATT_ERR_PREPARE_QUEUE_FULL,                          //!< Too many prepare writes have been queued
+    ATT_ERR_ATTR_NOT_FOUND,                              //!< No attribute found within the given attribute handle range
+    ATT_ERR_ATTR_NOT_LONG,                               //!< The attribute cannot be read or written using the Read Blob Request
+    ATT_ERR_INSUFFICIENT_KEY_SIZE,                       //!< The Encryption Key Size used for encrypting this link is insufficient
+    ATT_ERR_INVALID_ATTR_VALUE_LEN,                      //!< The attribute value length is invalid for the operation
+    ATT_ERR_UNLIKELY_ERR,                                //!< The attribute request that was requested has encountered an error that was unlikely, and therefore could not be completed as requested
+    ATT_ERR_INSUFFICIENT_ENCRYPT,                        //!< The attribute requires encryption before it can be read or written
+    ATT_ERR_UNSUPPORTED_GRP_TYPE,                        //!< The attribute type is not a supported grouping attribute as defined by a higher layer specification
+    ATT_ERR_INSUFFICIENT_RESOURCES,                      //!< Insufficient Resources to complete the request
+}att_err_t;
 /******************************************** GAP ***************************************************************/
 
 // https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile/
