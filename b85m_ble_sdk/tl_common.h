@@ -68,4 +68,5 @@
 #include "vendor/common/device_manage.h"
 #include "vendor/common/simple_sdp.h"
 #include "vendor/common/flash_fw_check.h"
+#include "vendor/common/common_dbg.h"
 #endif /* TL_COMMON_H_ */

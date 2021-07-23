@@ -114,7 +114,7 @@ int app_le_adv_report_event_handle(u8 *p)
 	int user_manual_pairing = 0;
 
 	//manual pairing methods 1: key press triggers
-	user_manual_pairing = master_pairing_enable && (rssi > -66);  //button trigger pairing(RSSI threshold, short distance)
+	user_manual_pairing = master_pairing_enable && (rssi > -56);  //button trigger pairing(RSSI threshold, short distance)
 
 	#if (BLE_MASTER_SMP_ENABLE)
 		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
@@ -182,10 +182,10 @@ int app_le_connection_complete_event_handle(u8 *p)
 				}
 			#endif
 
-			gpio_set_high_level(GPIO_LED_GREEN);
+			gpio_write(GPIO_LED_GREEN, 1);
 		}
 		else{
-			gpio_set_high_level(GPIO_LED_RED);
+			gpio_write(GPIO_LED_RED, 1);
 		}
 	}
 
@@ -219,9 +219,9 @@ int 	app_disconnect_event_handle(u8 *p)
 	}
 
 	if(dev_char_get_conn_role_by_connhandle(pCon->connHandle) == LL_ROLE_MASTER){
-		gpio_set_low_level(GPIO_LED_GREEN);
+		gpio_write(GPIO_LED_GREEN, 0);
 	}else{
-		gpio_set_low_level(GPIO_LED_RED);
+		gpio_write(GPIO_LED_RED, 0);
 	}
 
 
@@ -339,7 +339,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 		case GAP_EVT_SMP_TK_DISPALY:
 		{
 			gap_smp_TkDisplayEvt_t* pEvt = (gap_smp_TkDisplayEvt_t*)para;
-			LOG("PinCode: %d\n", pEvt->tk_pincode);
+			my_dump_str_data(APP_DUMP_EN, "PinCode", &pEvt->tk_pincode, 4);
 			break;
 		}
 
@@ -405,35 +405,53 @@ int app_host_event_callback (u32 h, u8 *para, int n)
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-
 	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
 		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
-		switch(pAtt->opcode)
+
+		dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
+		if(dev_info)
 		{
-		case ATT_OP_FIND_INFO_RSP:
+			//-------	user process ------------------------------------------------
+			if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
+			{
 
-			break;
-		case ATT_OP_FIND_BY_TYPE_VALUE_RSP:
+			}
+			else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
+			{
+				blc_gatt_pushAttHdlValueCfm(connHandle);
+			}
+		}
 
-			break;
-		case ATT_OP_READ_RSP:
-
-			break;
-		case ATT_OP_READ_BLOB_RSP:
-
-			break;
-		case ATT_OP_READ_BY_TYPE_RSP:
-
-			break;
-		case ATT_OP_READ_BY_GROUP_TYPE_RSP:
-
-			break;
-		default:
-			break;
+		/* The Master does not support GATT Server by default */
+		if(!(pAtt->opcode & 0x01)){
+			switch(pAtt->opcode){
+				case ATT_OP_FIND_INFO_REQ:
+				case ATT_OP_FIND_BY_TYPE_VALUE_REQ:
+				case ATT_OP_READ_BY_TYPE_REQ:
+				case ATT_OP_READ_BY_GROUP_TYPE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_ATTR_NOT_FOUND);
+					break;
+				case ATT_OP_READ_REQ:
+				case ATT_OP_READ_BLOB_REQ:
+				case ATT_OP_READ_MULTI_REQ:
+				case ATT_OP_WRITE_REQ:
+				case ATT_OP_PREPARE_WRITE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_INVALID_HANDLE);
+					break;
+				case ATT_OP_EXECUTE_WRITE_REQ:
+				case ATT_OP_HANDLE_VALUE_CFM:
+				case ATT_OP_WRITE_CMD:
+				case ATT_OP_SIGNED_WRITE_CMD:
+					//ignore
+					break;
+				default://no action
+					break;
+			}
 		}
 	}
 	else{//GATT data for Slave
+
 	}
 
 
@@ -654,6 +672,51 @@ _attribute_no_inline_ void user_init_normal(void)
 		blc_smp_setSecurityLevel_master(No_Security);
 		user_master_host_pairing_management_init(); 		//Telink referenced pairing&bonding without standard pairing in BLE Spec
 	#endif
+
+#if   (0) //LE_Security_Mode_1_Level_1 --- No_Encryption
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_1);
+#elif (0) //LE_Security_Mode_1_Level_2 --- LG_JUST_WORKS
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_2);
+	blc_smp_setSecurityParameters(Bondable_Mode, 0, LE_Legacy_Pairing,    0, 0, IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+#elif (0) //LE_Security_Mode_1_Level_2 --- LG_JUST_WORKS/SC_JUST_WORKS
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_2);
+	blc_smp_setSecurityParameters(Bondable_Mode, 0, LE_Secure_Connection, 0, 0, IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+	blc_smp_setEcdhDebugMode(debug_mode);
+#elif (0) //LE_Security_Mode_1_Level_3 --- LG_PASSKEY_ENTRY_SDMI
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_3|LE_Security_Mode_1_Level_2);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Legacy_Pairing,    0, 0, IO_CAPABILITY_DISPLAY_ONLY);
+	blc_smp_setDefaultPinCode(123456);
+#elif (0) //LE_Security_Mode_1_Level_3 --- LG_PASSKEY_ENTRY_SDMI
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_3|LE_Security_Mode_1_Level_2);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Legacy_Pairing,    0, 0, IO_CAPABILITY_DISPLAY_YES_NO);
+	blc_smp_setDefaultPinCode(123456);
+#elif (0) //LE_Security_Mode_1_Level_3 --- LG_PASSKEY_ENTRY_MDSI/LG_PASSKEY_ENTRY_MISI
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_3);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Legacy_Pairing,    0, 0, IO_CAPABILITY_KEYBOARD_ONLY);
+#elif (0) //LE_Security_Mode_1_Level_3 --- LG_PASSKEY_ENTRY_MDSI/LG_PASSKEY_ENTRY_SDMI
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_3);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Legacy_Pairing,    0, 0, IO_CAPABILITY_KEYBOARD_DISPLAY);
+#elif (1) //LE_Security_Mode_1_Level_4 --- SC_PASSKEY_ENTRY_SDMI
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_4|LE_Security_Mode_1_Level_3);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Secure_Connection, 0, 0, IO_CAPABILITY_DISPLAY_ONLY);
+	blc_smp_setEcdhDebugMode(debug_mode);
+	blc_smp_setDefaultPinCode(123456);
+#elif (0) //LE_Security_Mode_1_Level_4 --- SC_PASSKEY_ENTRY_SDMI/SC_NUMERIC_COMPARISON
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_4);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Secure_Connection, 0, 0, IO_CAPABILITY_DISPLAY_YES_NO);
+	blc_smp_setEcdhDebugMode(debug_mode);
+	blc_smp_setDefaultPinCode(123456);
+#elif (0) //LE_Security_Mode_1_Level_4 --- SC_PASSKEY_ENTRY_MDSI/SC_PASSKEY_ENTRY_MISI
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_4);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Secure_Connection, 0, 0, IO_CAPABILITY_KEYBOARD_ONLY);
+	blc_smp_setEcdhDebugMode(debug_mode);
+#elif (0) //LE_Security_Mode_1_Level_4 --- SC_PASSKEY_ENTRY_MDSI/SC_PASSKEY_ENTRY_SDMI/SC_NUMERIC_COMPARISON
+	blc_smp_setSecurityLevel(LE_Security_Mode_1_Level_4);
+	blc_smp_setSecurityParameters(Bondable_Mode, 1, LE_Secure_Connection, 0, 0, IO_CAPABILITY_KEYBOARD_DISPLAY);
+	blc_smp_setEcdhDebugMode(debug_mode);
+#endif
+
+
 
 #if APP_SMP_SC_EN
 		blc_smp_setEcdhDebugMode(1);//1: enable SC debug mode, 0:disable SC debug mode

@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file	cstartup_8251.S
+ * @file	cstartup_8253_RET_32K.S
  *
  * @brief	This is the boot file for BLE SDK
  *
  * @author	BLE GROUP
- * @date	2020.06
+ * @date	06,2020
  *
  * @par     Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
@@ -43,10 +43,14 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifdef MCU_STARTUP_8251
+#ifdef MCU_STARTUP_8253_RET_32K
 
 #ifndef __LOAD_RAM_SIZE__
 #define	__LOAD_RAM_SIZE__		0xc
+#endif
+
+#ifndef __RAM_SIZE_MAX__
+#define __RAM_SIZE_MAX__		(48*1024)
 #endif
 
 	.code	16
@@ -62,6 +66,7 @@
 
 	.equ IRQ_STK_SIZE,	0x180
 	.equ __LOAD_RAM, 	__LOAD_RAM_SIZE__
+	.equ __RAM_SIZE_MAX,	__RAM_SIZE_MAX__
 	
 @********************************************************************************************************
 @                                            TC32 EXCEPTION VECTORS
@@ -72,6 +77,7 @@
 	.global	 	__irq
 	.global 	__start
 	.global		__LOAD_RAM
+	.global		__RAM_SIZE_MAX
 
 __start:					@ MUST,  referenced by boot.link
 
@@ -89,8 +95,8 @@ __start:					@ MUST,  referenced by boot.link
 @	.word	(BUILD_VERSION)
 	.org 0x8
 	.word	(0x544c4e4b)
-	@.word	(0x00880000 + _ramcode_size_div_16_align_256_)
-	.word	(0x00880000 + 13) @208 byte: load vector part before START_SECTIONS
+	.word	(0x00880000 + _ram_use_size_div_16_)
+@	.word	(0x00880000 + 0x800)
 
 	.org 0x10
 	tj		__irq
@@ -132,6 +138,57 @@ start_suspend:
     tmov r8, r8
     tmov r8, r8
     tmov r8, r8
+	
+	tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+	
+	tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+	
+	tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
+    tmov r8, r8
 
     tpop {r2-r3}
     tjex lr
@@ -150,94 +207,7 @@ __reset:
 	tstorerb	r0, [r1, #0]
 
 	tmov		r0, #16			@0b 00010000
-	tstorerb	r0, [r1, #1]	@0x80058b  PB output
-#endif
-
-#if 1
-RANA_REG_BEGIN:
-@ 1.system on for read anag_reg module
-	tloadr      r0,ADATA_I+8               @0x00800060
-	tloadr      r1,ADATA_I+12               @0xff000000
-
-	tstorer     r1,[r0,#0]                  @*(unsigned int*)0x800060=0xff000000
-	tshftr      r1,r1,#24					@0x000000ff
-	tstorerb    r1,[r0,#4]
-	tstorerb    r1,[r0,#5]
-
-@ 2.read ana_reg_0x7f
-	tloadr		r0,ADATA_I+0				@0x7f
-@ read anag_reg(0x7f):
-	tloadr		r1,ADATA_I+4			    @0x008000b8
-	tmov		r2,r0						@ana_reg_adr:0x7f
-	tstorerb	r2,[r1,#0]					@*(unsigned int*)0x8000b8=0x7f;
-	tmov   	    r2,#64						@ana_reg_dat:0x40=64
-	tstorerb	r2,[r1,#2]					@*(unsigned int*)0x8000ba=0x40;
-
-RWAIT_REG_FINISH:
-	tloadrb	    r2,[r1,#2]
-	tshftl		r2,r2,#31
-	tshftr		r2,r2,#31
-	tcmp		r2,#1
-	tjeq		RWAIT_REG_FINISH
-	tloadrb	    r2,[r1,#1]
-@ read anag_reg end
-
-@ 3.check: if(!(analog_read(0x7f) & 0x01)){ //deepretention mode }
-
-@ copy flash ram code part to SRAM
-CPY_FLASH_RAM_PART_TO_SRAM:
-    tmov	    r3, #1
-	tand        r3, r2
-
-	tcmp        r3, #1
-	tjne        START_SECTIONS              // 0->deepreten
-	tloadr		r0, IC_IA             		@r0 = 0x800608
-	tloadr		r1, CODE_CPY				@r1 = 0x000060  -> 0x000070
-	tloadr		r2, CODE_CPY+4				@r2 = virtual_ram_code_size=vector_size+ram_code_size
-	tmov        r4, #1						@r4 = 1
-	tshftl      r4, r4, #24					@r4 = r4<<24
-
-
-PWR_ON_CPY:
-	tcmp		r1, r2						@
-	tjge		START_SECTIONS				@r1>=r2 jump to START_SECTIONS
-
-	tmov        r5, r4						@r5=r4
-	tadd        r5, r1						@r5=r5+r1
-	tstorer 	r5, [r0, #0]           		@*(unsigned int*)0x800608 = r5;
-
-LOOP_WHILE:
-	tloadr		r3, [r0, #0]           		@r3 = *(unsigned int*)0x800608;
-	tasr        r3, r3, #24					@r3 = r3>>24
-	tcmp        r3, #0
-    tjne        LOOP_WHILE					@r3!=0 jump to loop_wait
-
-    tadd    	r1, #16						@r1=r1+16
-    tj          PWR_ON_CPY					@jump to PWR_ON_CPY
-PWR_ON_CPY_END:
-
-
-    .balign 4
-IC_IA:
-    .word 	0x00800608
-
-CODE_CPY:
-    .word   (0x000000d0)               	@0  208 byte:
-	.word   (_ramcode_size_align_256_) 	@4
-
-ADATA_I:
-    .word	(0x0000007f)                	@0
-	.word	(0x008000b8)                	@4
-	.word	(0x00800060)                	@8
-    .word	(0xff000000)                	@12
-
-DEBUG_GPIO:
-	.word	(0x80058a)                  	@  PBx oen
-
-
-
-	.org 0xd0
-START_SECTIONS:
+	tstorerb	r0, [r1, #1]	@0x800583  PB output
 #endif
 
 SET_BOOT:
@@ -360,13 +330,16 @@ DAT0:
 	.word	0x12			    @IRQ    @0
 	.word	0x13			    @SVC    @4
 	.word	(irq_stk + IRQ_STK_SIZE)
-	.word	(0x848000)		    @12  stack end
+	.word	(0x84c000)		    @12  stack end
 	.word	(_start_bss_)               @16
 	.word	(_end_bss_)                 @20
 	.word	(0x80060c)                  @24
-	.word	_ictag_start_               @28		@ IC tag start
-	.word	_ictag_end_	            	@32		@ IC tag end
-	.word	_ramcode_size_div_256_		@36
+	.word	(0x848000)                  @28
+	.word	(0x848100)                  @32
+	.word	(0x80)                      @36
+@	.word	_ictag_start_               @28		@ IC tag start
+@	.word	_ictag_end_	            	@32		@ IC tag end
+@	.word	_ramcode_size_div_256_		@36
 DATA_I:	
 	.word	_dstored_					@0
 	.word	_start_data_				@4
@@ -375,12 +348,15 @@ DATA_I:
 FLL_D:
 	.word	0xffffffff
 	.word	(_start_data_)
-	@.word	(0x848000)
+	@.word	(0x84c000)
 	.word	(_start_data_ + 32)
+	.word   (_retention_data_start_)    @16
+    .word   (_retention_data_end_)      @20
+    .word   (_rstored_)                 @24
+    .word	(_ram_use_size_div_16_)
 
-
-@DEBUG_GPIO:
-@	.word	(0x80058a)                  @  PBx oen
+DEBUG_GPIO:
+	.word	(0x80058a)                  @  PBx oen
 
 
 BOOT_SEL_D:

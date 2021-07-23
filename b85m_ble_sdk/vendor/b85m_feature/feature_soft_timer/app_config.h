@@ -57,7 +57,7 @@
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
-#define BLE_OTA_SERVER_ENABLE						0
+#define BLE_MASTER_SMP_ENABLE						1   //1 for smp,  0 no security
 
 #define BLE_APP_PM_ENABLE							1
 #define PM_DEEPSLEEP_RETENTION_ENABLE				1

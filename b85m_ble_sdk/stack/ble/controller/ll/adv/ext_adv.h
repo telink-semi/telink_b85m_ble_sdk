@@ -57,7 +57,7 @@
 /* Note: user can't modify this value,and this value must 4 byte aligned
  *  if use BLUETOOTH_VER_5_2 this value is 680 other than 572
  */
-#define 		ADV_SET_PARAM_LENGTH							572 //680
+#define 		ADV_SET_PARAM_LENGTH							680//572 //
 
 
 

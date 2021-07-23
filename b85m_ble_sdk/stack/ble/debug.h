@@ -135,6 +135,10 @@
 #define	DEB_STRUCT_BUFFER_SIZE_CHECK							0
 #endif
 
+#ifndef DEG_PRIVATE_FANQH
+#define	DEG_PRIVATE_FANQH										0
+#endif
+
 
 #if (DBG_SLAVE_CONN_UPDATE)
 #define			SLET_upt_cmd_1				10

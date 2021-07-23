@@ -66,7 +66,15 @@ void proc_keyboard (u8 e, u8 *p, int n);
  * @param[in]  n - data length of event
  * @return     none
  */
-void  app_set_gpio_wakeup (u8 e, u8 *p, int n);
+void  app_set_kb_wakeup (u8 e, u8 *p, int n);
 
+
+
+/**
+ * @brief      keyboard initialization
+ * @param[in]  none
+ * @return     none.
+ */
+void keyboard_init(void);
 
 #endif /* APP_UI_H_ */

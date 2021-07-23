@@ -109,6 +109,8 @@ enum{
 };
 
 
+extern volatile int aes_enc_dec_busy;
+
 /**
  * @brief   	this function is used to encrypt the plaintext
  * @param[in]	*key - aes key: 128 bit key for the encryption of the data, little--endian.

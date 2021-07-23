@@ -96,7 +96,7 @@ void HCI_Tr_H5Init(void)
 	hciH5TrCb.HCI_Tr_SlipHandler = HCI_Tr_DefaultSlipHandler;
 
 	/* Timer configuration. */
-	HCI_Tr_TimeInit(5000);
+	HCI_Tr_TimeInit(5);
 
 	/* UART configuration. */
 	uart_gpio_set(HCI_TR_TX_PIN, HCI_TR_RX_PIN);
@@ -240,58 +240,65 @@ void HCI_Tr_H5RxHandler(void)
 		return;
 	}
 
-	u8 *pPacket = pFifo->p + (pFifo->rptr & pFifo->mask) * pFifo->size;
-	u32 len = 0;
-	BSTREAM_TO_UINT32(len, pPacket);
-
-	TR_TRACK_INFO("TR Rx data: ");
-	HCI_TRACK_DATA(pPacket, len);
-
-	while(len)
+	while(pFifo->wptr != pFifo->rptr)
 	{
-		if(hciH5TrCb.backupCnt){
-			u8 res = HCI_Tr_H5BackupHandler(pPacket, len);
-			len -= res;
-			pPacket += res;
-		}
+		u8 *pPacket = pFifo->p + (pFifo->rptr & pFifo->mask) * pFifo->size;
+		u32 len = 0;
+		BSTREAM_TO_UINT32(len, pPacket);
 
-		u8 *pBuf = NULL;
-		u8 *pBuf2 = NULL;
-		pBuf = HCI_Tr_H5FindSlipFlag(pPacket, len);
-		if(pBuf)
+		TR_TRACK_INFO("TR Rx data: ");
+		HCI_TRACK_DATA(pPacket, len);
+
+		while(len)
 		{
-			u16 tmpLen = pBuf+1 - pPacket;
-			pBuf2 = HCI_Tr_H5FindSlipFlag(pBuf+1, len - tmpLen);
-			if(pBuf2 == NULL){
-				HCI_Tr_H5BackupHandler(pBuf, len - (pBuf - pPacket));
+			if(hciH5TrCb.backupCnt){
+				u8 res = HCI_Tr_H5BackupHandler(pPacket, len);
+				len -= res;
+				pPacket += res;
+			}
+
+			u8 *pBuf = NULL;
+			u8 *pBuf2 = NULL;
+			pBuf = HCI_Tr_H5FindSlipFlag(pPacket, len);
+			if(pBuf[1] == 0xC0){
+				pBuf++;
+			}
+			if(pBuf)
+			{
+				u16 tmpLen = pBuf+1 - pPacket;
+				pBuf2 = HCI_Tr_H5FindSlipFlag(pBuf+1, len - tmpLen);
+				if(pBuf2 == NULL){
+					HCI_Tr_H5BackupHandler(pBuf, len - (pBuf - pPacket));
+					len = 0;
+					continue;
+				}
+				else{
+					u16 slipLen = pBuf2 + 1 - pBuf;
+					if(slipLen < 6){
+						pPacket += slipLen;
+						len -= slipLen;
+						continue;
+					}
+
+					TR_TRACK_INFO("Rx data1: ");
+					HCI_TRACK_DATA(pBuf, slipLen);
+
+					hciH5TrCb.HCI_Tr_SlipHandler(pBuf, slipLen);
+
+					pPacket += slipLen;
+					len -= slipLen;
+				}
+			}
+			else
+			{
 				len = 0;
 				continue;
 			}
-			else{
-				if(pBuf2+1 - pBuf < 6){
-					pPacket += (pBuf2 - pBuf);
-					len -= (pBuf2 - pBuf);
-					continue;
-				}
-
-				TR_TRACK_INFO("Rx data1: ");
-				HCI_TRACK_DATA(pBuf, pBuf2 + 1 - pBuf);
-
-				hciH5TrCb.HCI_Tr_SlipHandler(pBuf, pBuf2 + 1 - pBuf);
-
-				pPacket += (pBuf2 + 1 - pBuf);
-				len -= (pBuf2 + 1 - pBuf);
-			}
 		}
-		else
-		{
-			len = 0;
-			continue;
-		}
-	}
 
-	if(len == 0){
-		pFifo->rptr++;
+		if(len == 0){
+			pFifo->rptr++;
+		}
 	}
 }
 

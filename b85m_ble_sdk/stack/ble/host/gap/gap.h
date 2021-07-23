@@ -100,8 +100,12 @@ typedef enum {
 #define GAP_APPEARE_UNKNOWN                               0x0000 //!< Unknown
 
 
-
-
+/*
+ * @brief     this function is used to set data pending time.
+ *            i.e  in num_10ms*10ms after service discovery, notify/indication will fail.
+ * @param     num_10ms.unit is *10ms. for example if num_10ms = 30, that indicate 30*10 = 300ms.
+ */
+void 		blc_att_setServerDataPendingTime_upon_ClientCmd(u8 num_10ms);
 
 
 /**

@@ -49,7 +49,7 @@
 
 
 //Note: user can't modify this value,and this value must 4 byte aligned
-#define		CIS_CONN_PARAM_LENGTH		(344)
+#define		CIS_CONN_PARAM_LENGTH		(348)
 
 
 

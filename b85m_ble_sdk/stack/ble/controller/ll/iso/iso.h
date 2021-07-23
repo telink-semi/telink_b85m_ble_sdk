@@ -46,7 +46,9 @@
 #ifndef ISO_H_
 #define ISO_H_
 
-
+#define  	ISO_RX_EVENT_LENGTH			(28)	//Note: user can't modify this value,and this value must 4 byte aligned
+#define		CIS_TX_PDU_BUFFER_LENGTH	(28)	//Note: user can't modify this value,and this value must 4 byte aligned
+#define		BIS_TX_PDU_BUFFER_LENGTH	(20)	//Note: user can't modify this value,and this value must 4 byte aligned
 /**
  * @brief      for user to initialize CIS ISO TX FIFO.
  * @param[in]  pRxbuf - TX FIFO buffer address(Tx buffer must concern all CISes).
@@ -109,6 +111,8 @@ ble_sts_t blc_ll_initBisRxFifo(u8 *pRxbuf, int full_size, int fifo_number, u8 bi
  * 			           other: failed
  */
 ble_sts_t	blc_setHostFeatureISOChannel_en(u8 en);
+
+ble_sts_t blc_ll_setCisTxRx_MaxPduLen(u16 rx_max_pdu,u16 tx_max_pdu);
 
 
 #endif

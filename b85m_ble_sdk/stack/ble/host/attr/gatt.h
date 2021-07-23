@@ -157,4 +157,22 @@ ble_sts_t   blc_gatt_pushReadBlobRequest(u16 connHandle, u16 attHandle, u16 offs
 ble_sts_t 	blc_gatt_pushReadByGroupTypeRequest(u16 connHandle, u16 start_attHandle, u16 end_attHandle,
 		                                        u8 *uuid, int uuid_len);
 
+/**
+ * @brief       Send ATT Err Response.
+ * @param[in]   connHandle         - connection handle.
+ * @param[in]   reqOpcode          - reqOpcode.
+ * @param[in]   attHdlInErr        - attHdlInErr.
+ * @param[in]   ErrorCode
+ * @return      ble_sts_t.
+ */
+ble_sts_t	blc_gatt_pushErrResponse(u16 connHandle, u8 reqOpcode, u16 attHdlInErr, u8 ErrorCode);
+
+/**
+ * @brief       Send ATT handle value confirm.
+ * @param[in]   connHandle         - connection handle.
+ * @return      ble_sts_t.
+ */
+ble_sts_t blc_gatt_pushAttHdlValueCfm(u16 connHandle);
+
+
 #endif /* GATT_H_ */

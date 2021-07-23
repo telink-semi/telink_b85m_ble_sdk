@@ -176,6 +176,7 @@ u8 * my_fifo_get (my_fifo_t *f)
 	return 0;
 }
 
+#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
 /**
  * fls - find last (most-significant) bit set
  * @x: the word to search
@@ -398,3 +399,6 @@ u64 __div64_64(u64* n, u64 divisor)
 		}
 	}
 #endif
+
+
+#endif //#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)

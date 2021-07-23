@@ -97,13 +97,10 @@ _attribute_ram_code_ int main(void)
 		user_init_deepRetn ();
 	}
 	else{ //MCU power_on or wake_up from deepSleep mode
-		/* read flash size only in power_on or deepSleep */
-		blc_readFlashSize_autoConfigCustomFlashSector();
 		user_init_normal ();
 	}
 
 	/* load customized freq_offset cap value.
-	 * must be placed after "blc_readFlashSize_autoConfigCustomFlashSector"
 	 */
 	blc_app_loadCustomizedParameters();
 

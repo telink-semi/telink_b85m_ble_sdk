@@ -99,7 +99,7 @@ int app_le_adv_report_event_handle(u8 *p)
 	int user_manual_pairing = 0;
 
 	//manual pairing methods 1: key press triggers
-	user_manual_pairing = master_pairing_enable && (rssi > -66);  //button trigger pairing(RSSI threshold, short distance)
+	user_manual_pairing = master_pairing_enable && (rssi > -56);  //button trigger pairing(RSSI threshold, short distance)
 
 	#if (BLE_MASTER_SMP_ENABLE)
 		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
@@ -469,67 +469,93 @@ int app_host_event_callback (u32 h, u8 *para, int n)
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-
 	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
-			#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-				if(master_sdp_pending == connHandle ){  //ATT service discovery is ongoing on this conn_handle
-					//when service discovery function is running, all the ATT data from slave
-					//will be processed by it,  user can only send your own att cmd after  service discovery is over
-					host_att_client_handler (connHandle, pkt); //handle this ATT data by service discovery process
-				}
-			#endif
-
-			//so any ATT data before service discovery will be dropped
-			dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
-			if(dev_info)
-			{
-				//-------	user process ------------------------------------------------
-				rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
-				u16 attHandle = pAtt->handle;
-
-				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
-				{
-						//---------------	consumer key --------------------------
-					#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-						if(attHandle == dev_info->char_handle[3])  // Consume Report In (Media Key)
-					#else
-						if(attHandle == HID_HANDLE_CONSUME_REPORT)   //Demo device(825x_ble_sample) Consume Report AttHandle value is 25
-					#endif
-						{
-							att_keyboard_media (connHandle, pAtt->dat);
-						}
-						//---------------	keyboard key --------------------------
-					#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-						else if(attHandle == dev_info->char_handle[4])     // Key Report In
-					#else
-						else if(attHandle == HID_HANDLE_KEYBOARD_REPORT)   // Demo device(825x_ble_sample) Key Report AttHandle value is 29
-					#endif
-						{
-							att_keyboard (connHandle, pAtt->dat);
-						}
-					#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
-						else if(attHandle == dev_info->char_handle[0])     // AUDIO Notify
-					#else
-						else if(attHandle == AUDIO_HANDLE_MIC)   // Demo device(825x_ble_remote) Key Report AttHandle value is 52
-					#endif
-						{
-							#if (UI_AUDIO_ENABLE)
-								att_mic (connHandle, pAtt->dat);
-								DBG_CHN5_TOGGLE;
-							#endif
-						}
-						else
-						{
-
-						}
-				}
-				else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
-				{
-
-				}
+		#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+			if(master_sdp_pending == connHandle ){  //ATT service discovery is ongoing on this conn_handle
+				//when service discovery function is running, all the ATT data from slave
+				//will be processed by it,  user can only send your own att cmd after  service discovery is over
+				host_att_client_handler (connHandle, pkt); //handle this ATT data by service discovery process
 			}
+		#endif
 
+		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
+
+		//so any ATT data before service discovery will be dropped
+		dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
+		if(dev_info)
+		{
+			//-------	user process ------------------------------------------------
+			u16 attHandle = pAtt->handle;
+
+			if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
+			{
+					//---------------	consumer key --------------------------
+				#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+					if(attHandle == dev_info->char_handle[3])  // Consume Report In (Media Key)
+				#else
+					if(attHandle == HID_HANDLE_CONSUME_REPORT)   //Demo device(825x_ble_sample) Consume Report AttHandle value is 25
+				#endif
+					{
+						att_keyboard_media (connHandle, pAtt->dat);
+					}
+					//---------------	keyboard key --------------------------
+				#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+					else if(attHandle == dev_info->char_handle[4])     // Key Report In
+				#else
+					else if(attHandle == HID_HANDLE_KEYBOARD_REPORT)   // Demo device(825x_ble_sample) Key Report AttHandle value is 29
+				#endif
+					{
+						att_keyboard (connHandle, pAtt->dat);
+					}
+				#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
+					else if(attHandle == dev_info->char_handle[0])     // AUDIO Notify
+				#else
+					else if(attHandle == AUDIO_HANDLE_MIC)   // Demo device(825x_ble_remote) Key Report AttHandle value is 52
+				#endif
+					{
+						#if (UI_AUDIO_ENABLE)
+							att_mic (connHandle, pAtt->dat);
+							DBG_CHN5_TOGGLE;
+						#endif
+					}
+					else
+					{
+
+					}
+			}
+			else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
+			{
+				blc_gatt_pushAttHdlValueCfm(connHandle);
+			}
+		}
+
+		/* The Master does not support GATT Server by default */
+		if(!(pAtt->opcode & 0x01)){
+			switch(pAtt->opcode){
+				case ATT_OP_FIND_INFO_REQ:
+				case ATT_OP_FIND_BY_TYPE_VALUE_REQ:
+				case ATT_OP_READ_BY_TYPE_REQ:
+				case ATT_OP_READ_BY_GROUP_TYPE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_ATTR_NOT_FOUND);
+					break;
+				case ATT_OP_READ_REQ:
+				case ATT_OP_READ_BLOB_REQ:
+				case ATT_OP_READ_MULTI_REQ:
+				case ATT_OP_WRITE_REQ:
+				case ATT_OP_PREPARE_WRITE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_INVALID_HANDLE);
+					break;
+				case ATT_OP_EXECUTE_WRITE_REQ:
+				case ATT_OP_HANDLE_VALUE_CFM:
+				case ATT_OP_WRITE_CMD:
+				case ATT_OP_SIGNED_WRITE_CMD:
+					//ignore
+					break;
+				default://no action
+					break;
+			}
+		}
 	}
 	else{   //GATT data for Slave
 

@@ -48,6 +48,9 @@
 #include "hci_slip.h"
 #include "hci_tr_def.h"
 
+/* Tmax = (MTU * 10 * 1000)/baudrate, unit:ms. */
+#define H5_ACK_MAX_TIME      ((4096 * 10 * 1000)/(HCI_TR_BAUDRATE))
+
 /*! H5 protocol define configuration. */
 static HciH5Config_t hciH5Config = {
 	.slidWinSize       = HCI_H5_SLIDING_WIN_SIZE,
@@ -78,6 +81,8 @@ typedef struct{
 	u8             isReliable;    /*!< reliable packet flag.   */
 	u8             recvd;
 	u32            txTick;        /*!< use for re-send monitor. */
+	u32            rxTick;        /*!< rx packet tick. */
+	u32            resendTick;
 }HciH5Cb_t;
 
 static HciH5Cb_t hciH5Cb;
@@ -106,8 +111,10 @@ void HCI_H5_Init(hci_fifo_t *pHciRxFifo, hci_fifo_t *pHciTxFifo)
 	hciH5Cb.txAck = 0;
 	hciH5Cb.rxAck = 0;
 	hciH5Cb.tick = clock_time()|1;
-	hciH5Cb.txTick = 0;
 	hciH5Cb.isReliable = true;
+	hciH5Cb.txTick = 0;
+	hciH5Cb.rxTick = 0;
+	hciH5Cb.resendTick = 0;
 
 	/* Register Slip handler. */
 	HCI_Slip_RegisterPktHandler(HCI_H5_PakcetHandler);
@@ -128,6 +135,13 @@ void HCI_H5_Reset(void)
 	hciH5Cb.txAck = 0;
 	hciH5Cb.rxAck = 0;
 	hciH5Cb.tick = clock_time()|1;
+
+	hciH5Cb.txTick = 0;
+	hciH5Cb.rxTick = 0;
+	hciH5Cb.resendTick = 0;
+
+	hciH5Cb.pHciRxFifo->wptr = hciH5Cb.pHciRxFifo->rptr = 0;
+	hciH5Cb.pHciTxFifo->wptr = hciH5Cb.pHciTxFifo->rptr = 0;
 
 	HCI_SLip_SetFlowCtrlEnable(false);
 }
@@ -302,7 +316,7 @@ bool HCI_H5_Send(u8 h5Type, u8 *pPacket, u32 len)
 	else
 	{
 		if(len > HCI_H5_TX_BUF_SIZE-HCI_H5_HEAD_LEN){
-			H5_TRACK_ERR("H5 Tx buffer oveflow...\n");
+			H5_TRACK_ERR("H5 Tx buffer overflow...\n");
 			ASSERT(false, HCI_TR_ERR_H5_TX_BUF_OVFL);
 		}
 		memcpy(pBuf, pPacket, len);
@@ -357,6 +371,7 @@ void HCI_H5_SendData(void)
 		hciH5Cb.rxSlidWinSize = 0;
 
 		hciH5Cb.txTick = clock_time()|1;
+		hciH5Cb.rxTick = 0;
 	}
 }
 
@@ -515,6 +530,8 @@ void HCI_H5_DecodeLinkPdu(HciH5Head_t *pHciH5Head, u8 *pPacket, u32 len)
 		{
 			hciH5Cb.linkState  = HCI_H5_LINK_STATE_IDLE;
 			HCI_H5_Reset();
+			extern ble_sts_t blc_hci_reset(void);
+			blc_hci_reset();
 			H5_TRACK_INFO("Reset to state: IDLE...\n");
 
 			HCI_H5_SendSyncRsp();
@@ -573,6 +590,7 @@ void HCI_H5_ReSendCheck(void)
 		hciH5Cb.txSlidWinSize = 0;
 
 		hciH5Cb.txTick = 0;
+		hciH5Cb.resendTick = 0;
 	}
 	else
 	{
@@ -618,10 +636,25 @@ void HCI_H5_DecodeDataPdu(HciH5Head_t *pHciH5Head, u8 *pPacket, u32 len)
 		{
 			hciH5Cb.txAck = (hciH5Cb.txAck + 1) % 8;
 			hciH5Cb.rxSlidWinSize++;
+		#if 0
 			if(hciH5Cb.rxSlidWinSize >= pH5Config->slidWinSize){
 				HCI_H5_SendPureAck();
 				hciH5Cb.rxSlidWinSize = 0;
 			}
+		#else
+			hciH5Cb.rxTick = clock_time()|1;
+			if(pH5Config->slidWinSize == 1){
+
+			}
+			else{
+				if(hciH5Cb.rxSlidWinSize >= pH5Config->slidWinSize){
+					HCI_H5_SendPureAck();
+					hciH5Cb.rxSlidWinSize = 0;
+
+					hciH5Cb.txTick = clock_time()|1;
+				}
+			}
+		#endif
 
 			/* H5 to HCI */
 			HCI_H5_PackHciPdu(pHciH5Head->pktType, pPacket+HCI_H5_HEAD_LEN, pHciH5Head->payloadLen);
@@ -634,8 +667,35 @@ void HCI_H5_DecodeDataPdu(HciH5Head_t *pHciH5Head, u8 *pPacket, u32 len)
 		}
 
 		/* Resend check. */
+	#if 0
 		hciH5Cb.rxAck = pHciH5Head->ackNum;
 		HCI_H5_ReSendCheck();
+	#else
+		hci_fifo_t *pHciTxFifo = hciH5Cb.pHciTxFifo;
+
+		if(pHciH5Head->ackNum == hciH5Cb.txSeq)
+		{
+			H5_TRACK_INFO("local packet is received by peer corrently...\n");
+			hciH5Cb.rxAck = pHciH5Head->ackNum;
+
+			pHciTxFifo->rptr += hciH5Cb.txSlidWinSize;
+			hciH5Cb.txSlidWinSize = 0;
+
+			hciH5Cb.resendTick = 0;
+			hciH5Cb.txTick = 0;
+		}
+		else
+		{
+			//H5_TRACK_INFO("local device need resend packet...\n");
+
+			if(hciH5Cb.resendTick == 0){
+				hciH5Cb.resendTick = clock_time()|1;
+			}else{
+				//hciH5Cb.txSeq = hciH5Cb.rxAck;
+				//hciH5Cb.txSlidWinSize = 0;
+			}
+		}
+	#endif
 	}
 	else/* Unreliable transport. */
 	{
@@ -687,7 +747,13 @@ void HCI_H5_PakcetHandler(u8 *pPacket, u32 len)
 	case HCI_H5_PKT_TYPE_ACK:
 		H5_TRACK_INFO("Pure ACK Packet:");
 		HCI_TRACK_DATA(pPacket, len);
+
+		if(hciH5Cb.linkState != HCI_H5_LINK_STATE_ACTIVE){
+			return;
+		}
+
 		/* Resend check. */
+		hciH5Cb.txTick = 0;
 		hciH5Cb.rxAck = hciH5Head.ackNum;
 		HCI_H5_ReSendCheck();
 		break;
@@ -745,18 +811,37 @@ void HCI_H5_Poll(void)
 	}
 	else if(hciH5Cb.linkState == HCI_H5_LINK_STATE_ACTIVE)
 	{
-		if(!uart_tx_is_busy()){
-			HCI_H5_SendData();
-		}
-
-	#if 0
 		/* If peer is not response after local send data, local must re-send until peer response*/
 		if(hciH5Cb.isReliable && hciH5Cb.txSlidWinSize >= hciH5Cb.config.slidWinSize &&
-		   hciH5Cb.txTick && clock_time_exceed(hciH5Cb.txTick, 250*1000))
+		   hciH5Cb.txTick && clock_time_exceed(hciH5Cb.txTick, 3*H5_ACK_MAX_TIME*1000))
 		{
 			hciH5Cb.txTick = 0;
 			HCI_H5_ReSendCheck();
 			HCI_H5_SendData();
+
+			H5_TRACK_INFO("Can not receive peer packet >>> H5 Re-send ...\n");
+			//LOG("Can not receive peer packet >>> H5 Re-send ...\n");
+		}
+		/* When sending a packet locally, the peer happened to also send the packet, which caused an ACK exception.*/
+		else if(hciH5Cb.isReliable && hciH5Cb.resendTick)
+		{
+			if(clock_time_exceed(hciH5Cb.resendTick, 250*1000)){
+				hciH5Cb.resendTick = 0;
+				HCI_H5_ReSendCheck();
+				HCI_H5_SendData();
+			}
+		}
+		else{
+			HCI_H5_SendData();
+		}
+
+	#if 1
+		/* Pure Ack Handler. */
+		if(hciH5Cb.config.slidWinSize == 1 && hciH5Cb.rxTick && clock_time_exceed(hciH5Cb.rxTick, 2*H5_ACK_MAX_TIME*1000))
+		{
+			hciH5Cb.rxTick = 0;
+			HCI_H5_SendPureAck();
+			hciH5Cb.rxSlidWinSize = 0;
 		}
 	#endif
 	}

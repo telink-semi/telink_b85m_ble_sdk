@@ -31,11 +31,23 @@
 #ifndef SW_ECC_H_
 #define SW_ECC_H_
 
-//#include <stdint.h>
+#include "config.h"
 #include "common/types.h"
 #include "algorithm/ecc/ecc_curve.h"
 
 #if (MCU_CORE_TYPE == MCU_CORE_825x)
+
+/* Platform selection options.
+If uECC_PLATFORM is not defined, the code will try to guess it based on compiler macros.
+Possible values for uECC_PLATFORM are defined below: */
+#define uECC_arch_other 0
+#define uECC_x86        1
+#define uECC_x86_64     2
+#define uECC_arm        3
+#define uECC_arm_thumb  4
+#define uECC_arm_thumb2 5
+#define uECC_arm64      6
+#define uECC_avr        7
 
 ////////////////////////////micro-ecc/types.h begin ///////////////////////////////
 #ifndef uECC_PLATFORM
@@ -88,10 +100,10 @@
     #define uECC_WORD_SIZE 1
 #endif
 
-#if ((uECC_PLATFORM == uECC_arm || uECC_PLATFORM == uECC_arm_thumb || \
-        uECC_PLATFORM ==  uECC_arm_thumb2) && \
+#if (((uECC_PLATFORM == uECC_arm)|| (uECC_PLATFORM == uECC_arm_thumb) || \
+        (uECC_PLATFORM ==  uECC_arm_thumb2) ) && \
      (uECC_WORD_SIZE != 4))
-    #pragma message ("uECC_WORD_SIZE must be 4 for ARM")
+    #pragma message (" musuECC_WORD_SIZEt be 4 for ARM")
     #undef uECC_WORD_SIZE
     #define uECC_WORD_SIZE 4
 #endif
@@ -144,17 +156,6 @@ typedef unsigned __int128 uECC_dword_t;
 
 
 ////////////////////////////micro-ecc/uECC.h begin ///////////////////////////////
-/* Platform selection options.
-If uECC_PLATFORM is not defined, the code will try to guess it based on compiler macros.
-Possible values for uECC_PLATFORM are defined below: */
-#define uECC_arch_other 0
-#define uECC_x86        1
-#define uECC_x86_64     2
-#define uECC_arm        3
-#define uECC_arm_thumb  4
-#define uECC_arm_thumb2 5
-#define uECC_arm64      6
-#define uECC_avr        7
 
 /* If desired, you can define uECC_WORD_SIZE as appropriate for your platform (1, 4, or 8 bytes).
 If uECC_WORD_SIZE is not explicitly defined then it will be automatically set based on your
@@ -689,8 +690,8 @@ unsigned char	swECC_shared_secret(const unsigned char *public_key, const unsigne
 
 
 
-#endif /* SW_ECC_H_ */
+#endif /* The end of #if (MCU_CORE_TYPE == MCU_CORE_825x) */
 
-#endif /* The end of #if !((MCU_CORE_TYPE == MCU_CORE_827x) || (MCU_CORE_TYPE == MCU_CORE_9518)) */
+#endif /* SW_ECC_H_ */
 
 

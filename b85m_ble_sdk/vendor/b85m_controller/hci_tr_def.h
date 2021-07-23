@@ -144,7 +144,7 @@ do{ \
 do{ \
 	printf("{ "); \
 	for(int i=0; i<(len); i++){ \
-		printf("0x%02X ", (pData)[i]);\
+		printf("%02X ", (pData)[i]);\
 	}\
 	printf("}\n");\
 }while(0);

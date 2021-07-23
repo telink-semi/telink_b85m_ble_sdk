@@ -288,7 +288,6 @@ void app_ota_result(int result)
 
 void app_ota_server_init(void)
 {
-	/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddress"(if used), and before other OTA API.*/
 	blc_ota_initOtaServer_module();
 
 	blc_ota_registerOtaStartCmdCb(app_enter_ota_mode);

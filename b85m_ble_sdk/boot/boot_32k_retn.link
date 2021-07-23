@@ -109,15 +109,6 @@ SECTIONS
     . = (((. + 3) / 4)*4);
          PROVIDE(_end_data_ = . );
          }
-
-	/* data in ram but no need to clean in .s*/
-   	.data_no_init :
-    	{
-		. = (((. + 3) / 4)*4);
-		    *(.data_no_init)
-		    *(.data_no_init.*)
-    	}
-    	
     	
         .bss :
         {
@@ -129,10 +120,22 @@ SECTIONS
         *(.bss.*)
         }
     PROVIDE(_end_bss_ = .);
+    
+        /* data in ram but no need to clean in .s*/
+        .data_no_init (NOLOAD) :
+        {
+    . = (((. + 3) / 4)*4);
+            *(.data_no_init)
+            *(.data_no_init.*)
+        }
+        
     PROVIDE(_bin_size_ = _code_size_ + _end_data_ - _start_data_);
     PROVIDE(_ictag_start_ = 0x840000 + (_ramcode_size_div_256_) * 0x100);
     PROVIDE(_ictag_end_ = 0x840000 + (_ramcode_size_div_256_ + 1) * 0x100);
     
 	PROVIDE(_ram_use_size_div_16_ = (_retention_data_end_ - 0x840000  + 15 ) / 16);
-    
+
+    ASSERT((_retention_data_end_ - 0x840000) <= 0x8000, "**Error:Retention Area Overflow 32KB, Check your ram_code/retention_data usages**")
+	ASSERT(((_end_bss_ - 0x00840000) <= __RAM_SIZE_MAX), "**Error:SRAM usage may Overflow, Please check**")
+	/*ASSERT((_bin_size_ + 16) <= 0x3F000, "**Error:firmware size Overflow 252KB**")*/
 }

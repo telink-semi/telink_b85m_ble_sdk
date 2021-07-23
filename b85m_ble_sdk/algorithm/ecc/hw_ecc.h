@@ -28,6 +28,7 @@
 #ifndef HW_ECC_H_
 #define HW_ECC_H_
 
+#include "config.h"
 #include "algorithm/ecc/hw_ecc.h"
 #include "algorithm/ecc/ecc_curve.h"
 
@@ -75,8 +76,8 @@ unsigned char	hwECC_shared_secret(const unsigned char *public_key, const unsigne
 
 
 
-#endif /* HW_ECC_H_ */
-
 #endif /* The end of #if((MCU_CORE_TYPE == MCU_CORE_827x) || (MCU_CORE_TYPE == MCU_CORE_9518)) */
+
+#endif /* HW_ECC_H_ */
 
 

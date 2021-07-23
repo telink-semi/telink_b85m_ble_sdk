@@ -63,13 +63,13 @@
 #endif
 
 /**
- * @brief	512 K Flash MAC address and calibration data area
+ * @brief	1 M Flash MAC address and calibration data area
  */
 #define	CFG_ADR_MAC_1M_FLASH		   							0xFF000
 #define	CFG_ADR_CALIBRATION_1M_FLASH							0xFE000
 
 /**
- * @brief	512 K Flash MAC address and calibration data area
+ * @brief	2 M Flash MAC address and calibration data area
  */
 #define	CFG_ADR_MAC_2M_FLASH		   							0x1FF000
 #define	CFG_ADR_CALIBRATION_2M_FLASH							0x1FE000
@@ -240,6 +240,7 @@
 
 #define		CALIB_OFFSET_FIRMWARE_SIGNKEY						0x180
 
+#define     CALIB_OFFSET_FLASH_VREF								0x1C0
 
 
 
@@ -271,28 +272,70 @@ static inline void blc_app_setExternalCrystalCapEnable(u8  en)
  */
 static inline void blc_app_loadCustomizedParameters(void)
 {
-	 if(!blt_miscParam.ext_cap_en)
-	 {
-		 //customize freq_offset adjust cap value, if not customized, default ana_81 is 0xd0
-		 //for 512K Flash, flash_sector_calibration equals to 0x77000
-		 //for 1M  Flash, flash_sector_calibration equals to 0xFE000
-		 if(flash_sector_calibration){
-			 u8 cap_frqoft = *(unsigned char*) (flash_sector_calibration + CALIB_OFFSET_CAP_INFO);
-			 if( cap_frqoft != 0xff ){
-				 analog_write(0x8A, (analog_read(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
-			 }
-		 }
-	 }
+	if(!blt_miscParam.ext_cap_en)
+	{
+		//customize freq_offset adjust cap value, if not customized, default ana_81 is 0xd0
+		//for 512K Flash, flash_sector_calibration equals to 0x77000
+		//for 1M  Flash, flash_sector_calibration equals to 0xFE000
+		if(flash_sector_calibration){
+		u8 cap_frqoft = *(unsigned char*) (flash_sector_calibration + CALIB_OFFSET_CAP_INFO);
+		if( cap_frqoft != 0xff ){
+				analog_write(0x8A, (analog_read(0x8A) & 0xc0)|(cap_frqoft & 0x3f));
+			}
+		}
+	}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+#if(MCU_CORE_TYPE == MCU_CORE_827x)
+	u16 calib_value = *(unsigned short*)(flash_sector_calibration + CALIB_OFFSET_FLASH_VREF);
+
+	if((0xffff == calib_value) || (0 != (calib_value & 0xf8f8)))
+	{
+		if(zbit_flash_flag)
+		{
+			analog_write(0x09, ((analog_read(0x09) & 0x8f) | (FLASH_VOLTAGE_1V95 << 4)));	//ldo mode flash ldo trim 1.95V
+			analog_write(0x0c, ((analog_read(0x0c) & 0xf8) | FLASH_VOLTAGE_1V9));			//dcdc mode flash ldo trim 1.90V
+		}
+	}
+	else
+	{
+		analog_write(0x09, ((analog_read(0x09) & 0x8f)  | ((calib_value & 0xff00) >> 4) ));
+		analog_write(0x0c, ((analog_read(0x0c) & 0xf8)  | (calib_value & 0xff)));
+	}
+#elif(MCU_CORE_TYPE == MCU_CORE_825x)
+	u8 calib_value = *(unsigned char*)(flash_sector_calibration + CALIB_OFFSET_FLASH_VREF);
+
+	if((0xff == calib_value))
+	{
+		if(zbit_flash_flag)
+		{
+			analog_write(0x0c, ((analog_read(0x0c) & 0xf8)  | FLASH_VOLTAGE_1V95));			//dcdc mode flash ldo trim 1.95V
+		}
+	}
+	else
+	{
+		analog_write(0x0c, ((analog_read(0x0c) & 0xf8)  | (calib_value&0x7)));
+	}
+#endif
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
+	//load adc vref value from flash
+	u8 adc_vref_calib_value_rd[4] = {0};
+	if(adc_vref_cfg.adc_calib_en)
+	{
+		flash_read_page(flash_sector_calibration + CALIB_OFFSET_ADC_VREF, 4, adc_vref_calib_value_rd);
+		if((adc_vref_calib_value_rd[2] != 0xff) || (adc_vref_calib_value_rd[3]  != 0xff ))
+		{
+			/******Method of calculating calibration Flash_vbat_Vref value: ********/
+			/******Vref = [1175 +First_Byte-255+Second_Byte] mV =  [920 + First_Byte + Second_Byte] mV  ********/
+			adc_vref_cfg.adc_vref = 920 + adc_vref_calib_value_rd[2] + adc_vref_calib_value_rd[3];
+		}
+		//else use the value init in efuse
+	}
+#endif
 }
 
-/**
- * @brief		This function can automatically recognize the flash size,
- * 				and the system selects different customized sector according
- * 				to different sizes.
- * @param[in]	none
- * @return      none
- */
-void blc_readFlashSize_autoConfigCustomFlashSector(void);
 
 /**
  * @brief		This function is used to initialize the MAC address

@@ -159,7 +159,8 @@ void flip_addr(u8 *dest, u8 *src);
 
 static inline u64 mul64_32x32(u32 u, u32 v)
 {
-#if 1 //Kite/Vulture's HW do not support HW long mul, here must open
+	//Kite/Vulture's HW do not support HW long mul, here must open
+#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
     u32  u0,   v0,   w0;
     u32  u1,   v1,   w1,   w2,   t;
     u32  x, y;
@@ -181,40 +182,43 @@ static inline u64 mul64_32x32(u32 u, u32 v)
 
 
     return(((u64)x << 32) | y);
-#else
+#elif(MCU_CORE_TYPE == MCU_CORE_9518)
     return (u64)u*v;
 #endif
 }
 
-u32 __div64_32(u64 *dividend, u32 divisor);
-u64 __div64_64(u64 *dividend, u64 divisor);
+#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
 
-static inline u64 div64_32(u64 dividend, u32 divisor)
-{
-	u64 result = dividend;
-	__div64_32(&result, divisor);
-	return result;
-}
+	u32 __div64_32(u64 *dividend, u32 divisor);
+	u64 __div64_64(u64 *dividend, u64 divisor);
 
-static inline u32 div64_32mod(u64 dividend, u32 divisor)
-{
-	u64 result = dividend;
-	return __div64_32(&result, divisor);
-}
+	static inline u64 div64_32(u64 dividend, u32 divisor)
+	{
+		u64 result = dividend;
+		__div64_32(&result, divisor);
+		return result;
+	}
 
-static inline u64 div64_64(u64 dividend, u64 divisor)
-{
-	u64 result = dividend;
-	__div64_64(&result, divisor);
-	return result;
-}
+	static inline u32 div64_32mod(u64 dividend, u32 divisor)
+	{
+		u64 result = dividend;
+		return __div64_32(&result, divisor);
+	}
 
-static inline u64 div64_64mod(u64 dividend, u64 divisor)
-{
-	u64 result = dividend;
-	return __div64_64(&result, divisor);
-}
+	static inline u64 div64_64(u64 dividend, u64 divisor)
+	{
+		u64 result = dividend;
+		__div64_64(&result, divisor);
+		return result;
+	}
 
+	static inline u64 div64_64mod(u64 dividend, u64 divisor)
+	{
+		u64 result = dividend;
+		return __div64_64(&result, divisor);
+	}
+
+#endif ///#if(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
 
 typedef	struct {
 	u32		size;

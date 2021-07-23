@@ -106,51 +106,51 @@ void feature_2m_phy_test_mainloop (void)
 
 	for(u8 i= 0; i < MASTER_SLAVE_MAX_NUM; i++){
 
-			if(conn_dev_list[i].conn_state)
+		if(conn_dev_list[i].conn_state)
+		{
+			connHandle = conn_dev_list[i].conn_handle;
+			/////send data
+			if(clock_time_exceed(test_tick[i], 1*1000*1000))
 			{
-				connHandle = conn_dev_list[i].conn_handle;
-				/////send data
-				if(clock_time_exceed(test_tick[i], 1*1000*1000))
-				{
 
-					u16 att_spp_handle;
+				u16 att_spp_handle;
 
-					if(dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER){
-						att_spp_handle = SPP_CLIENT_TO_SERVER_DP_H;//blc_gatt_pushWriteComand ///blc_gatt_pushHandleValueWriteReq
-						if (BLE_SUCCESS == blc_gatt_pushWriteCommand(connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN)){  //sizeof(spp_data)
-							spp_data[i][0] ++;
-							test_tick[i] = clock_time();
-						}
-					}else{
-						att_spp_handle = SPP_SERVER_TO_CLIENT_DP_H;
-
-						ble_sts_t st = blc_gatt_pushHandleValueNotify (connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN);
-						if (BLE_SUCCESS == st){  //sizeof(spp_data)
-							spp_data[i][0] ++;
-							test_tick[i] = clock_time();
-						}
+				if(dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER){
+					att_spp_handle = SPP_CLIENT_TO_SERVER_DP_H;//blc_gatt_pushWriteComand ///blc_gatt_pushHandleValueWriteReq
+					if (BLE_SUCCESS == blc_gatt_pushWriteCommand(connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN)){  //sizeof(spp_data)
+						spp_data[i][0] ++;
+						test_tick[i] = clock_time();
 					}
+				}else{
+					att_spp_handle = SPP_SERVER_TO_CLIENT_DP_H;
 
+					ble_sts_t st = blc_gatt_pushHandleValueNotify (connHandle, att_spp_handle, (u8 *)&spp_data[i], SPP_DATA_LEN);
+					if (BLE_SUCCESS == st){  //sizeof(spp_data)
+						spp_data[i][0] ++;
+						test_tick[i] = clock_time();
+					}
 				}
 
-				if( clock_time_exceed(phy_update_agree_ftick[i], 10*1000*1000) ){
-
-					static u32 AAA = 0;
-					phy_update_agree_ftick[i] = clock_time()|0x01;
-
-					if( (AAA&0x03) == 1){
-						blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_2M, 	 PHY_PREFER_2M,    CODED_PHY_PREFER_NONE);
-					}
-					else if( (AAA&0x03)==2){
-						blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_1M, 	 PHY_PREFER_1M,    CODED_PHY_PREFER_NONE);
-					}
-					else
-					{
-						blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_CODED, 	 PHY_PREFER_CODED,    CODED_PHY_PREFER_S8);
-					}
-					AAA++;
-				}
 			}
+
+			if( clock_time_exceed(phy_update_agree_ftick[i], 10*1000*1000) ){
+
+				static u32 AAA = 0;
+				phy_update_agree_ftick[i] = clock_time()|0x01;
+
+				if( (AAA&0x03) == 1){
+					blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_2M, 	 PHY_PREFER_2M,    CODED_PHY_PREFER_NONE);
+				}
+				else if( (AAA&0x03)==2){
+					blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_1M, 	 PHY_PREFER_1M,    CODED_PHY_PREFER_NONE);
+				}
+				else
+				{
+					blc_ll_setPhy(connHandle, PHY_TRX_PREFER, PHY_PREFER_CODED, 	 PHY_PREFER_CODED,    CODED_PHY_PREFER_S8);
+				}
+				AAA++;
+			}
+		}
 	}
 }
 
@@ -179,7 +179,7 @@ int app_le_adv_report_event_handle(u8 *p)
 	int user_manual_pairing = 0;
 
 	//manual pairing methods 1: key press triggers
-	user_manual_pairing = master_pairing_enable && (rssi > -66);  //button trigger pairing(RSSI threshold, short distance)
+	user_manual_pairing = master_pairing_enable && (rssi > -56);  //button trigger pairing(RSSI threshold, short distance)
 
 	#if (BLE_MASTER_SMP_ENABLE)
 		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
@@ -494,26 +494,50 @@ int app_host_event_callback (u32 h, u8 *para, int n)
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-
 	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
-			//so any ATT data before service discovery will be dropped
-			dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
-			if(dev_info)
+		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
+
+		dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
+		if(dev_info)
+		{
+			//-------	user process ------------------------------------------------
+			if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
 			{
-				//-------	user process ------------------------------------------------
-				rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
 
-				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
-				{
-
-				}
-				else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
-				{
-
-				}
 			}
+			else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
+			{
+				blc_gatt_pushAttHdlValueCfm(connHandle);
+			}
+		}
 
+		/* The Master does not support GATT Server by default */
+		if(!(pAtt->opcode & 0x01)){
+			switch(pAtt->opcode){
+				case ATT_OP_FIND_INFO_REQ:
+				case ATT_OP_FIND_BY_TYPE_VALUE_REQ:
+				case ATT_OP_READ_BY_TYPE_REQ:
+				case ATT_OP_READ_BY_GROUP_TYPE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_ATTR_NOT_FOUND);
+					break;
+				case ATT_OP_READ_REQ:
+				case ATT_OP_READ_BLOB_REQ:
+				case ATT_OP_READ_MULTI_REQ:
+				case ATT_OP_WRITE_REQ:
+				case ATT_OP_PREPARE_WRITE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_INVALID_HANDLE);
+					break;
+				case ATT_OP_EXECUTE_WRITE_REQ:
+				case ATT_OP_HANDLE_VALUE_CFM:
+				case ATT_OP_WRITE_CMD:
+				case ATT_OP_SIGNED_WRITE_CMD:
+					//ignore
+					break;
+				default://no action
+					break;
+			}
+		}
 	}
 	else{   //GATT data for Slave
 

@@ -95,7 +95,7 @@ typedef struct{
 	u16 RFU3			 :2;
 
 
-//11
+//12
 	u8 data[1];
 
 }iso_data_packet_t;
@@ -202,6 +202,26 @@ ble_sts_t 	blc_ial_cis_splitSdu2UnframedPdu(u16 cisHandle, iso_data_packet_t *sd
  * 						 LL_ERR_INVALID_PARAMETER: command failed
  */
 ble_sts_t 	blc_ial_bis_splitSdu2UnframedPdu(u16 bis_connHandle, iso_data_packet_t *sdu);
+
+
+/**
+ * @brief      This function is used to send data to controller by CIS.
+ * @param[in]  cisHandle
+ * @param[in]  pData  point to data to send
+ * @return      Status - 0x00:  succeeded;
+ * 						 other:  failed
+ */
+ble_sts_t blc_cis_sendData(u16 cisHandle, u8 *pData, u16 len);
+
+
+/**
+ * @brief      This function is used to send data to controller by BIS.
+ * @param[in]  cisHandle
+ * @param[in]  pData  point to data to send
+ * @return      Status - 0x00:  succeeded;
+ * 						 other:  failed
+ */
+ble_sts_t blc_bis_sendData(u16 bisHandle, u8 *pData, u16 len);
 
 
 /******************************* User Interface  End  ******************************************************************/

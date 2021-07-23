@@ -60,7 +60,11 @@
  * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
  * if either ACl connection master role or ACl connection slave role is used.
  */
+#if(MCU_CORE_TYPE == MCU_CORE_9518)
 _attribute_ble_data_retention_	u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
+#elif(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
+_attribute_data_no_init_		u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
+#endif
 
 
 /**

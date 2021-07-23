@@ -306,7 +306,7 @@ int app_le_adv_report_event_handle(u8 *p)
 	int user_manual_pairing = 0;
 
 	//manual pairing methods 1: key press triggers
-	user_manual_pairing = master_pairing_enable && (rssi > -66);  //button trigger pairing(RSSI threshold, short distance)
+	user_manual_pairing = master_pairing_enable && (rssi > -56);  //button trigger pairing(RSSI threshold, short distance)
 
 	#if (BLE_MASTER_SMP_ENABLE)
 		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
@@ -590,64 +590,90 @@ int app_host_event_callback (u32 h, u8 *para, int n)
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-
 	u8 conn_idx = dev_char_get_conn_index_by_connhandle(connHandle);
 	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
-			//so any ATT data before service discovery will be dropped
-			dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
-			if(dev_info)
+		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
+
+		//so any ATT data before service discovery will be dropped
+		dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
+		if(dev_info)
+		{
+			//-------	user process ------------------------------------------------
+			u16 attHandle = pAtt->handle;
+
+			if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
 			{
-				//-------	user process ------------------------------------------------
-				rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
-				u16 attHandle = pAtt->handle;
 
-				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
+				if(attHandle == SPP_SERVER_TO_CLIENT_DP_H)
 				{
+					if(muliti_ll_md_start){
+						u8 len = pAtt->l2capLen - 3;
+						if(len > 0)
+						{
+							u8 seqNoRcv = pAtt->dat[0];
+							if(seqNoRcv == currRcvdSeqNo[conn_idx]){
+								currRcvdSeqNo[conn_idx]++;
+							}
+							else{
+								AA_dbg_write_cmd_err = 1;
+								//printf("s2c:ERR[0x%x]:seq lost[seqNoRcv:%d][currRcvdSeqNo:%d]\n", connHandle, seqNoRcv, currRcvdSeqNo[conn_idx]);
 
-					if(attHandle == SPP_SERVER_TO_CLIENT_DP_H)
-					{
-						if(muliti_ll_md_start){
-							u8 len = pAtt->l2capLen - 3;
-							if(len > 0)
-							{
-								u8 seqNoRcv = pAtt->dat[0];
-								if(seqNoRcv == currRcvdSeqNo[conn_idx]){
-									currRcvdSeqNo[conn_idx]++;
-								}
-								else{
-									AA_dbg_write_cmd_err = 1;
-									//printf("s2c:ERR[0x%x]:seq lost[seqNoRcv:%d][currRcvdSeqNo:%d]\n", connHandle, seqNoRcv, currRcvdSeqNo[conn_idx]);
-
-								#if 1
-									irq_disable();
-									#if (MCU_CORE_TYPE == MCU_CORE_9518)
-										write_dbg32(0x00014, 0x77);
-										gpio_write(GPIO_PB7, 1);  // GPIO_LED_RED
-										while(1){
-											myudb_usb_handle_irq();
-										}
-									#else
-										while(1){
-											gpio_write(GPIO_LED_RED, 1);  // GPIO_LED_RED
-											sleep_ms(100);
-											gpio_write(GPIO_LED_RED, 0);  // GPIO_LED_RED
-											sleep_ms(100);
-											myudb_usb_handle_irq();
-										}
-									#endif
+							#if 1
+								irq_disable();
+								#if (MCU_CORE_TYPE == MCU_CORE_9518)
+									write_dbg32(0x00014, 0x77);
+									gpio_write(GPIO_PB7, 1);  // GPIO_LED_RED
+									while(1){
+										myudb_usb_handle_irq();
+									}
+								#else
+									while(1){
+										gpio_write(GPIO_LED_RED, 1);  // GPIO_LED_RED
+										sleep_ms(100);
+										gpio_write(GPIO_LED_RED, 0);  // GPIO_LED_RED
+										sleep_ms(100);
+										myudb_usb_handle_irq();
+									}
 								#endif
-								}
+							#endif
 							}
 						}
 					}
 				}
-				else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
-				{
-
-				}
 			}
+			else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
+			{
+				blc_gatt_pushAttHdlValueCfm(connHandle);
+			}
+		}
 
+		/* The Master does not support GATT Server by default */
+		if(!(pAtt->opcode & 0x01)){
+			switch(pAtt->opcode){
+				case ATT_OP_FIND_INFO_REQ:
+				case ATT_OP_FIND_BY_TYPE_VALUE_REQ:
+				case ATT_OP_READ_BY_TYPE_REQ:
+				case ATT_OP_READ_BY_GROUP_TYPE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_ATTR_NOT_FOUND);
+					break;
+				case ATT_OP_READ_REQ:
+				case ATT_OP_READ_BLOB_REQ:
+				case ATT_OP_READ_MULTI_REQ:
+				case ATT_OP_WRITE_REQ:
+				case ATT_OP_PREPARE_WRITE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_INVALID_HANDLE);
+					break;
+				case ATT_OP_EXECUTE_WRITE_REQ:
+				case ATT_OP_HANDLE_VALUE_CFM:
+				case ATT_OP_WRITE_CMD:
+				case ATT_OP_SIGNED_WRITE_CMD:
+					//ignore
+					break;
+				default://no action
+					break;
+			}
+		}
 	}
 	else{   //GATT data for Slave
 

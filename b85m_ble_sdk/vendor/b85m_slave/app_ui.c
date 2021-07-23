@@ -112,6 +112,27 @@ void key_change_proc(void)
 		}
 		else{
 
+			#if 1
+				if(key0 == BTN_PAIR){
+					static u8 adv_status = 0;
+					blc_ll_setAdvEnable(adv_status);
+					adv_status = !adv_status;
+				}
+				else if(key0 == BTN_UNPAIR){
+					for(int i=MASTER_MAX_NUM; i < (MASTER_MAX_NUM + SLAVE_MAX_NUM); i++){ //slave index is from "MASTER_MAX_NUM" to "MASTER_MAX_NUM + SLAVE_MAX_NUM - 1"
+						if(conn_dev_list[i].conn_state){
+							static u16 latency = 0;
+							bls_l2cap_requestConnParamUpdate (conn_dev_list[i].conn_handle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, latency, CONN_TIMEOUT_4S);
+							if(latency){
+								latency = 0;
+							}
+							else{
+								latency = 99;
+							}
+						}
+					}
+				}
+			#endif
 		}
 
 	}
@@ -189,12 +210,34 @@ void proc_keyboard (u8 e, u8 *p, int n)
  * @param[in]  n - data length of event
  * @return     none
  */
-_attribute_ram_code_ void  app_set_gpio_wakeup (u8 e, u8 *p, int n)
+_attribute_ram_code_ void  app_set_kb_wakeup (u8 e, u8 *p, int n)
 {
+#if (BLE_APP_PM_ENABLE)
 	/* suspend time > 50ms.add GPIO wake_up */
-	if(((u32)(blc_pm_getWakeupSystemTick() - clock_time())) > 50 * SYSTEM_TIMER_TICK_1MS){
+	if(((u32)(blc_pm_getWakeupSystemTick() - clock_time())) > 100 * SYSTEM_TIMER_TICK_1MS){
 		blc_pm_setWakeupSource(PM_WAKEUP_PAD);  //GPIO PAD wake_up
 	}
+#endif
+}
+
+
+/**
+ * @brief      keyboard initialization
+ * @param[in]  none
+ * @return     none.
+ */
+void keyboard_init(void)
+{
+#if (BLE_APP_PM_ENABLE)
+	/////////// keyboard GPIO wakeup init ////////
+	u32 pin[] = KB_DRIVE_PINS;
+	for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
+		cpu_set_gpio_wakeup (pin[i], Level_High, 1);  //drive pin pad high level wakeup deepsleep
+	}
+
+	blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SLEEP_ENTER, &app_set_kb_wakeup);
+	blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, &proc_keyboard);
+#endif
 }
 
 

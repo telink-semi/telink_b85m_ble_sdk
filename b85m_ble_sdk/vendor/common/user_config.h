@@ -47,6 +47,12 @@
 
 #if(__PROJECT_827x_SLAVE__ )
 	#include "vendor/b85m_slave/app_config.h"
+#elif(__PROJECT_825x_SLAVE__ )
+	#include "vendor/b85m_slave/app_config.h"
+#elif(__PROJECT_827x_M1S1__ )
+	#include "vendor/b85m_m1s1/app_config.h"
+#elif(__PROJECT_825x_M1S1__ )
+	#include "vendor/b85m_m1s1/app_config.h"
 #elif(__PROJECT_8258_CONTROLLER__ )
 	#include "vendor/b85m_controller/app_config.h"
 #elif(__PROJECT_8278_CONTROLLER__)

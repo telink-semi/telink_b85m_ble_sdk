@@ -206,7 +206,7 @@ int app_le_adv_report_event_handle(u8 *p)
 	int user_manual_pairing = 0;
 
 	//manual pairing methods 1: key press triggers
-	user_manual_pairing = master_pairing_enable && (rssi > -66);  //button trigger pairing(RSSI threshold, short distance)
+	user_manual_pairing = master_pairing_enable && (rssi > -56);  //button trigger pairing(RSSI threshold, short distance)
 
 	#if (BLE_MASTER_SMP_ENABLE)
 		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
@@ -476,7 +476,6 @@ u8 A_attRspPkt[200];
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-
 	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
 		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
@@ -500,8 +499,38 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 		case ATT_OP_READ_BY_GROUP_TYPE_RSP:
 			memcpy(A_attRspPkt, (u8*)&pAtt->opcode, min(sizeof(A_attRspPkt), pAtt->l2capLen));
 			break;
+		case ATT_OP_HANDLE_VALUE_IND:
+			blc_gatt_pushAttHdlValueCfm(connHandle);
+			break;
 		default:
 			break;
+		}
+
+		/* The Master does not support GATT Server by default */
+		if(!(pAtt->opcode & 0x01)){
+			switch(pAtt->opcode){
+				case ATT_OP_FIND_INFO_REQ:
+				case ATT_OP_FIND_BY_TYPE_VALUE_REQ:
+				case ATT_OP_READ_BY_TYPE_REQ:
+				case ATT_OP_READ_BY_GROUP_TYPE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_ATTR_NOT_FOUND);
+					break;
+				case ATT_OP_READ_REQ:
+				case ATT_OP_READ_BLOB_REQ:
+				case ATT_OP_READ_MULTI_REQ:
+				case ATT_OP_WRITE_REQ:
+				case ATT_OP_PREPARE_WRITE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_INVALID_HANDLE);
+					break;
+				case ATT_OP_EXECUTE_WRITE_REQ:
+				case ATT_OP_HANDLE_VALUE_CFM:
+				case ATT_OP_WRITE_CMD:
+				case ATT_OP_SIGNED_WRITE_CMD:
+					//ignore
+					break;
+				default://no action
+					break;
+			}
 		}
 	}
 	else{//GATT data for Slave

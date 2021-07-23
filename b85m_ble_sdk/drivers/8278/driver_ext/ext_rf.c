@@ -106,32 +106,12 @@ void rf_pa_init(void)
 /*********************************************************** RF_PA END********************************************/
 //vulture
 _attribute_ram_code_
-void rf_start_fsm (fsm_mode_e mode, void* tx_addr, unsigned int tick){
-	//////
-	if(mode == FSM_TX2RX){ //0x87
-		reg_rf_ll_cmd = 0x80;  //disable srx
-	}
-	else if(mode == FSM_BRX){ //0x82
-		reg_rf_rx_1st_timeout = 0x0fffffff;
-	}
-	else if(mode == FSM_RX2TX || mode == FSM_SRX){ //0x88; 0x86
-		reg_rf_ll_cmd = 0x80;
-		reg_rf_rx_1st_timeout = 0x0fffffff;
-	}
-
-	///////
+void rf_start_fsm (fsm_mode_e mode, void* tx_addr, unsigned int tick)
+{
 	reg_rf_ll_cmd_schedule = tick;
 	reg_rf_ll_ctrl3 |= FLD_RF_R_CMD_SCHDULE_EN;
+	reg_rf_ll_cmd = mode;
 
-	/////////
-	if(mode == FSM_RX2TX || mode == FSM_SRX){
-		reg_rf_ll_cmd_2B = 0x3f<<8 | mode;
-	}
-	else{
-		reg_rf_ll_cmd = mode;
-	}
-
-	////////////
 	if(tx_addr){
 		reg_dma_rf_tx_addr = (unsigned short)((unsigned int)tx_addr);
 	}

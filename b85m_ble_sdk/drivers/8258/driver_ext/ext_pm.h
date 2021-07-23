@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file	ext_pm.h
  *
- * @brief	This is the header file for B91
+ * @brief	This is the header file for BLE SDK
  *
  * @author	BLE Group
  * @date	2020
@@ -47,7 +47,26 @@
 #ifndef DRIVERS_8258_EXT_PM_H_
 #define DRIVERS_8258_EXT_PM_H_
 
+#include "../pm.h"
 
+#ifndef	PM_32k_RC_CALIBRATION_ALGORITHM_EN
+#define PM_32k_RC_CALIBRATION_ALGORITHM_EN	1
+#endif
+
+
+
+/**********************************  Internal APIs (not for user)***************************************************/
+extern	unsigned int 			g_sleep_32k_rc_cnt;
+extern	unsigned int 			g_sleep_stimer_tick;
+
+
+#define PM_MIN_SLEEP_US			1900  //kite
+
+
+static inline unsigned int pm_get_latest_offset_cal_time(void)
+{
+	return pmcd.offset_cal_tick;
+}
 
 #endif
 

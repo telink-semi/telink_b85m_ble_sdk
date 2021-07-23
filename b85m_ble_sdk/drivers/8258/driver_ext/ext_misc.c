@@ -48,3 +48,16 @@
 #include "drivers/8258/driver_8258.h"
 #include "ext_misc.h"
 
+/*********************************************************** FLASH START********************************************/
+_attribute_data_retention_   _attribute_aligned_(4)	Flash_CapacityDef	flash_capacity;
+
+void flash_set_capacity(Flash_CapacityDef flash_cap)
+{
+	flash_capacity = flash_cap;
+}
+
+Flash_CapacityDef flash_get_capacity(void)
+{
+	return flash_capacity;
+}
+/*********************************************************** FLASH END********************************************/

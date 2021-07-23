@@ -177,6 +177,16 @@ void 	blc_smp_setSecurityLevel(le_security_mode_level_t  mode_level);
 void 	blc_smp_setSecurityLevel_master(le_security_mode_level_t  mode_level);
 void 	blc_smp_setSecurityLevel_slave(le_security_mode_level_t  mode_level);
 
+
+/**
+ * @brief      This function is used to get security level.
+ * @param[in]  none
+ * @return     mode_level - The security level value can refer to the structure 'le_security_mode_level_t'.
+ */
+le_security_mode_level_t blc_smp_getSecurityLevel_master(void);
+le_security_mode_level_t blc_smp_getSecurityLevel_slave(void);
+
+
 /**
  * @brief      This function is used to set pairing method.
  * @param[in]  method - The pairing method value can refer to the structure 'pairing_methods_t'.
@@ -254,6 +264,16 @@ void 	blc_smp_enableKeypress_slave(int keyPress_en);
 void    blc_smp_setEcdhDebugMode(ecdh_keys_mode_t mode);
 void 	blc_smp_setEcdhDebugMode_master(ecdh_keys_mode_t mode);
 void 	blc_smp_setEcdhDebugMode_slave(ecdh_keys_mode_t mode);
+
+
+/**
+ * @brief      This function is used to set the default pincode displayed by our side When using the PasskeyEntry.
+ * @param[in]  pinCodeInput - Input pincode value. Value range [000000~999999].
+ * @return     none.
+ */
+void	blc_smp_setDefaultPinCode(u32 pinCodeInput);
+void	blc_smp_setDefaultPinCode_master(u32 pinCodeInput);
+void	blc_smp_setDefaultPinCode_slave(u32 pinCodeInput);
 
 
 /**

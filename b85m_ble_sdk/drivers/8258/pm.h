@@ -51,7 +51,7 @@
 #define PM_LONG_SUSPEND_EN					0
 
 #ifndef PM_TIM_RECOVER_MODE
-#define PM_TIM_RECOVER_MODE			    	1
+#define PM_TIM_RECOVER_MODE			    	0		//no need, if PM_32k_RC_CALIBRATION_ALGORITHM_EN = 1
 #endif
 
 
@@ -170,6 +170,31 @@ typedef struct{
 }pm_para_t;
 
 extern _attribute_aligned_(4) pm_para_t	pmParam;
+
+
+/**
+ * @brief   pm 32k rc calibration algorithm.
+ */
+typedef struct  pm_clock_drift
+{
+	unsigned int	ref_tick;
+	unsigned int	ref_tick_32k;
+	int				offset;
+	int				offset_dc;
+//	int				offset_cur;
+	unsigned int	offset_cal_tick;
+	int				tc;
+	int				rc32;
+	int				rc32_wakeup;
+	int				rc32_rt;
+	int				s0;
+	unsigned char	calib;
+	unsigned char	ref_no;
+
+} pm_clock_drift_t;
+
+extern pm_clock_drift_t	pmcd;
+
 
 #if (PM_TIM_RECOVER_MODE)
 
@@ -361,7 +386,7 @@ static inline void blc_pm_select_external_32k_crystal(void)
 
 /************************* Stack Interface, user can not use!!! ***************************/
 extern  unsigned char 		    tl_24mrc_cal;
-extern 	unsigned short 			tick_32k_calib;
+extern 	unsigned int 			tick_32k_calib;
 extern  unsigned int 			tick_cur;
 extern  unsigned int 			tick_32k_cur;
 extern  unsigned char       	pm_long_suspend;
@@ -372,6 +397,9 @@ unsigned int cpu_get_32k_tick(void);
 
 void soft_reboot_dly13ms_use24mRC(void);
 
+void pm_ble_32k_rc_cal_reset(void);
+
+void pm_ble_cal_32k_rc_offset(int, int);
 
 #if PM_LONG_SLEEP_WAKEUP_EN
 /**

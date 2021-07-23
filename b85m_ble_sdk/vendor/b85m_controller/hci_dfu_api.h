@@ -13,7 +13,7 @@
 #include "hci_dfu_def.h"
 
 /*! Firmware version. */
-#define DFU_FW_VERSION         0x000B
+#define DFU_FW_VERSION         0x0014
 
 /*! New firmware start address. */
 #define DFU_NEW_FW_ADDR_BASE   (0x20000)

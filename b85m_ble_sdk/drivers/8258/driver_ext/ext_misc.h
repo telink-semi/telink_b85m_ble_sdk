@@ -191,5 +191,14 @@ static inline unsigned int  sys_get_stimer_tick(void)
 
 /******************************* analog_end ********************************************************************/
 
-#endif
 
+
+/******************************* flash_start *****************************************************************/
+void flash_set_capacity(Flash_CapacityDef flash_cap);
+
+Flash_CapacityDef flash_get_capacity(void);
+/******************************* flash_end *******************************************************************/
+
+
+
+#endif

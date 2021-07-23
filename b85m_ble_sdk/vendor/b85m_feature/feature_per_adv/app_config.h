@@ -49,11 +49,6 @@
 
 #if (FEATURE_TEST_MODE == TEST_PER_ADV)
 
-#if (__PROJECT_8258_FEATURE_TEST__)
-	#define CHIP_TYPE				CHIP_TYPE_825x
-#else
-	#define CHIP_TYPE				CHIP_TYPE_827x
-#endif
 
 #define MASTER_MAX_NUM								4
 #define SLAVE_MAX_NUM								4
@@ -63,7 +58,7 @@
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
 #define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
-#define BLE_SLAVE_SMP_ENABLE						0   //1 for smp,  0 no security
+#define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						0   //1 for smp,  0 no security
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////

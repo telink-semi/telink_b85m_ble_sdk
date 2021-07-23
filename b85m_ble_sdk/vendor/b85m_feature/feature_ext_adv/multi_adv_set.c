@@ -184,7 +184,7 @@ void app_multiple_adv_set_register_buffer(void)
 
 void app_multiple_adv_set_test(void)
 {
-#if 0
+#if 1
 	/* adv_set 0: Legacy, Unconnectable Undirected
 	   adv_set 1: Legacy, Unconnectable Undirected
 	   adv_set 2: Legacy, Unconnectable Undirected
@@ -266,11 +266,11 @@ void app_multiple_adv_set_test(void)
 	blc_ll_setExtAdvData	( ADV_HANDLE3,  sizeof(tbl_advData_3), (u8 *)tbl_advData_3);
 	blc_ll_setExtScanRspData( ADV_HANDLE3,  sizeof(tbl_scanRsp_3), (u8 *)tbl_scanRsp_3);
 
-#elif 1
-	/* adv_set 0: Legacy, Connectable_Scannable
-	   adv_set 1: Legacy, Extended, None_Connectable_None_Scannable undirected, with auxiliary packet
-	   adv_set 2: Legacy, Extended, Scannable, Undirected
-	   adv_set 3: Legacy, Extended, Scannable, Undirected */
+#elif 0
+	/* adv_set 0: Extended, Connectable_Non_scannable
+	   adv_set 1: Extended, Non_Connectable_Non_Scannable undirected, with auxiliary packet
+	   adv_set 2: Extended, Scannable, Undirected
+	   adv_set 3: Extended, Connectable, Undirected */
 
 	for(int i=0;i<1024;i++){
 		testAdvData[i]=i;
@@ -280,7 +280,7 @@ void app_multiple_adv_set_test(void)
 	blc_ll_initChannelSelectionAlgorithm_2_feature();
 	blc_ll_setDefaultConnCodingIndication(CODED_PHY_PREFER_S8);
 
-	//adv_set 1: Extended, Connectable_scannable
+	//adv_set 0: Extended, Connectable_Non_scannable
 	blc_ll_setExtAdvParam( ADV_HANDLE0, 		ADV_EVT_PROP_EXTENDED_CONNECTABLE_UNDIRECTED,					my_adv_interval_min, 			my_adv_interval_max,
 						   BLT_ENABLE_ADV_ALL,	OWN_ADDRESS_PUBLIC, 						  					BLE_ADDR_PUBLIC, 				NULL,
 						   ADV_FP_NONE,  		TX_POWER_3dBm,								  					BLE_PHY_1M, 					0,
@@ -292,7 +292,7 @@ void app_multiple_adv_set_test(void)
 
 
 
-	//adv_set 2: Extended, None_Connectable_None_Scannable undirected, with auxiliary packet
+	//adv_set 1: Extended, None_Connectable_None_Scannable undirected, with auxiliary packet
 	blc_ll_setExtAdvParam( ADV_HANDLE1, 		ADV_EVT_PROP_EXTENDED_NON_CONNECTABLE_NON_SCANNABLE_UNDIRECTED,  my_adv_interval_min, 			my_adv_interval_max,
 						   BLT_ENABLE_ADV_ALL,	OWN_ADDRESS_PUBLIC, 										     BLE_ADDR_PUBLIC, 				NULL,
 						   ADV_FP_NONE,  		TX_POWER_3dBm,												     BLE_PHY_1M, 					0,
@@ -304,7 +304,7 @@ void app_multiple_adv_set_test(void)
 
 
 
-	/* adv_set 3: Extended, Scannable, Undirected */
+	/* adv_set 2: Extended, Scannable, Undirected */
 	blc_ll_setExtAdvParam( ADV_HANDLE2, 		ADV_EVT_PROP_EXTENDED_SCANNABLE_UNDIRECTED, 					 my_adv_interval_min, 			my_adv_interval_max,
 						   BLT_ENABLE_ADV_ALL,	OWN_ADDRESS_PUBLIC, 										     BLE_ADDR_PUBLIC, 				NULL,
 						   ADV_FP_NONE,  		TX_POWER_3dBm,												   	 BLE_PHY_1M, 					0,
@@ -316,7 +316,7 @@ void app_multiple_adv_set_test(void)
 
 
 
-	/* adv_set 4: Extended, Connectable, Undirected */
+	/* adv_set 3: Extended, Connectable, Undirected */
 	blc_ll_setExtAdvParam( ADV_HANDLE3, 		ADV_EVT_PROP_EXTENDED_CONNECTABLE_UNDIRECTED, 					my_adv_interval_min, 			my_adv_interval_max,
 						   BLT_ENABLE_ADV_ALL,	OWN_ADDRESS_PUBLIC, 										    BLE_ADDR_PUBLIC, 				NULL,
 						   ADV_FP_NONE,  		TX_POWER_3dBm,												   	BLE_PHY_1M, 					0,

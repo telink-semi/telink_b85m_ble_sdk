@@ -1013,6 +1013,15 @@ typedef enum{
 
 
 
+typedef struct{
+	u8		cis_id;
+	u16		max_sdu_m2s;
+	u16		max_sdu_s2m;
+  	u8  	phy_m2s;
+  	u8		phy_s2m;
+  	u8		rtn_m2s;
+  	u8		rtn_s2m;
+} cigParam_cisCfg_t;
 
 /**
  *  @brief  Command Parameters for "7.8.97 LE Set CIG Parameters command"
@@ -1027,7 +1036,7 @@ typedef struct {
 	u16 	max_trans_lat_m2s;
 	u16 	max_trans_lat_s2m;
 	u8		cis_count;
-	u8		restparam[1];
+	cigParam_cisCfg_t		cisCfg[1];
 } hci_le_setCigParam_cmdParam_t;
 
 typedef struct{
@@ -1259,6 +1268,8 @@ typedef struct
 	u8  payload_type;
 }hci_le_isoTransmitTestCmdParams_t;
 
+
+
 /**
  * @brief Command Parameters for "7.8.112 LE ISO Receive Test command"
  */
@@ -1267,5 +1278,34 @@ typedef struct
 	u16 handle;
 	u8  payload_type;
 }hci_le_isoReceiveTestCmdParams_t;
+
+
+/**
+ * @brief return parameters for LE ISO Read Test Counters command
+ */
+typedef struct{
+
+	u8 status;
+	u16 handle;
+
+	u32 received_packet_count;
+	u32 miss_packet_count;
+	u32 failed_packet_count;
+
+}hci_le_isoReadTestCountersCmdRetParam_t;
+
+/**
+ * @brief return parameters for LE ISO Test End command
+ */
+typedef struct{
+
+	u8 status;
+	u16 handle;
+
+	u32 received_packet_count;
+	u32 miss_packet_count;
+	u32 failed_packet_count;
+
+}hci_le_isoTestEndCmdRetParam_t;
 
 #endif /* HCI_CMD_H_ */

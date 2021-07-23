@@ -60,7 +60,11 @@
  * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
  * if either ACl connection master role or ACl connection slave role is used.
  */
-u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
+#if(MCU_CORE_TYPE == MCU_CORE_9518)
+_attribute_ble_data_retention_	u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
+#elif(MCU_CORE_TYPE == MCU_CORE_825x || MCU_CORE_TYPE == MCU_CORE_827x)
+_attribute_data_no_init_		u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
+#endif
 
 
 /**
@@ -68,7 +72,7 @@ u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
  *  ACL MASTER TX buffer should be defined only when ACl connection master role is used.
  *  ACL SLAVE  TX buffer should be defined only when ACl connection slave role is used.
  */
-u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
+_attribute_ble_data_retention_ u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
 
 /******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
 

@@ -112,9 +112,6 @@ _attribute_ble_data_retention_	u8 	app_advData_buffer[APP_MAX_LENGTH_ADV_DATA * 
 
 _attribute_ble_data_retention_	u8 	app_scanRspData_buffer[APP_MAX_LENGTH_SCAN_RESPONSE_DATA * APP_ADV_SETS_NUMBER];
 
-
-_attribute_ble_data_retention_	u8	testAdvData[APP_MAX_LENGTH_ADV_DATA];
-_attribute_ble_data_retention_  u8  testScanRspData[APP_MAX_LENGTH_SCAN_RESPONSE_DATA];
 #endif
 
 /**
@@ -132,7 +129,7 @@ void user_init_normal(void)
 
 	/* for 512K Flash, flash_sector_mac_address equals to 0x76000
 	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
-	u8  mac_public[6] = {0x99,0x99,0x99,0x99,0x99,0x99};
+	u8  mac_public[6];
 	u8  mac_random_static[6];
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
 

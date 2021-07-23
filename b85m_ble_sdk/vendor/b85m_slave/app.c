@@ -292,27 +292,50 @@ int app_host_event_callback (u32 h, u8 *para, int n)
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-
 	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER )   //GATT data for Master
 	{
-			//so any ATT data before service discovery will be dropped
-			dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
-			if(dev_info)
+		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
+
+		dev_char_info_t* dev_info = dev_char_info_search_by_connhandle (connHandle);
+		if(dev_info)
+		{
+			//-------	user process ------------------------------------------------
+			if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
 			{
-				//-------	user process ------------------------------------------------
-				rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
-				//u16 attHandle = pAtt->handle;
 
-				if(pAtt->opcode == ATT_OP_HANDLE_VALUE_NOTI)  //slave handle notify
-				{
-
-				}
-				else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
-				{
-
-				}
 			}
+			else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
+			{
 
+			}
+		}
+
+		/* The Master does not support GATT Server by default */
+		if(!(pAtt->opcode & 0x01)){
+			switch(pAtt->opcode){
+				case ATT_OP_FIND_INFO_REQ:
+				case ATT_OP_FIND_BY_TYPE_VALUE_REQ:
+				case ATT_OP_READ_BY_TYPE_REQ:
+				case ATT_OP_READ_BY_GROUP_TYPE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_ATTR_NOT_FOUND);
+					break;
+				case ATT_OP_READ_REQ:
+				case ATT_OP_READ_BLOB_REQ:
+				case ATT_OP_READ_MULTI_REQ:
+				case ATT_OP_WRITE_REQ:
+				case ATT_OP_PREPARE_WRITE_REQ:
+					blc_gatt_pushErrResponse(connHandle, pAtt->opcode, pAtt->handle, ATT_ERR_INVALID_HANDLE);
+					break;
+				case ATT_OP_EXECUTE_WRITE_REQ:
+				case ATT_OP_HANDLE_VALUE_CFM:
+				case ATT_OP_WRITE_CMD:
+				case ATT_OP_SIGNED_WRITE_CMD:
+					//ignore
+					break;
+				default://no action
+					break;
+			}
+		}
 	}
 	else{   //GATT data for Slave
 
@@ -371,13 +394,11 @@ _attribute_no_inline_ void user_init_normal(void)
 
     blc_ll_initLegacyAdvertising_module(); 	//adv module: 		 mandatory for BLE slave,
 
-	blc_ll_initInitiating_module();			//initiate module: 	 mandatory for BLE master
-
 	blc_ll_initAclConnection_module();
 
 	blc_ll_initAclSlaveRole_module();
 
-	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, 2); //SLAVE_MAX_NUM
+	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
 
 	blc_ll_setAclConnMaxOctetsNumber(ACL_CONN_MAX_RX_OCTETS, ACL_MASTER_MAX_TX_OCTETS, ACL_SLAVE_MAX_TX_OCTETS);
 
@@ -386,8 +407,6 @@ _attribute_no_inline_ void user_init_normal(void)
 
 	/* ACL Slave TX FIFO */
 	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
-
-
 	//////////// LinkLayer Initialization  End /////////////////////////
 
 
@@ -458,44 +477,48 @@ _attribute_no_inline_ void user_init_normal(void)
 //////////////////////////// User Configuration for BLE application ////////////////////////////
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_300MS, ADV_INTERVAL_300MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
+	blc_ll_setAdvParam(ADV_INTERVAL_200MS, ADV_INTERVAL_200MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
+	blc_ll_setMaxAdvDelay_for_AdvEvent(MAX_DELAY_0MS);
 
 	user_set_rf_power(0, 0, 0);
 
 
 	#if (BLE_APP_PM_ENABLE)
 		blc_ll_initPowerManagement_module();
-		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
+		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_ACL_SLAVE);
 
 		#if (PM_DEEPSLEEP_RETENTION_ENABLE)
 			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
-			blc_pm_setDeepsleepRetentionThreshold(50);
-			blc_pm_setDeepsleepRetentionEarlyWakeupTiming(330);
+			blc_pm_setDeepsleepRetentionThreshold(95);
+
+			#if(MCU_CORE_TYPE == MCU_CORE_9518)
+				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(300);
+			#elif(MCU_CORE_TYPE == MCU_CORE_825x)
+				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(260);
+			#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(350);
+			#endif
 		#else
-			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_DISABLE);
+			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Disable);
 		#endif
 
 		blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SUSPEND_EXIT, &user_set_rf_power);
+	#endif
 
-
-		#if (UI_KEYBOARD_ENABLE)
-			u32 pin[] = KB_DRIVE_PINS;
-			for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-				cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
-			}
-
-			blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SLEEP_ENTER, &app_set_gpio_wakeup);
-			blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, &proc_keyboard);
-		#endif
-
+	#if (UI_KEYBOARD_ENABLE)
+		keyboard_init();
 	#endif
 
 
 	#if (BLE_OTA_SERVER_ENABLE)
-		/* OTA module initialization must be called after "blc_ota_setFirmwareSizeAndBootAddress"(if used), and before any other OTA API.*/
 		blc_ota_initOtaServer_module();
 		blc_ota_setOtaProcessTimeout(30);
+	#endif
+
+	#if (UART_LOW_POWER_DEBUG_EN)
+		low_power_uart_debug_init();
+		uart_dma_send((u8 *)trans_buff);
 	#endif
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -517,41 +540,42 @@ _attribute_ram_code_ void user_init_deepRetn(void)
 
 	user_set_rf_power(0, 0, 0);
 
+	blc_ll_recoverDeepRetention();
 
 	DBG_CHN0_HIGH;    //debug
-	blc_ll_recoverDeepRetention();
 	irq_enable();
 
-
-	if(	pm_is_deepPadWakeup() ){ //GPIO PAD wake_up deepSleep retention
-		proc_keyboard (BLT_EV_FLAG_GPIO_EARLY_WAKEUP, 0, 0);
-	}
-
-
-	#if (UI_KEYBOARD_ENABLE)
-		u32 pin[] = KB_DRIVE_PINS;
-		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-			cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
-		}
+	#if (UART_LOW_POWER_DEBUG_EN)
+		low_power_uart_debug_init();
 	#endif
 
+	#if (UI_KEYBOARD_ENABLE)
+		/////////// keyboard GPIO wakeup init ////////
+		u32 pin[] = KB_DRIVE_PINS;
+		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
+			cpu_set_gpio_wakeup (pin[i], Level_High, 1);  //drive pin pad high level wakeup deepsleep
+		}
+	#endif
 #endif
 }
+
+
 
 
 void app_process_power_management(void)
 {
 #if (BLE_APP_PM_ENABLE)
 
-	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
-	blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
+	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_ACL_SLAVE );
 
-	int user_task_flg = ota_is_working || scan_pin_need || key_not_released;
+	int user_task_flg = ota_is_working;
+	#if UI_KEYBOARD_ENABLE
+		user_task_flg = user_task_flg || scan_pin_need || key_not_released;
+	#endif
 
 	if(user_task_flg){
-		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_DISABLE);
+		blc_pm_setSleepMask(PM_SLEEP_DISABLE);
 	}
-
 #endif
 }
 
@@ -579,7 +603,6 @@ int main_idle_loop (void)
 
 	////////////////////////////////////// PM entry /////////////////////////////////
 	app_process_power_management();
-
 
 	return 0; //must return 0 due to SDP flow
 }

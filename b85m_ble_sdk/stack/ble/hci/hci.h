@@ -292,7 +292,10 @@ void 		blc_register_hci_handler (void *prx, void *ptx);
  */
 int 		blc_hci_sendACLData2Host (u16 handle, u8 *p);
 
-
+/**
+ *
+ */
+int			blc_hci_getFreeTxFIFONum(void);
 /**
  * @brief      this function is used to send data
  * @param[in]  h - HCI Event type

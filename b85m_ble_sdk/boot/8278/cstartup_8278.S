@@ -49,6 +49,10 @@
 #define	__LOAD_RAM_SIZE__		0xc
 #endif
 
+#ifndef __RAM_SIZE_MAX__
+#define __RAM_SIZE_MAX__		(64*1024)
+#endif
+
 	.code	16
 @********************************************************************************************************
 @                                           MACROS AND DEFINIITIONS
@@ -62,7 +66,8 @@
 
 	.equ IRQ_STK_SIZE,	0x200
 	.equ __LOAD_RAM, 	__LOAD_RAM_SIZE__
-	
+	.equ __RAM_SIZE_MAX,	__RAM_SIZE_MAX__
+
 @********************************************************************************************************
 @                                            TC32 EXCEPTION VECTORS
 @********************************************************************************************************
@@ -72,6 +77,7 @@
 	.global	 	__irq
 	.global 	__start
 	.global		__LOAD_RAM
+	.global		__RAM_SIZE_MAX
 
 __start:					@ MUST,  referenced by boot.link
 

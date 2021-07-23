@@ -58,7 +58,7 @@
 #define			PERIODIC_ADV_NUMBER_MAX							2
 
 
-#define 		PERD_ADV_PARAM_LENGTH						(476)   // Note: user can't modify this value,and this value must 4 byte aligned
+#define 		PERD_ADV_PARAM_LENGTH						(460)   // Note: user can't modify this value,and this value must 4 byte aligned
 
 
 

@@ -66,7 +66,6 @@
 
 //the following just for xiaomi project.
 #define  	HCI_DFU_EN  			1
-#define		XIAOMI_EXTSCAN_EN		1
 ///
 
 ///////////////////  Feature ////////////////////////////
@@ -90,26 +89,24 @@
 #if(MCU_CORE_TYPE == MCU_CORE_825x)
 	#define	FIX_HW_CRC24_EN											1
 	#define HW_ECDH_EN                                     			0
+	#define ZBIT_FLASH_WRITE_TIME_LONG_WORKAROUND_EN				1
 #elif(MCU_CORE_TYPE == MCU_CORE_827x)
 	#define	FIX_HW_CRC24_EN											0
 	#define HW_ECDH_EN                                      		1
+	#define ZBIT_FLASH_WRITE_TIME_LONG_WORKAROUND_EN				1
 #elif(MCU_CORE_TYPE == MCU_CORE_9518)
 	#define	FIX_HW_CRC24_EN											0
 	#define HW_ECDH_EN                                      		1
+	#define ZBIT_FLASH_WRITE_TIME_LONG_WORKAROUND_EN				0
 #else
 	#error "unsupported mcu type !"
 #endif
 
-//conn param update/map update
-#ifndef	BLS_PROC_MASTER_UPDATE_REQ_IN_IRQ_ENABLE
-#define BLS_PROC_MASTER_UPDATE_REQ_IN_IRQ_ENABLE					0  //TODO:
-#endif
 
 
 #ifndef LE_AUTHENTICATED_PAYLOAD_TIMEOUT_SUPPORT_EN
 #define LE_AUTHENTICATED_PAYLOAD_TIMEOUT_SUPPORT_EN					0
 #endif
-
 
 //Link layer feature enable flag default setting
 #ifndef LL_FEATURE_SUPPORT_LE_DATA_LENGTH_EXTENSION
@@ -156,11 +153,6 @@
 #define LL_FEATURE_SUPPORT_CHANNEL_SELECTION_ALGORITHM2				1
 #endif
 
-
-
-
-
-
 //core_5.2 feature begin
 #ifndef LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER
 #define LL_FEATURE_SUPPORT_CONNECTED_ISOCHRONOUS_STREAM_MASTER		1
@@ -193,17 +185,13 @@
 #define BQB_LOWER_TESTER_ENABLE										0
 #endif
 
-
-
 #ifndef HCI_NEW_FIFO_FEATURE_ENABLE
 #define HCI_NEW_FIFO_FEATURE_ENABLE									1
 #endif
 
-
 #ifndef HCI_SEND_NUM_OF_CMP_AFT_ACK
 #define HCI_SEND_NUM_OF_CMP_AFT_ACK									0
 #endif
-
 
 #ifndef L2CAP_DATA_2_HCI_DATA_BUFFER_ENABLE
 #define L2CAP_DATA_2_HCI_DATA_BUFFER_ENABLE							0  //just for debug
@@ -213,7 +201,6 @@
 #define L2CAP_CREDIT_BASED_FLOW_CONTROL_MODE_EN     				0
 #endif
 
-
 #ifndef UPPER_TESTER_DBG_EN
 #define UPPER_TESTER_DBG_EN											0
 #endif
@@ -222,6 +209,12 @@
 #define UPPER_TESTER_HCI_LOG_EN										0
 #endif
 
+//gen p256, dhkey supported by controller
+#ifndef	CONTROLLER_GEN_P256KEY_ENABLE
+#define	CONTROLLER_GEN_P256KEY_ENABLE								0
+#endif
 
-
+#ifndef SMP_SEC_LEVEL_CHEACK_EN
+#define	SMP_SEC_LEVEL_CHEACK_EN										0
+#endif
 

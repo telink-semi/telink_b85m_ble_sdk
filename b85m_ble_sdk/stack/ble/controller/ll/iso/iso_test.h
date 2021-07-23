@@ -48,39 +48,7 @@
 #define STACK_BLE_CONTROLLER_LL_ISO_ISO_TEST_H_
 
 
-#define  ISO_TESt_SUPPORT_MAX_NUM		(2)
 
-typedef struct{
-  	u32	successCnt;
-  	u32 missedCnt;
-  	u32	failedCnt;
-  	u32 lastPkt;
-}iso_test_receive_infor_t;
-
-typedef struct{
-  	u32	send_pkt_cnt;
-  	u32 isoTestSendTick;
-}iso_test_trasmit_infor_t;
-
-typedef struct{
-
-	u8  occupy;
-  	u8 	isoTestMode;  // 0: test mode disable, 1: transmit  2: receive
-  	u8  isoTest_payload_type;
-  	u8  rsvd1;
-
-	union{
-			iso_test_receive_infor_t recMode;
-			iso_test_trasmit_infor_t tranMode;
-	};
-
-}iso_test_param_t;
-
-typedef enum{
-	ISO_TEST_ZERO,
-	ISO_TEST_VARIABLE,
-	ISO_TEST_MAXIMUM,
-}iso_test_payload_type_t;
 
 /**
  * @brief      This function is used to initialize LE ISO test mode.
@@ -99,5 +67,8 @@ ble_sts_t blc_hci_le_iso_transmit_test_cmd(hci_le_isoTransmitTestCmdParams_t *pC
 
 
 ble_sts_t blc_hci_le_iso_receive_test_cmd(hci_le_isoReceiveTestCmdParams_t *pCmdParam);
+
+ble_sts_t blc_hci_le_iso_read_test_count_cmd(u16 handle, hci_le_isoReadTestCountersCmdRetParam_t *ret);
+ble_sts_t blc_hci_le_iso_test_end_count_cmd(u16 handle, hci_le_isoTestEndCmdRetParam_t *ret);
 
 #endif /* STACK_BLE_CONTROLLER_LL_ISO_ISO_TEST_H_ */
