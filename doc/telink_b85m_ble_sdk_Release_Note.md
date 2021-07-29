@@ -1,3 +1,51 @@
+
+## V4.0.1.1-Beta
+
+### Features
+* SDK version：telink_b85m_ble_sdk_V4.0.1.1-Beta
+* This version sdk support 8253/8258/8273/8278 chip.
+* Release relevant m4s4.a/m1s1.a/m0s4.a that cost different ram size.
+* Support maximum 4 master and 4 slave connections simultaneous.
+* Support low power management(b85m_slave and b85m_m1s1 support deepsleep retention mode).
+* Support Extended Advertising/Extended Scan/Periodic Advertising/Periodic Scan.
+* Support core version 5.0.
+* Demo illustration.
+  +  4 master and 4 slave demo: b85m_demo
+  +  1 master and 1 slave demo: b85m_m1s1
+  +  master demo: b85m_master_dongle
+  +  slave demo: b85m_slave
+  +  controller demo: b85m_controller
+  +  feature demo: b85m_feature
+
+### BREAKING CHANGES
+  - N/A
+
+
+
+### Features
+* SDK 版本：telink_b85m_ble_sdk_V4.0.1.1-Beta
+* 支持8253/8258/8273/8278。
+* 提供m4s4.a/m1s1.a/m0s4.a，不同的库消耗的ram大小不同。
+* 支持最多4个master和4个slave同时连接。
+* 支持低功耗管理（b85m_slave和b85m_m1s1支持deepsleep retention mode）。
+* 支持扩展广播、扩展扫描、周期性广播及扫描。
+* 支持core 5.0版本。
+* Demo 描述.
+  +  4 master and 4 slave demo: b85m_demo
+  +  1 master and 1 slave demo: b85m_m1s1
+  +  master demo: b85m_master_dongle
+  +  slave demo: b85m_slave
+  +  controller demo: b85m_controller
+  +  feature demo: b85m_feature
+
+### BREAKING CHANGES
+  - N/A
+
+
+
+
+
+
 ## V4.0.0
 
 ### Features
