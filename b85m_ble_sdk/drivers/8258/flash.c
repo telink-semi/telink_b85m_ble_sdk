@@ -196,6 +196,8 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, u
  */
 void flash_erase_sector(unsigned long addr)
 {
+	wd_clear(); // add by BLE Team
+
 	flash_mspi_write_ram(FLASH_SECT_ERASE_CMD, addr, 1, NULL, 0);
 }
 

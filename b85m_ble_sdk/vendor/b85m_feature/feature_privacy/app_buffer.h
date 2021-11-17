@@ -50,14 +50,32 @@
 #include "app_config.h"
 
 
-#if (FEATURE_TEST_MODE == TEST_LL_DLE)
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
+
+/**
+ * @brief	connMaxRxOctets
+ * refer to BLE SPEC "4.5.10 Data PDU length management" & "2.4.2.21 LL_LENGTH_REQ and LL_LENGTH_RSP"
+ * usage limitation:
+ * 1. should be in range of 27 ~ 251
+ */
+#define ACL_CONN_MAX_RX_OCTETS			27
+
+
+/**
+ * @brief	connMaxTxOctets
+ * refer to BLE SPEC "4.5.10 Data PDU length management" & "2.4.2.21 LL_LENGTH_REQ and LL_LENGTH_RSP"
+ *  in this SDK, we separate this value into 2 parts: slaveMaxTxOctets and masterMaxTxOctets,
+ *  for purpose to save some SRAM costed by when slave and master use different connMaxTxOctets.
+ * usage limitation:
+ * 1. slaveMaxTxOctets and masterMaxTxOctets should be in range of 27 ~ 251
+ */
+#define ACL_MASTER_MAX_TX_OCTETS		27
+#define ACL_SLAVE_MAX_TX_OCTETS			27
 
 
 
 
-
-/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
-
+/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin ************************************************/
 /**
  * @brief	ACL RX buffer size & number
  *  		ACL RX buffer is shared by all connections to hold LinkLayer RF RX data.
@@ -69,24 +87,9 @@
  * 1. must be: 2^n, (power of 2)
  * 2. at least 4; recommended value: 8, 16
  */
-#if (DLE_LENGTH_SELECT == DLE_LENGTH_27_BYTES)
-	#define ACL_CONN_MAX_RX_OCTETS			27
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_52_BYTES)
-	#define ACL_CONN_MAX_RX_OCTETS			52
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_56_BYTES)
-	#define ACL_CONN_MAX_RX_OCTETS			56
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_100_BYTES)
-	#define ACL_CONN_MAX_RX_OCTETS			100
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_200_BYTES)
-	#define ACL_CONN_MAX_RX_OCTETS			200
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_251_BYTES)
-	#define ACL_CONN_MAX_RX_OCTETS			251
-#else
-	#define ACL_CONN_MAX_RX_OCTETS			27
-#endif
+#define ACL_RX_FIFO_SIZE				CAL_LL_ACL_RX_FIFO_SIZE(ACL_CONN_MAX_RX_OCTETS)
+#define ACL_RX_FIFO_NUM					16	// must be: 2^n
 
-#define ACL_RX_FIFO_SIZE					CAL_LL_ACL_RX_FIFO_SIZE(ACL_CONN_MAX_RX_OCTETS)
-#define ACL_RX_FIFO_NUM						(8)
 
 /**
  * @brief	ACL TX buffer size & number
@@ -100,49 +103,20 @@
  * 1. must be: 2^n  (power of 2)
  * 2. at least 8; recommended value: 8, 16, 32; other value not allowed.
  */
-#if (DLE_LENGTH_SELECT == DLE_LENGTH_27_BYTES)
-	#define ACL_SLAVE_MAX_TX_OCTETS			27
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_52_BYTES)
-	#define ACL_SLAVE_MAX_TX_OCTETS			52
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_56_BYTES)
-	#define ACL_SLAVE_MAX_TX_OCTETS			56
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_100_BYTES)
-	#define ACL_SLAVE_MAX_TX_OCTETS			100
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_200_BYTES)
-	#define ACL_SLAVE_MAX_TX_OCTETS			200
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_251_BYTES)
-	#define ACL_SLAVE_MAX_TX_OCTETS			251
-#else
-	#define ACL_SLAVE_MAX_TX_OCTETS			27
-#endif
+#define ACL_MASTER_TX_FIFO_SIZE			CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)	// ACL_MASTER_MAX_TX_OCTETS + 10, then 4 Byte align
+#define ACL_MASTER_TX_FIFO_NUM			8   // must be: (2^n)
 
-#define ACL_SLAVE_TX_FIFO_SIZE				CAL_LL_ACL_TX_FIFO_SIZE(ACL_SLAVE_MAX_TX_OCTETS)  // ACL_SLAVE_MAX_TX_OCTETS + 10, then 4 Byte align
-#define ACL_SLAVE_TX_FIFO_NUM				(8) //must be: 2^n
+#define ACL_SLAVE_TX_FIFO_SIZE			CAL_LL_ACL_TX_FIFO_SIZE(ACL_SLAVE_MAX_TX_OCTETS)  // ACL_SLAVE_MAX_TX_OCTETS + 10, then 4 Byte align
+#define ACL_SLAVE_TX_FIFO_NUM			8   // must be: (2^n)
 
-#if (DLE_LENGTH_SELECT == DLE_LENGTH_27_BYTES)
-	#define ACL_MASTER_MAX_TX_OCTETS		27
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_52_BYTES)
-	#define ACL_MASTER_MAX_TX_OCTETS		52
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_56_BYTES)
-	#define ACL_MASTER_MAX_TX_OCTETS		56
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_100_BYTES)
-	#define ACL_MASTER_MAX_TX_OCTETS		100
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_200_BYTES)
-	#define ACL_MASTER_MAX_TX_OCTETS		200
-#elif (DLE_LENGTH_SELECT == DLE_LENGTH_251_BYTES)
-	#define ACL_MASTER_MAX_TX_OCTETS		251
-#else
-	#define ACL_MASTER_MAX_TX_OCTETS		27
-#endif
 
-#define ACL_MASTER_TX_FIFO_SIZE				CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)   // ACL_MASTER_MAX_TX_OCTETS + 10, then 4 Byte align
-#define ACL_MASTER_TX_FIFO_NUM				(8) //must be: (2^n)
+
+
 
 extern	u8	app_acl_rxfifo[];
 extern	u8	app_acl_mstTxfifo[];
 extern	u8	app_acl_slvTxfifo[];
-
-/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
+/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***************************************************/
 
 
 
@@ -154,11 +128,11 @@ extern	u8	app_acl_slvTxfifo[];
  *  1. should be greater than or equal to (ATT_MTU + 6)
  *  2. should be be an integer multiple of 4 (4 Byte align)
  */
-#define ATT_MTU_MASTER_RX_MAX_SIZE   		247
-#define	MASTER_MTU_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_MASTER_RX_MAX_SIZE)
+#define ATT_MTU_MASTER_RX_MAX_SIZE  23
+#define	MTU_M_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_MASTER_RX_MAX_SIZE)
 
-#define ATT_MTU_SLAVE_RX_MAX_SIZE   		247
-#define	SLAVE_MTU_BUFF_SIZE_MAX			 	CAL_MTU_BUFF_SIZE(ATT_MTU_SLAVE_RX_MAX_SIZE)
+#define ATT_MTU_SLAVE_RX_MAX_SIZE   23
+#define	MTU_S_BUFF_SIZE_MAX			CAL_MTU_BUFF_SIZE(ATT_MTU_SLAVE_RX_MAX_SIZE)
 
 
 extern	u8 mtu_m_rx_fifo[];
@@ -168,19 +142,6 @@ extern	u8 mtu_s_tx_fifo[];
 /***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, End **********************************/
 
 
-/***************** DLE/MTU feature test buffer allocation, Begin********************************/
-
-#define TEST_DATA_LEN		247
-
-
-extern _attribute_ble_data_retention_ u8 mtuExchange_started_flg[MASTER_SLAVE_MAX_NUM];
-extern _attribute_ble_data_retention_ u8 dle_started_flg[MASTER_SLAVE_MAX_NUM];
-
-
-extern u32 mtu_tick[MASTER_SLAVE_MAX_NUM];
-extern _attribute_ble_data_retention_	u8	app_test_data[MASTER_SLAVE_MAX_NUM][TEST_DATA_LEN];
-
-/***************** DLE/MTU feature test buffer allocation, End ********************************/
 
 
 

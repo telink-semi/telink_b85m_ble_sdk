@@ -109,6 +109,7 @@ enum{
 	OTA_DATA_PACKET_TIMEOUT,	   			//time interval between two consequent packet exceed a value(user can adjust this value)
  	OTA_TIMEOUT,							//OTA flow total timeout
  	OTA_FAIL_DUE_TO_CONNECTION_TERMIANTE,	//OTA fail due to current connection terminate(maybe connection timeout or local/peer device terminate connection)
+	OTA_MCU_NOT_SUPPORTED,					//MCU does not support this OTA mode
 };
 
 

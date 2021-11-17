@@ -168,7 +168,7 @@ int host_att_client_handler (u16 connHandle, u8 *p)
 		if ((connHandle & 7) == (host_att_req_busy & 7) && p_rsp->chanId == 0x04 &&
 			(p_rsp->opcode == 0x01 || p_rsp->opcode == ((host_att_req_busy >> 16) | 1)))
 		{
-			memcpy (p_att_response, p, 32);
+			memcpy (p_att_response, p, p_rsp->rf_len+2);//+2 indicate type+rf_len
 			host_att_req_busy = 0;
 		}
 	}
@@ -281,7 +281,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 
 	// char discovery: att_read_by_type
     // hid discovery: att_find_info
-	u8  dat[32];
+	u8  dat[256];//according to MTU to set size.//MTU_M_BUFF_SIZE_MAX
 	u16 s = 1;
 	u16 uuid = GATT_UUID_CHARACTER;
 	do {
@@ -300,14 +300,19 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 
 		if (p_rsp->datalen == 21)		//uuid128
 		{
-			s = p_rsp->data[3] + p_rsp->data[4] * 256;
-			if (i128 < n128)
-			{
-				p128->property = p_rsp->data[2];
-				p128->handle = s;
-				memcpy (p128->uuid, p_rsp->data + 5, 16);
-				i128++;
-				p128++;
+			u8 *pd = p_rsp->data;
+			while(p_rsp->l2capLen > 21){
+				s = pd[3] + pd[4] * 256;
+				if (i128 < n128)
+				{
+					p128->property = pd[2];
+					p128->handle = s;
+					memcpy (p128->uuid, pd + 5, 16);
+					i128++;
+					p128++;
+				}
+				p_rsp->l2capLen -= 21;
+				pd += 21;
 			}
 		}
 		else if (p_rsp->datalen == 7) //uuid16

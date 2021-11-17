@@ -94,7 +94,7 @@
  * 1. must be: 2^n, (power of 2)
  * 2. at least 4; recommended value: 8, 16
  */
-#define ACL_RX_FIFO_SIZE				64  // ACL_CONN_MAX_RX_OCTETS + 22, then 16 Byte align
+#define ACL_RX_FIFO_SIZE				CAL_LL_ACL_RX_FIFO_SIZE(ACL_CONN_MAX_RX_OCTETS)
 #define ACL_RX_FIFO_NUM					16	// must be: 2^n
 
 
@@ -104,16 +104,16 @@
 *			ACL SLAVE  TX buffer is shared by all slave  connections to hold LinkLayer RF TX data.
  * usage limitation for ACL_MASTER_TX_FIFO_SIZE & ACL_SLAVE_TX_FIFO_SIZE:
  * 1. should be greater than or equal to (connMaxTxOctets + 10)
- * 2. should be be an integer multiple of 16 (16 Byte align)
+ * 2. should be be an integer multiple of 4 (4 Byte align)
  * 3. user can use formula:  size = CAL_LL_ACL_TX_FIFO_SIZE(connMaxTxOctets)
  * usage limitation for ACL_MASTER_TX_FIFO_NUM & ACL_SLAVE_TX_FIFO_NUM:
  * 1. must be: 2^n  (power of 2)
  * 2. at least 8; recommended value: 8, 16, 32; other value not allowed.
  */
-#define ACL_MASTER_TX_FIFO_SIZE			CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)	// ACL_MASTER_MAX_TX_OCTETS + 10, then 16 Byte align
+#define ACL_MASTER_TX_FIFO_SIZE			CAL_LL_ACL_TX_FIFO_SIZE(ACL_MASTER_MAX_TX_OCTETS)	// ACL_MASTER_MAX_TX_OCTETS + 10, then 4 Byte align
 #define ACL_MASTER_TX_FIFO_NUM			8   // must be: (2^n)
 
-#define ACL_SLAVE_TX_FIFO_SIZE			48  // ACL_MASTER_MAX_TX_OCTETS + 10, then 16 Byte align
+#define ACL_SLAVE_TX_FIFO_SIZE			CAL_LL_ACL_TX_FIFO_SIZE(ACL_SLAVE_MAX_TX_OCTETS)  // ACL_SLAVE_MAX_TX_OCTETS + 10, then 4 Byte align
 #define ACL_SLAVE_TX_FIFO_NUM			8   // must be: (2^n)
 
 

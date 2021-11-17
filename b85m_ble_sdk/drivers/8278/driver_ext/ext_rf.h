@@ -260,13 +260,13 @@ void rf_switchPhyTestMode(RF_ModeTypeDef mode);
 
 //TODO: need debug
 #define 	LL_TX_STL_TIFS_1M								62
-#define 	LL_TX_STL_TIFS_2M								(LL_TX_STL_TIFS_1M + 24)
+#define 	LL_TX_STL_TIFS_2M								(LL_TX_STL_TIFS_1M)
 #define 	LL_TX_STL_TIFS_CODED							(LL_TX_STL_TIFS_1M + 40)
 
 //TX settle time
 #define		LL_TX_STL_ADV_1M								81
-#define 	LL_SCAN_TX_SETTLE								62
-#define 	LL_INIT_TX_SETTLE								62
+#define 	LL_SCAN_TX_SETTLE								56
+#define 	LL_INIT_TX_SETTLE								56
 #define     LL_SCANRSP_TX_SETTLE                            78
 #define 	LL_SLAVE_TX_SETTLE								83
 #define 	LL_MASTER_TX_SETTLE								83
@@ -285,7 +285,7 @@ void rf_switchPhyTestMode(RF_ModeTypeDef mode);
  *					Jaguar	1M: 20uS	   2M: 10uS;      500K(S2): 14uS    125K(S8):  14uS
  */
 #define		AD_CONVERT_DLY_1M								20
-#define 	AD_CONVERT_DLY_2M								10
+#define 	AD_CONVERT_DLY_2M								32
 #define 	AD_CONVERT_DLY_CODED							14
 
 

@@ -596,8 +596,8 @@ _attribute_no_inline_ void user_init_normal(void)
 	blc_l2cap_initAclConnMasterMtuBuffer(mtu_m_rx_fifo, MASTER_MTU_BUFF_SIZE_MAX, 			0,					 0);
 	blc_l2cap_initAclConnSlaveMtuBuffer(mtu_s_rx_fifo, SLAVE_MTU_BUFF_SIZE_MAX, mtu_s_tx_fifo, SLAVE_MTU_BUFF_SIZE_MAX);
 
-	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE); 	//Do not call this API, the default MTU_SIZE is 23
-	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);   	//Do not call this API, the default MTU_SIZE is 23
+	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE); ///must be placed after "blc_gap_init"
+	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);   ///must be placed after "blc_gap_init"
 
 	//blc_att_setMtureqSendingTime_after_connCreate(50);  		//Do not call this API: 1100ms is used by default
 	//blc_ll_setDataLengthReqSendingTime_after_connCreate(100); //Do not call this API: 1200ms is used by default

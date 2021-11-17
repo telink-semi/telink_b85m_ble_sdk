@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	feature_config.h
+ * @file	main.c
  *
- * @brief	This is the header file for BLE SDK
+ * @brief	This is the source file for BLE SDK
  *
  * @author	BLE GROUP
  * @date	2020.06
@@ -43,54 +43,73 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef FEATURE_CONFIG_H_
-#define FEATURE_CONFIG_H_
+#include "tl_common.h"
+#include "drivers.h"
+#include "stack/ble/ble.h"
+#include "app_config.h"
+#include "app.h"
+
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
 
 
+/**
+ * @brief   IRQ handler
+ * @param   none.
+ * @return  none.
+ */
+_attribute_ram_code_ void irq_handler(void)
+{
+    DBG_CHN15_HIGH;
+
+	blc_sdk_irq_handler ();
+
+	DBG_CHN15_LOW;
+}
+
+/**
+ * @brief		This is main function
+ * @param[in]	none
+ * @return      none
+ */
+_attribute_ram_code_ int main(void)
+{
+
+	#if(MCU_CORE_TYPE == MCU_CORE_825x)
+		cpu_wakeup_init();
+	#elif(MCU_CORE_TYPE == MCU_CORE_827x)
+		cpu_wakeup_init(DCDC_MODE, EXTERNAL_XTAL_24M);
+	#endif
+
+	/* detect if MCU is wake_up from deep retention mode */
+	int deepRetWakeUp = pm_is_MCU_deepRetentionWakeup();  //MCU deep retention wakeUp
+
+	
+	clock_init(SYS_CLK_TYPE);
+
+	rf_drv_init(RF_MODE_BLE_1M);
+
+	gpio_init(!deepRetWakeUp);
 
 
+	if( deepRetWakeUp ){ //MCU wake_up from deepSleep retention mode
+		user_init_deepRetn ();
+	}
+	else{ //MCU power_on or wake_up from deepSleep mode
+		user_init_normal ();
+	}
 
-/////////////////// TEST FEATURE SELECTION /////////////////////////////////
-
-
-
-//ble link layer test
-#define	TEST_LL_MD										1   //link layer more data
-
-#define TEST_LL_DLE										2   //link layer Data Length Extension
-
-#define TEST_2M_CODED_PHY_CONNECTION					3
-
-#define TEST_WHITELIST									4
-
-#define TEST_SMP										5
-
-#define TEST_GATT_API									6
-
-#define TEST_EXT_ADV									7   //Extended ADV demo
-
-#define TEST_EXT_SCAN									8   //Extended Scan demo
-
-#define TEST_PER_ADV									9   //Periodic ADV demo
-
-#define TEST_PER_ADV_SYNC								30	//Periodic ADV Sync demo
-
-#define TEST_LL_PRIVACY									14  //Only legAdv and slave role support LL_Privacy1.2
-
-#define TEST_OTA										20
-
-#define TEST_SOFT_TIMER                                 22
-
-#define TEST_MISC_FUNC									190
-
-#define TEST_FEATURE_BACKUP								200
+	/* load customized freq_offset cap value.
+	 */
+	blc_app_loadCustomizedParameters();
 
 
-#define FEATURE_TEST_MODE								TEST_LL_MD//TEST_OTA//TEST_FEATURE_BACKUP
+	irq_enable();
 
+	while(1)
+	{
+		main_loop ();
+	}
+	return 0;
+}
 
-
-
-
-
-#endif /* FEATURE_CONFIG_H_ */
+#endif

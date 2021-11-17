@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	feature_config.h
+ * @file	app.h
  *
- * @brief	This is the header file for BLE SDK
+ * @brief	This is the source file for BLE SDK
  *
  * @author	BLE GROUP
  * @date	2020.06
@@ -43,54 +43,74 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef FEATURE_CONFIG_H_
-#define FEATURE_CONFIG_H_
+
+#ifndef VENDOR_APP_H_
+#define VENDOR_APP_H_
+
+#include "app_config.h"
+
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
+
+/**
+ * @brief		user initialization when MCU power on or wake_up from deepSleep mode
+ * @param[in]	none
+ * @return      none
+ */
+void user_init_normal(void);
 
 
+/**
+ * @brief		user initialization when MCU wake_up from deepSleep_retention mode
+ * @param[in]	none
+ * @return      none
+ */
+void user_init_deepRetn(void);
 
 
-
-/////////////////// TEST FEATURE SELECTION /////////////////////////////////
-
-
-
-//ble link layer test
-#define	TEST_LL_MD										1   //link layer more data
-
-#define TEST_LL_DLE										2   //link layer Data Length Extension
-
-#define TEST_2M_CODED_PHY_CONNECTION					3
-
-#define TEST_WHITELIST									4
-
-#define TEST_SMP										5
-
-#define TEST_GATT_API									6
-
-#define TEST_EXT_ADV									7   //Extended ADV demo
-
-#define TEST_EXT_SCAN									8   //Extended Scan demo
-
-#define TEST_PER_ADV									9   //Periodic ADV demo
-
-#define TEST_PER_ADV_SYNC								30	//Periodic ADV Sync demo
-
-#define TEST_LL_PRIVACY									14  //Only legAdv and slave role support LL_Privacy1.2
-
-#define TEST_OTA										20
-
-#define TEST_SOFT_TIMER                                 22
-
-#define TEST_MISC_FUNC									190
-
-#define TEST_FEATURE_BACKUP								200
+/**
+ * @brief     BLE main idle loop
+ * @param[in]  none.
+ * @return     none.
+ */
+int main_idle_loop (void);
 
 
-#define FEATURE_TEST_MODE								TEST_LL_MD//TEST_OTA//TEST_FEATURE_BACKUP
+/**
+ * @brief     BLE main loop
+ * @param[in]  none.
+ * @return     none.
+ */
+void main_loop (void);
 
 
+/**
+ * @brief      BLE controller event handler call-back.
+ * @param[in]  h       event type
+ * @param[in]  p       Pointer point to event parameter buffer.
+ * @param[in]  n       the length of event parameter.
+ * @return
+ */
+int app_controller_event_callback (u32 h, u8 *p, int n);
 
 
+/**
+ * @brief      BLE host event handler call-back.
+ * @param[in]  h       event type
+ * @param[in]  para    Pointer point to event parameter buffer.
+ * @param[in]  n       the length of event parameter.
+ * @return
+ */
+int app_host_event_callback (u32 h, u8 *para, int n);
 
 
-#endif /* FEATURE_CONFIG_H_ */
+/**
+ * @brief      BLE GATT data handler call-back.
+ * @param[in]  connHandle     connection handle.
+ * @param[in]  pkt             Pointer point to data packet buffer.
+ * @return
+ */
+int app_gatt_data_handler (u16 connHandle, u8 *pkt);
+
+
+#endif
+#endif /* VENDOR_APP_H_ */

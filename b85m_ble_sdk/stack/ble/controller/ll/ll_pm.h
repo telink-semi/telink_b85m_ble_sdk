@@ -106,7 +106,7 @@ void 	blc_pm_setDeepsleepRetentionEnable (deep_retn_en_t en);
  * @param	wakeup_src - low power mode wake_up source
  * @return	none
  */
-void		blc_pm_setWakeupSource (SleepMode_TypeDef wakeup_src);
+void		blc_pm_setWakeupSource (SleepWakeupSrc_TypeDef wakeup_src);
 
 
 /**

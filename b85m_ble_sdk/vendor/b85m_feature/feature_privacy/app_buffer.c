@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	feature_config.h
+ * @file	app_buffer.c
  *
- * @brief	This is the header file for BLE SDK
+ * @brief	This is the source file for BLE SDK
  *
  * @author	BLE GROUP
  * @date	2020.06
@@ -43,54 +43,60 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef FEATURE_CONFIG_H_
-#define FEATURE_CONFIG_H_
+#include "tl_common.h"
+#include "drivers.h"
+#include "stack/ble/ble.h"
+
+#include "app_config.h"
+#include "app_buffer.h"
+
+
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
 
 
 
+/********************* ACL connection LinkLayer TX & RX data FIFO allocation, Begin *******************************/
+
+/**
+ * @brief	ACL RX buffer. size & number defined in app_buffer.h
+ * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
+ * if either ACl connection master role or ACl connection slave role is used.
+ */
+_attribute_ble_data_retention_	u8	app_acl_rxfifo[ACL_RX_FIFO_SIZE * ACL_RX_FIFO_NUM] = {0};
 
 
-/////////////////// TEST FEATURE SELECTION /////////////////////////////////
+/**
+ * @brief	ACL TX buffer. size & number defined in app_buffer.h
+ *  ACL MASTER TX buffer should be defined only when ACl connection master role is used.
+ *  ACL SLAVE  TX buffer should be defined only when ACl connection slave role is used.
+ */
+_attribute_ble_data_retention_	u8	app_acl_mstTxfifo[ACL_MASTER_TX_FIFO_SIZE * ACL_MASTER_TX_FIFO_NUM * MASTER_MAX_NUM] = {0};
+_attribute_ble_data_retention_	u8	app_acl_slvTxfifo[ACL_SLAVE_TX_FIFO_SIZE * ACL_SLAVE_TX_FIFO_NUM * SLAVE_MAX_NUM] = {0};
 
-
-
-//ble link layer test
-#define	TEST_LL_MD										1   //link layer more data
-
-#define TEST_LL_DLE										2   //link layer Data Length Extension
-
-#define TEST_2M_CODED_PHY_CONNECTION					3
-
-#define TEST_WHITELIST									4
-
-#define TEST_SMP										5
-
-#define TEST_GATT_API									6
-
-#define TEST_EXT_ADV									7   //Extended ADV demo
-
-#define TEST_EXT_SCAN									8   //Extended Scan demo
-
-#define TEST_PER_ADV									9   //Periodic ADV demo
-
-#define TEST_PER_ADV_SYNC								30	//Periodic ADV Sync demo
-
-#define TEST_LL_PRIVACY									14  //Only legAdv and slave role support LL_Privacy1.2
-
-#define TEST_OTA										20
-
-#define TEST_SOFT_TIMER                                 22
-
-#define TEST_MISC_FUNC									190
-
-#define TEST_FEATURE_BACKUP								200
-
-
-#define FEATURE_TEST_MODE								TEST_LL_MD//TEST_OTA//TEST_FEATURE_BACKUP
+/******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
 
 
 
 
 
 
-#endif /* FEATURE_CONFIG_H_ */
+/***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, Begin ********************************/
+_attribute_ble_data_retention_	u8 mtu_m_rx_fifo[MASTER_MAX_NUM * MTU_M_BUFF_SIZE_MAX];
+
+_attribute_ble_data_retention_	u8 mtu_s_rx_fifo[SLAVE_MAX_NUM * MTU_S_BUFF_SIZE_MAX];
+_attribute_ble_data_retention_	u8 mtu_s_tx_fifo[SLAVE_MAX_NUM * MTU_S_BUFF_SIZE_MAX];
+/***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, End **********************************/
+
+
+
+
+
+
+
+#endif
+
+
+
+
+
+

@@ -150,7 +150,7 @@ void blc_ota_registerOtaResultIndicationCb(ota_resIndicateCb_t cb);
 /**
  * @brief      This function is used to set OTA whole process timeout value
  * 			   if not set, default value is 30 S
- * @param[in]  timeout_second - timeout value, unit: S, should in range of 4 ~ 250
+ * @param[in]  timeout_second - timeout value, unit: S, should in range of 5 ~ 1000
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
 ble_sts_t blc_ota_setOtaProcessTimeout(int timeout_second);

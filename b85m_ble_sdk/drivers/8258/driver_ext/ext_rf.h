@@ -178,16 +178,16 @@ void rf_start_fsm(fsm_mode_e mode, void* tx_addr, unsigned int tick);
 
 
 //TODO: need debug
-#define 	LL_TX_STL_TIFS_1M								63
-#define 	LL_TX_STL_TIFS_2M								(LL_TX_STL_TIFS_1M + 24)
+#define 	LL_TX_STL_TIFS_1M								56
+#define 	LL_TX_STL_TIFS_2M								(LL_TX_STL_TIFS_1M)
 #define 	LL_TX_STL_TIFS_CODED							(LL_TX_STL_TIFS_1M + 40)
 
 //TX settle time
 #define		LL_TX_STL_ADV_1M								74
-#define 	LL_SCAN_TX_SETTLE								56
-#define 	LL_INIT_TX_SETTLE								56
-#define     LL_SCANRSP_TX_SETTLE                            68//(LL_TX_STL_ADV_1M-6)
-#define 	LL_SLAVE_TX_SETTLE								75
+#define 	LL_SCAN_TX_SETTLE								50
+#define 	LL_INIT_TX_SETTLE								50
+#define     LL_SCANRSP_TX_SETTLE                            71
+#define 	LL_SLAVE_TX_SETTLE								76
 #define 	LL_MASTER_TX_SETTLE								76
 
 #define		LL_TX_STL_ADV_2M								84
@@ -204,9 +204,9 @@ void rf_start_fsm(fsm_mode_e mode, void* tx_addr, unsigned int tick);
  * 					Eagle	1M: 20uS	   2M: 10uS;      500K(S2): 14uS    125K(S8):  14uS
  *					Jaguar	1M: 20uS	   2M: 10uS;      500K(S2): 14uS    125K(S8):  14uS
  */
-#define 	AD_CONVERT_DLY_1M								19
-#define 	AD_CONVERT_DLY_2M								0
-#define 	AD_CONVERT_DLY_CODED							0
+#define 	AD_CONVERT_DLY_1M								26
+#define 	AD_CONVERT_DLY_2M								35
+#define 	AD_CONVERT_DLY_CODED							20
 
 
 

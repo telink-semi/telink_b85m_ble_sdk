@@ -45,6 +45,8 @@
  *******************************************************************************************************/
 #pragma once
 
+#include"config.h"
+
 
 #define	CONN_MAX_NUM_CONFIG							CONN_MAX_NUM_M0_S4
 #define MASTER_MAX_NUM								0
@@ -52,7 +54,13 @@
 
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
-#define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
+#if(CHIP_TYPE == CHIP_TYPE_825x)
+	#define	FLASH_SIZE_CONFIG		   				FLASH_SIZE_512K  //very important, user need confirm !!!
+#elif(CHIP_TYPE == CHIP_TYPE_827x)
+	#define	FLASH_SIZE_CONFIG		   				FLASH_SIZE_1M    //very important, user need confirm !!!
+#else
+#endif
+
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_OTA_SERVER_ENABLE						1
 

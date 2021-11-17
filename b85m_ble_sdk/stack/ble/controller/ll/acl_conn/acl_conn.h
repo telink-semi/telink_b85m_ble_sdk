@@ -256,6 +256,15 @@ ble_sts_t 	blc_ll_setDefaultPhy(le_phy_prefer_mask_t all_phys, le_phy_prefer_typ
  */
 ble_sts_t	blc_ll_readPhy( u16 connHandle, hci_le_readPhyCmd_retParam_t *para);
 
+
+/**
+ * @brief      This function is used to obtain the latest average RSSI of ACL connections.
+ * @param[in]  connHandle - ACL connection handle.
+ * @return     The value of latest average RSSI.
+ */
+u8			blc_ll_getAclLatestAvgRSSI(u16 connHandle);
+
+
 ble_sts_t 	blc_hci_le_readBufferSize_cmd(u8 *pData);
 ble_sts_t 	blc_hci_le_getLocalSupportedFeatures(u8 *features);
 ble_sts_t 	blc_hci_readSuggestedDefaultTxDataLength (u8 *tx, u8 *txtime);

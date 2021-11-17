@@ -45,6 +45,7 @@
  *******************************************************************************************************/
 #pragma once
 
+#include"config.h"
 #include "../feature_config.h"
 
 
@@ -58,7 +59,13 @@
 
 
 ///////////////////////// Feature Configuration////////////////////////////////////////////////
-#define	FLASH_SIZE_CONFIG		   					FLASH_SIZE_512K  //very important, user need confirm !!!
+#if(CHIP_TYPE == CHIP_TYPE_825x)
+	#define	FLASH_SIZE_CONFIG		   				FLASH_SIZE_512K  //very important, user need confirm !!!
+#elif(CHIP_TYPE == CHIP_TYPE_827x)
+	#define	FLASH_SIZE_CONFIG		   				FLASH_SIZE_1M    //very important, user need confirm !!!
+#else
+#endif
+
 #define BLE_SLAVE_SMP_ENABLE						1   //1 for smp,  0 no security
 #define BLE_MASTER_SMP_ENABLE						0   //1 for smp,  0 no security
 

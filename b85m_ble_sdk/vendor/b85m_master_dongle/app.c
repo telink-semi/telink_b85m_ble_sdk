@@ -683,7 +683,7 @@ _attribute_no_inline_ void user_init_normal(void)
 	/* L2CAP buffer Initialization */
 	blc_l2cap_initAclConnMasterMtuBuffer(mtu_m_rx_fifo, MTU_M_BUFF_SIZE_MAX, 			0,					 0);
 
-	blc_att_setMasterRxMTUSize(158); ///must be placed after "blc_l2cap_initAclConnMasterMtuBuffer"
+	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE); ///must be placed after "blc_gap_init"
 	/* GATT Initialization */
 	#if (BLE_MASTER_SIMPLE_SDP_ENABLE)
 		host_att_register_idle_func (main_idle_loop);

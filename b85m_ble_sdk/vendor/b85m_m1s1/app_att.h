@@ -157,8 +157,9 @@ typedef enum
 	//// Ota ////
 	/**********************************************************************************************/
 	OTA_PS_H, 								//UUID: 2800, 	VALUE: telink ota service uuid
-	OTA_CMD_OUT_CD_H,						//UUID: 2803, 	VALUE:  			Prop: read | write_without_rsp
+	OTA_CMD_OUT_CD_H,						//UUID: 2803, 	VALUE:  			Prop: read | write_without_rsp | notify
 	OTA_CMD_OUT_DP_H,						//UUID: telink ota uuid,  VALUE: otaData
+	OTA_CMD_OUT_CCB_H,						//UUID: 2902, 	VALUE: my_OtaDataCCC
 	OTA_CMD_OUT_DESC_H,						//UUID: 2901, 	VALUE: otaName
 
 

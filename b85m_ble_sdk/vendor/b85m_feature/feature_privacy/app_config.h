@@ -48,13 +48,11 @@
 #include"config.h"
 #include "../feature_config.h"
 
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
 
 
-#if (FEATURE_TEST_MODE == TEST_WHITELIST)
-
-
-#define MASTER_MAX_NUM								4
-#define SLAVE_MAX_NUM								4
+#define MASTER_MAX_NUM								1
+#define SLAVE_MAX_NUM								2
 
 
 
@@ -80,6 +78,7 @@
 
 
 #define APP_DEFAULT_HID_BATTERY_OTA_ATTRIBUTE_TABLE			1
+
 
 
 #if (UI_KEYBOARD_ENABLE)   // if test pure power, kyeScan GPIO setting all disabled
@@ -145,7 +144,8 @@
 	#define	GPIO_LED_WHITE			GPIO_PD4
 	#define	GPIO_LED_RED			GPIO_PD5
 
-	#define LED_ON_LEVAL 						1 		//gpio output high voltage to turn on led
+
+	#define LED_ON_LEVAL 			1 		//gpio output high voltage to turn on led
 
 	#define PD2_FUNC				AS_GPIO
 	#define PD3_FUNC				AS_GPIO
@@ -156,6 +156,7 @@
 	#define	PD3_OUTPUT_ENABLE		1
 	#define PD4_OUTPUT_ENABLE		1
 	#define	PD5_OUTPUT_ENABLE		1
+
 #endif
 
 
@@ -240,5 +241,6 @@ enum{
 
 
 #include "../../common/default_config.h"
+
 
 #endif

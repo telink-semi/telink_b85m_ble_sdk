@@ -47,30 +47,90 @@
 #include "drivers.h"
 #include "stack/ble/ble.h"
 
+#include "app_config.h"
 #include "app.h"
 #include "app_buffer.h"
-#include "app_att.h"
+#include "../default_att.h"
 #include "app_ui.h"
-#include "application/keyboard/keyboard.h"
 
 
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
 
-_attribute_ble_data_retention_	int	master_smp_pending = 0; 		// SMP: security & encryption;
-_attribute_ble_data_retention_	u8 ota_is_working = 0;
 
+int	master_smp_pending = 0; 		// SMP: security & encryption;
+
+
+_attribute_ble_data_retention_ u32 slvBondFlashAddr;
+_attribute_ble_data_retention_ u16 centralAddrResHdlReq = 0;
+_attribute_ble_data_retention_ u8 slvBondNums = 0;
+_attribute_ble_data_retention_ u8 slaveDevIdx = SLAVE_DEV_MAX-1; //must 0, Now!!!
+_attribute_ble_data_retention_	smp_param_save_t slvBondInfo;
+
+static void slvDevCfgLegAdvParam(void);
 
 
 const u8	tbl_advData[] = {
-	 11, DT_COMPLETE_LOCAL_NAME, 				's','l','a','v','e','_', 'd','e','m','o',
+	 8,	 DT_COMPLETE_LOCAL_NAME, 				'p','r','i','v','a','c','y',
 	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
 	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
 	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 
 const u8	tbl_scanRsp [] = {
-	 11, DT_COMPLETE_LOCAL_NAME, 				's','l','a','v','e','_', 'd','e','m','o',
+	 8,	 DT_COMPLETE_LOCAL_NAME, 				'p','r','i','v','a','c','y',
 };
 
+
+
+/**
+ * @brief      BLE Adv report event handler
+ * @param[in]  p         Pointer point to event parameter buffer.
+ * @return
+ */
+int app_le_adv_report_event_handle(u8 *p)
+{
+	event_adv_report_t *pa = (event_adv_report_t *)p;
+	s8 rssi = pa->data[pa->len];
+
+
+	/*********************** Master Create connection demo: Key press or ADV pair packet triggers pair  ********************/
+	if(master_smp_pending ){ 	 //if previous connection SMP not finish, can not create a new connection
+		return 1;
+	}
+	if (master_disconnect_connhandle){ //one master connection is in un_pair disconnection flow, do not create a new one
+		return 1;
+	}
+
+	int master_auto_connect = 0;
+	int user_manual_pairing = 0;
+
+	//manual pairing methods 1: key press triggers
+	user_manual_pairing = master_pairing_enable && (rssi > -56);  //button trigger pairing(RSSI threshold, short distance)
+
+	#if (BLE_MASTER_SMP_ENABLE)
+		master_auto_connect = blc_smp_searchBondingSlaveDevice_by_PeerMacAddress(pa->adr_type, pa->mac);
+	#else
+		//search in slave mac_address table to find whether this device is an old device which has already paired with master
+	#endif
+
+
+	if(master_auto_connect || user_manual_pairing){
+
+
+		/* send create connection command to Controller, trigger it switch to initiating state. After this command, Controller
+		 * will scan all the ADV packets it received but not report to host, to find the specified device(mac_adr_type & mac_adr),
+		 * then send a "CONN_REQ" packet, enter to connection state and send a connection complete event
+		 * (HCI_SUB_EVT_LE_CONNECTION_COMPLETE) to Host*/
+		blc_ll_createConnection( SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, INITIATE_FP_ADV_SPECIFY,  \
+								 pa->adr_type, pa->mac, OWN_ADDRESS_PUBLIC, \
+								 CONN_INTERVAL_31P25MS, CONN_INTERVAL_31P25MS, 0, CONN_TIMEOUT_4S, \
+								 0, 0xFFFF);
+	}
+	/*********************** Master Create connection demo code end  *******************************************************/
+
+
+	return 0;
+}
 
 
 /**
@@ -78,7 +138,6 @@ const u8	tbl_scanRsp [] = {
  * @param[in]  p         Pointer point to event parameter buffer.
  * @return
  */
-_attribute_ble_data_retention_ u8 dbg_req_cnt = 0;
 int app_le_connection_complete_event_handle(u8 *p)
 {
 	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
@@ -87,43 +146,55 @@ int app_le_connection_complete_event_handle(u8 *p)
 
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
-		if(pConnEvt->role == LL_ROLE_SLAVE){
-			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 99, CONN_TIMEOUT_4S);	// 1 second
-//			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 199, CONN_TIMEOUT_6S);	// 2 second
-//			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 299, CONN_TIMEOUT_8S);	// 3 second
+		if( pConnEvt->role == LL_ROLE_MASTER ) // master role, process SMP and SDP if necessary
+		{
+			#if (BLE_MASTER_SMP_ENABLE)
+				master_smp_pending = pConnEvt->connHandle; // this connection need SMP
+			#else
 
-			//test code
-			#if 0
-				dbg_req_cnt ++;
-				if(dbg_req_cnt & 1){
-					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 4, CONN_TIMEOUT_4S);
-				}
-				else{
-					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 5, CONN_TIMEOUT_4S);
-				}
-			#elif 0
-
-				if(dbg_req_cnt == 0){
-					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 99, CONN_TIMEOUT_4S);
-				}
-				else if(dbg_req_cnt == 1){
-					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 199, CONN_TIMEOUT_6S);
-				}
-				else{
-					bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_10MS, CONN_INTERVAL_10MS, 299, CONN_TIMEOUT_8S);
-				}
-
-				dbg_req_cnt ++;
-				if(dbg_req_cnt > 2){
-					dbg_req_cnt = 0;
-				}
 			#endif
 		}
+
+		my_dump_str_data(APP_DUMP_EN, "connected connHandle", &pConnEvt->connHandle, 1);
 	}
 
 	return 0;
 }
 
+
+/**
+ * @brief      BLE enhanced connection complete event handler
+ * @param[in]  p         Pointer point to event parameter buffer.
+ * @return
+ */
+int app_le_enhanced_connection_complete_event_handle(u8 *p)
+{
+	hci_le_enhancedConnCompleteEvt_t *pEvt = (hci_le_enhancedConnCompleteEvt_t *)p;
+	my_dump_str_data(APP_DUMP_EN,"le enhanced conn complete event", &pEvt, sizeof(hci_le_enhancedConnCompleteEvt_t));
+
+	if(pEvt->status == BLE_SUCCESS){
+
+		dev_char_info_insert_by_enhanced_conn_event(pEvt);
+
+		if( pEvt->role == LL_ROLE_MASTER ) // master role, process SMP and SDP if necessary
+		{
+			#if (BLE_MASTER_SMP_ENABLE)
+				master_smp_pending = pConnEvt->connHandle; // this connection need SMP
+			#else
+
+			#endif
+		}
+
+		my_dump_str_data(APP_DUMP_EN, "	connected connHandle", &pEvt->connHandle, 1);
+
+		my_dump_str_data(APP_DUMP_EN, "	peerAddrType", &pEvt->PeerAddrType, 1);
+		my_dump_str_data(APP_DUMP_EN, "	peerAddr", &pEvt->PeerAddr, 6);
+		my_dump_str_data(APP_DUMP_EN, "	localRpa", &pEvt->localRslvPrivAddr, 6);
+		my_dump_str_data(APP_DUMP_EN, "	peerRpa", &pEvt->Peer_RslvPrivAddr, 6);
+	}
+
+	return 0;
+}
 
 
 /**
@@ -134,6 +205,9 @@ int app_le_connection_complete_event_handle(u8 *p)
 int 	app_disconnect_event_handle(u8 *p)
 {
 	event_disconnection_t	*pCon = (event_disconnection_t *)p;
+
+	my_dump_str_data(APP_DUMP_EN, "conn disconnect reason", &pCon->reason, 1);
+	my_dump_str_data(APP_DUMP_EN, "		connHandle", &pCon->connHandle, 1);
 
 	//terminate reason
 	if(pCon->reason == HCI_ERR_CONN_TIMEOUT){  	//connection timeout
@@ -152,28 +226,27 @@ int 	app_disconnect_event_handle(u8 *p)
 
 
 
+	//if previous connection SMP & SDP not finished, clear flag
+#if (BLE_MASTER_SMP_ENABLE)
+	if(master_smp_pending == pCon->connHandle){
+		master_smp_pending = 0;
+	}
+#endif
+
+	if(master_disconnect_connhandle == pCon->connHandle){  //un_pair disconnection flow finish, clear flag
+		master_disconnect_connhandle = 0;
+	}
+
 	dev_char_info_delete_by_connhandle(pCon->connHandle);
 
 
+	slvDevCfgLegAdvParam();
+
+
 	return 0;
 }
 
 
-/**
- * @brief      BLE Connection update complete event handler
- * @param[in]  p         Pointer point to event parameter buffer.
- * @return
- */
-int app_le_connection_update_complete_event_handle(u8 *p)
-{
-	hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
-
-	if(pUpt->status == BLE_SUCCESS){
-
-	}
-
-	return 0;
-}
 
 //////////////////////////////////////////////////////////
 // event call back
@@ -205,15 +278,22 @@ int app_controller_event_callback (u32 h, u8 *p, int n)
 			{
 				app_le_connection_complete_event_handle(p);
 			}
+			//------hci le event: le enhanced connection complete event-------------------------
+			else if (subEvt_code == HCI_SUB_EVT_LE_ENHANCED_CONNECTION_COMPLETE)
+			{
+				app_le_enhanced_connection_complete_event_handle(p);
+			}
 			//--------hci le event: le adv report event ----------------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_ADVERTISING_REPORT)	// ADV packet
 			{
+				//after controller is set to scan state, it will report all the adv packet it received by this event
 
+				app_le_adv_report_event_handle(p);
 			}
 			//------hci le event: le connection update complete event-------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE)	// connection update
 			{
-				app_le_connection_update_complete_event_handle(p);
+
 			}
 		}
 	}
@@ -241,58 +321,70 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 	{
 		case GAP_EVT_SMP_PAIRING_BEGIN:
 		{
-
 		}
 		break;
 
 		case GAP_EVT_SMP_PAIRING_SUCCESS:
 		{
-
 		}
 		break;
 
 		case GAP_EVT_SMP_PAIRING_FAIL:
 		{
+		#if (BLE_MASTER_SMP_ENABLE)
+			gap_smp_pairingFailEvt_t *p = (gap_smp_pairingFailEvt_t *)para;
 
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
+				if(master_smp_pending == p->connHandle){
+					master_smp_pending = 0;
+				}
+			}
+		#endif
 		}
 		break;
 
 		case GAP_EVT_SMP_CONN_ENCRYPTION_DONE:
 		{
-
 		}
 		break;
 
 		case GAP_EVT_SMP_SECURITY_PROCESS_DONE:
 		{
+			gap_smp_connEncDoneEvt_t* p = (gap_smp_connEncDoneEvt_t*)para;
 
+		#if (BLE_MASTER_SMP_ENABLE)
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_MASTER){  //master connection
+
+				if(master_smp_pending == p->connHandle){
+					master_smp_pending = 0;
+				}
+
+			}
+		#endif
+
+			if( dev_char_get_conn_role_by_connhandle(p->connHandle) == LL_ROLE_SLAVE)   //GATT data for Slave
+			{
+				if(p->re_connect == SMP_STANDARD_PAIR){
+					u16 my_centralAddrResUUID = GATT_UUID_CENTRAL_ADDR_RES;
+
+					slvBondNums = blc_smp_param_getCurrentBondingDeviceNumber(0, slaveDevIdx);
+					my_dump_str_data(APP_DUMP_EN, "GAP_EVT_SMP_CONN_ENCRYPTION_DONE", &slvBondNums, 1);
+
+					if(slvBondNums) //at least 1 bonding device exist for slave device
+					{
+						slvBondFlashAddr =
+						blc_smp_loadBondingInfoFromFlashByIndex(0, slaveDevIdx, slvBondNums-1, &slvBondInfo); //get the latest bonding device (index: bond_number-1 )
+
+					}
+
+					if(blc_gatt_pushReadByTypeRequest(p->connHandle, 0x0001, 0xffff, (u8*)&my_centralAddrResUUID, 2) == BLE_SUCCESS){
+						my_dump_str_data(APP_DUMP_EN, "centralAddrResHdlReq", 0, 0);
+						centralAddrResHdlReq = p->connHandle;
+					}
+				}
+			}
 		}
 		break;
-
-		case GAP_EVT_SMP_TK_DISPALY:
-		{
-
-		}
-		break;
-
-		case GAP_EVT_SMP_TK_REQUEST_PASSKEY:
-		{
-
-		}
-		break;
-
-		case GAP_EVT_SMP_TK_REQUEST_OOB:
-		{
-
-		}
-		break;
-
-		case GAP_EVT_SMP_TK_NUMERIC_COMPARE:
-		{
-
-		}
-		break;
-
 		case GAP_EVT_ATT_EXCHANGE_MTU:
 		{
 
@@ -313,6 +405,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
 }
 
 
+
 /**
  * @brief      BLE GATT data handler call-back.
  * @param[in]  connHandle     connection handle.
@@ -321,7 +414,7 @@ int app_host_event_callback (u32 h, u8 *para, int n)
  */
 int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 {
-	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER )   //GATT data for Master
+	if( dev_char_get_conn_role_by_connhandle(connHandle) == LL_ROLE_MASTER)   //GATT data for Master
 	{
 		rf_packet_att_t *pAtt = (rf_packet_att_t*)pkt;
 
@@ -335,7 +428,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 			}
 			else if (pAtt->opcode == ATT_OP_HANDLE_VALUE_IND)
 			{
-
+				blc_gatt_pushAttHdlValueCfm(connHandle);
 			}
 		}
 
@@ -367,8 +460,35 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 		}
 	}
 	else{   //GATT data for Slave
+		rf_packet_l2cap_req_t * req = (rf_packet_l2cap_req_t *)pkt;
 
+		switch(req->opcode){
+			case ATT_OP_READ_BY_TYPE_RSP: {
+				if(centralAddrResHdlReq == connHandle){
+					centralAddrResHdlReq = 0;
+					rf_pkt_att_readByTypeRsp_t *ptr = (rf_pkt_att_readByTypeRsp_t *)&req->type;
+					u16 centralAddrResHdl = ptr->data[0] | (u16)ptr->data[1]<<8;
+					my_dump_str_data(APP_DUMP_EN, "Central addr res handle", &centralAddrResHdl, 2);
+					//set bonding flg's bit7 field
+					blc_smp_setPeerAddrResSupportFlg(slvBondFlashAddr, ptr->data[2]);
+					my_dump_str_data(APP_DUMP_EN, "Central addr res support flg", &ptr->data[2], 1);
+				}
+			}
+			break;
 
+			case ATT_OP_ERROR_RSP: {
+				if(centralAddrResHdlReq == connHandle){
+					centralAddrResHdlReq = 0;
+					rf_packet_att_errRsp_t * errRsp = (rf_packet_att_errRsp_t*)pkt;
+
+					my_dump_str_data(APP_DUMP_EN, "errOpcode", &errRsp->errOpcode, 1);
+					my_dump_str_data(APP_DUMP_EN, "errHandle", &errRsp->errHandle, 1);
+					my_dump_str_data(APP_DUMP_EN, "errReason", &errRsp->errReason, 1);
+					my_dump_str_data(APP_DUMP_EN, "Central addr res not support", 0, 0);
+				}
+			}
+			break;
+		}
 	}
 
 
@@ -377,26 +497,83 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 
 
 
-
-
-
-
-
-
-
-/**
- * @brief      callBack function of LinkLayer Event "BLT_EV_FLAG_SUSPEND_EXIT"
- * @param[in]  e - LinkLayer Event type
- * @param[in]  p - data pointer of event
- * @param[in]  n - data length of event
- * @return     none
- */
-_attribute_ram_code_ void	user_set_rf_power (u8 e, u8 *p, int n)
+static void slvDevCfgLegAdvParam(void)
 {
-	rf_set_power_level_index (RF_POWER_P0dBm);
+//	DBG_CHN6_HIGH;
+	u32 r = irq_disable(); //must add now: TODO: fix it latter
+
+	blc_ll_setAdvEnable(BLC_ADV_DISABLE);  //ADV disable
+
+	slvBondNums = blc_smp_param_getCurrentBondingDeviceNumber(0, slaveDevIdx);
+
+	if(slvBondNums) //at least 1 bonding device exist for slave device
+	{
+//		u32 current_addr =
+		blc_smp_loadBondingInfoFromFlashByIndex(0, slaveDevIdx, slvBondNums-1, &slvBondInfo); //get the latest bonding device (index: bond_number-1 )
+
+		u8 empty_16_ff[16] = {0xFF, 0xFF, 0xFF, 0xFF,  0xFF, 0xFF, 0xFF, 0xFF,  0xFF, 0xFF, 0xFF, 0xFF,  0xFF, 0xFF, 0xFF, 0xFF};
+		if(!memcmp(slvBondInfo.peer_irk, empty_16_ff, 16)){ //all 0xff
+			memset(slvBondInfo.peer_irk, 0, 16);
+			//my_dump_str_data(APP_DUMP_EN, "peer_irk all 0xff", 0, 0);
+		}
+		if(!memcmp(slvBondInfo.local_irk, empty_16_ff, 16)){ //all 0xff
+			memset(slvBondInfo.local_irk, 0, 16);
+			//my_dump_str_data(APP_DUMP_EN, "local_irk all 0xff", 0, 0);
+		}
+
+		u8 slvOwnAddrType = IS_PEER_ADDR_RES_SUPPORT(slvBondInfo.flag) ? OWN_ADDRESS_RESOLVE_PRIVATE_PUBLIC : OWN_ADDRESS_PUBLIC;
+
+		u8* peerAddr = slvBondInfo.peer_addr;
+		u8  peerAddrType = slvBondInfo.peer_addr_type;
+
+		if(slvOwnAddrType >= OWN_ADDRESS_RESOLVE_PRIVATE_PUBLIC){
+			peerAddr = slvBondInfo.peer_id_addr;
+			peerAddrType = slvBondInfo.peer_id_adrType;
+		}
+
+		ll_whiteList_add(peerAddrType, peerAddr); //Add WL
+		ll_resolvingList_add(peerAddrType, peerAddr, slvBondInfo.peer_irk, slvBondInfo.local_irk); //Add RL
+
+		blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS,
+				           ADV_TYPE_CONNECTABLE_UNDIRECTED, slvOwnAddrType,
+						   peerAddrType, peerAddr,
+						   BLT_ENABLE_ADV_ALL,
+						   ADV_FP_ALLOW_SCAN_ANY_ALLOW_CONN_WL);
+	}
+	else{
+		blc_ll_setAdvParam(ADV_INTERVAL_30MS, ADV_INTERVAL_30MS,
+						   ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC,
+						   0, NULL,
+						   BLT_ENABLE_ADV_ALL,
+						   ADV_FP_NONE);
+
+		ll_whiteList_reset(); //NO bonding info for SLV, clear WL
+		ll_resolvingList_reset(); //NO bonding info for SLV, clear RL
+	}
+
+	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
+
+	irq_restore(r); //must add now: TODO: fix it latter
+//	DBG_CHN6_LOW;
+
+	ll_resolvingList_setAddrResolutionEnable((slvBondNums ? 1: 0)); //Input value only: 0 or 1.
+	my_dump_str_data(APP_DUMP_EN, "LL add resolution status", &slvBondNums, 1);
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////
 
 /**
  * @brief		user initialization when MCU power on or wake_up from deepSleep mode
@@ -423,9 +600,15 @@ _attribute_no_inline_ void user_init_normal(void)
 
     blc_ll_initLegacyAdvertising_module(); 	//adv module: 		 mandatory for BLE slave,
 
-	blc_ll_initAclConnection_module();
+    blc_ll_initLegacyScanning_module(); 	//scan module: 		 mandatory for BLE master
 
+	blc_ll_initInitiating_module();			//initiate module: 	 mandatory for BLE master
+
+	blc_ll_initAclConnection_module();
+	blc_ll_initAclMasterRole_module();
 	blc_ll_initAclSlaveRole_module();
+
+
 
 	blc_ll_setMaxConnectionNumber( MASTER_MAX_NUM, SLAVE_MAX_NUM);
 
@@ -433,9 +616,18 @@ _attribute_no_inline_ void user_init_normal(void)
 
 	/* all ACL connection share same RX FIFO */
 	blc_ll_initAclConnRxFifo(app_acl_rxfifo, ACL_RX_FIFO_SIZE, ACL_RX_FIFO_NUM);
-
+	/* ACL Master TX FIFO */
+	blc_ll_initAclConnMasterTxFifo(app_acl_mstTxfifo, ACL_MASTER_TX_FIFO_SIZE, ACL_MASTER_TX_FIFO_NUM, MASTER_MAX_NUM);
 	/* ACL Slave TX FIFO */
 	blc_ll_initAclConnSlaveTxFifo(app_acl_slvTxfifo, ACL_SLAVE_TX_FIFO_SIZE, ACL_SLAVE_TX_FIFO_NUM, SLAVE_MAX_NUM);
+
+
+
+	blc_ll_setAclMasterConnectionInterval(CONN_INTERVAL_31P25MS);
+
+	rf_set_power_level_index (RF_POWER_P3dBm);
+
+
 	//////////// LinkLayer Initialization  End /////////////////////////
 
 
@@ -451,13 +643,14 @@ _attribute_no_inline_ void user_init_normal(void)
 	//bluetooth low energy(LE) event
 	blc_hci_le_setEventMask_cmd(		HCI_LE_EVT_MASK_CONNECTION_COMPLETE  \
 									|	HCI_LE_EVT_MASK_ADVERTISING_REPORT \
-									|   HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE);
+									|   HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE \
+									|   HCI_LE_EVT_MASK_ENHANCED_CONNECTION_COMPLETE);
 
 
 	u8 check_status = blc_controller_check_appBufferInitialization();
 	if(check_status != BLE_SUCCESS){
 		/* here user should set some log to know which application buffer incorrect*/
-		write_log32(0x88880000 | check_status);
+		write_log32(check_status);
 		while(1);
 	}
 	//////////// HCI Initialization  End /////////////////////////
@@ -468,14 +661,15 @@ _attribute_no_inline_ void user_init_normal(void)
 	/* GAP initialization must be done before any other host feature initialization !!! */
 	blc_gap_init();
 
-	/* L2CAP buffer Initialization */
+	/* L2CAP Initialization */
+	blc_l2cap_initAclConnMasterMtuBuffer(mtu_m_rx_fifo, MTU_M_BUFF_SIZE_MAX, 			0,					 0);
 	blc_l2cap_initAclConnSlaveMtuBuffer(mtu_s_rx_fifo, MTU_S_BUFF_SIZE_MAX, mtu_s_tx_fifo, MTU_S_BUFF_SIZE_MAX);
 
-	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE); ///must be placed after "blc_gap_init"
+	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE); ///must be placed after "blc_gap_init"
+	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);   ///must be placed after "blc_gap_init"
 
 	/* GATT Initialization */
 	my_gatt_init();
-
 	blc_gatt_register_data_handler(app_gatt_data_handler);
 
 	/* SMP Initialization */
@@ -487,6 +681,12 @@ _attribute_no_inline_ void user_init_normal(void)
 		blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
 	#else
 		blc_smp_setSecurityLevel_slave(No_Security);
+	#endif
+
+	#if (BLE_MASTER_SMP_ENABLE) //Master SMP Enable
+		blc_smp_setSecurityLevel_master(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
+	#else
+		blc_smp_setSecurityLevel_master(No_Security);
 	#endif
 
 	blc_smp_smpParamInit();
@@ -504,54 +704,21 @@ _attribute_no_inline_ void user_init_normal(void)
 
 
 
-
 //////////////////////////// User Configuration for BLE application ////////////////////////////
+
+	//////////////// WhiteList && ResolvingList Initialize ///////////////
+	ll_whiteList_reset();
+	blc_ll_resolvListInit();
+	ll_resolvingList_setResolvablePrivateAddrTimer(60); //1min
+
+	//////////////////// Leg Adv Parameters Initialize ///////////////////
 	blc_ll_setAdvData( (u8 *)tbl_advData, sizeof(tbl_advData) );
 	blc_ll_setScanRspData( (u8 *)tbl_scanRsp, sizeof(tbl_scanRsp));
-	blc_ll_setAdvParam(ADV_INTERVAL_200MS, ADV_INTERVAL_200MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(BLC_ADV_ENABLE);  //ADV enable
-	blc_ll_setMaxAdvDelay_for_AdvEvent(MAX_DELAY_0MS);
-
-	user_set_rf_power(0, 0, 0);
+	slvDevCfgLegAdvParam();
 
 
-	#if (BLE_APP_PM_ENABLE)
-		blc_ll_initPowerManagement_module();
-		blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_ACL_SLAVE);
-
-		#if (PM_DEEPSLEEP_RETENTION_ENABLE)
-			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
-			blc_pm_setDeepsleepRetentionThreshold(95);
-
-			#if(MCU_CORE_TYPE == MCU_CORE_9518)
-				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(300);
-			#elif(MCU_CORE_TYPE == MCU_CORE_825x)
-				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(260);
-			#elif(MCU_CORE_TYPE == MCU_CORE_827x)
-				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(350);
-			#endif
-		#else
-			blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Disable);
-		#endif
-
-		blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SUSPEND_EXIT, &user_set_rf_power);
-	#endif
-
-	#if (UI_KEYBOARD_ENABLE)
-		keyboard_init();
-	#endif
-
-
-	#if (BLE_OTA_SERVER_ENABLE)
-		blc_ota_initOtaServer_module();
-		blc_ota_setOtaProcessTimeout(30);
-	#endif
-
-	#if (UART_LOW_POWER_DEBUG_EN)
-		low_power_uart_debug_init();
-	#endif
-////////////////////////////////////////////////////////////////////////////////////////////////
-
+//	blc_ll_setScanParameter(SCAN_TYPE_PASSIVE, SCAN_INTERVAL_100MS, SCAN_WINDOW_100MS, OWN_ADDRESS_PUBLIC, SCAN_FP_ALLOW_ADV_ANY);
+//	blc_ll_setScanEnable (BLC_SCAN_ENABLE, DUP_FILTER_DISABLE);
 }
 
 
@@ -561,52 +728,9 @@ _attribute_no_inline_ void user_init_normal(void)
  * @param[in]	none
  * @return      none
  */
-_attribute_ram_code_ void user_init_deepRetn(void)
+void user_init_deepRetn(void)
 {
 
-#if (PM_DEEPSLEEP_RETENTION_ENABLE)
-
-	blc_ll_initBasicMCU();   //mandatory
-
-	user_set_rf_power(0, 0, 0);
-
-	blc_ll_recoverDeepRetention();
-
-	DBG_CHN0_HIGH;    //debug
-	irq_enable();
-
-	#if (UART_LOW_POWER_DEBUG_EN)
-		low_power_uart_debug_init();
-	#endif
-
-	#if (UI_KEYBOARD_ENABLE)
-		/////////// keyboard GPIO wakeup init ////////
-		u32 pin[] = KB_DRIVE_PINS;
-		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-			cpu_set_gpio_wakeup (pin[i], Level_High, 1);  //drive pin pad high level wakeup deepsleep
-		}
-	#endif
-#endif
-}
-
-
-
-
-void app_process_power_management(void)
-{
-#if (BLE_APP_PM_ENABLE)
-
-	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_ACL_SLAVE );
-
-	int user_task_flg = ota_is_working;
-	#if UI_KEYBOARD_ENABLE
-		user_task_flg = user_task_flg || scan_pin_need || key_not_released;
-	#endif
-
-	if(user_task_flg){
-		blc_pm_setSleepMask(PM_SLEEP_DISABLE);
-	}
-#endif
 }
 
 
@@ -615,7 +739,7 @@ void app_process_power_management(void)
 /////////////////////////////////////////////////////////////////////
 
 /**
- * @brief     BLE main idle loop
+ * @brief     BLE main loop
  * @param[in]  none.
  * @return     none.
  */
@@ -631,25 +755,18 @@ int main_idle_loop (void)
 		proc_keyboard (0,0, 0);
 	#endif
 
-	////////////////////////////////////// PM entry /////////////////////////////////
-	app_process_power_management();
 
 	return 0; //must return 0 due to SDP flow
 }
 
 
 
-/**
- * @brief     BLE main loop
- * @param[in]  none.
- * @return     none.
- */
 _attribute_no_inline_ void main_loop (void)
 {
 	main_idle_loop ();
 }
 
-
+#endif
 
 
 

@@ -407,6 +407,7 @@ int app_gatt_data_handler (u16 connHandle, u8 *pkt)
 
 
 
+#if (BLT_SOFTWARE_TIMER_ENABLE)
 int gpio_test0(void)
 {
 	//GPIO toggle to see the effect
@@ -455,6 +456,7 @@ int gpio_test3(void)
 
 	return 0;
 }
+#endif
 
 
 /**
@@ -560,6 +562,9 @@ _attribute_no_inline_ void user_init_normal(void)
 	blc_l2cap_initAclConnMasterMtuBuffer(mtu_m_rx_fifo, MTU_M_BUFF_SIZE_MAX, 			0,					 0);
 	blc_l2cap_initAclConnSlaveMtuBuffer(mtu_s_rx_fifo, MTU_S_BUFF_SIZE_MAX, mtu_s_tx_fifo, MTU_S_BUFF_SIZE_MAX);
 
+	blc_att_setMasterRxMTUSize(ATT_MTU_MASTER_RX_MAX_SIZE); ///must be placed after "blc_gap_init"
+	blc_att_setSlaveRxMTUSize(ATT_MTU_SLAVE_RX_MAX_SIZE);   ///must be placed after "blc_gap_init"
+
 	/* GATT Initialization */
 	my_gatt_init();
 	blc_gatt_register_data_handler(app_gatt_data_handler);
@@ -612,14 +617,6 @@ _attribute_no_inline_ void user_init_normal(void)
 	blc_ll_initPowerManagement_module();
 	blc_pm_setSleepMask(PM_SLEEP_LEG_ADV | PM_SLEEP_LEG_SCAN | PM_SLEEP_ACL_SLAVE | PM_SLEEP_ACL_MASTER);
 
-	#if (PM_DEEPSLEEP_RETENTION_ENABLE)
-		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
-		blc_pm_setDeepsleepRetentionThreshold(95);
-		blc_pm_setDeepsleepRetentionEarlyWakeupTiming(330);
-	#else
-		blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Disable);
-	#endif
-
 	blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SUSPEND_EXIT, &user_set_rf_power);
 
 	#if (UI_KEYBOARD_ENABLE)
@@ -653,27 +650,7 @@ _attribute_no_inline_ void user_init_normal(void)
  */
 _attribute_ram_code_ void user_init_deepRetn(void)
 {
-#if (PM_DEEPSLEEP_RETENTION_ENABLE)
 
-	blc_ll_initBasicMCU();   //mandatory
-
-	user_set_rf_power(0, 0, 0);
-
-	blc_ll_recoverDeepRetention();
-
-	DBG_CHN0_HIGH;	//debug
-
-	irq_enable();
-
-	#if (UI_KEYBOARD_ENABLE)
-		/////////// keyboard GPIO wakeup init ////////
-		u32 pin[] = KB_DRIVE_PINS;
-		for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-			cpu_set_gpio_wakeup (pin[i], Level_High,1);  //drive pin pad high level wake_up low power
-		}
-	#endif
-
-#endif
 }
 
 

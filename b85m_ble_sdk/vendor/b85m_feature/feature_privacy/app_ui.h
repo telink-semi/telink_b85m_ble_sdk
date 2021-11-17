@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file	feature_config.h
+ * @file	app_ui.h
  *
  * @brief	This is the header file for BLE SDK
  *
@@ -43,54 +43,39 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef FEATURE_CONFIG_H_
-#define FEATURE_CONFIG_H_
+#ifndef APP_UI_H_
+#define APP_UI_H_
+
+#include "app_config.h"
+
+#if (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
+
+extern 	int	master_pairing_enable;
+extern 	int master_unpair_enable;
+
+extern	int master_disconnect_connhandle;
+
+extern	int master_auto_connect;
+extern	int user_manual_pairing;
 
 
+/**
+ * @brief      keyboard task handler
+ * @param[in]  e    - event type
+ * @param[in]  p    - Pointer point to event parameter.
+ * @param[in]  n    - the length of event parameter.
+ * @return     none.
+ */
+void proc_keyboard (u8 e, u8 *p, int n);
+
+/**
+ * @brief   BLE Unpair handle for master
+ * @param   none.
+ * @return  none.
+ */
+void proc_master_role_unpair(void);
 
 
+#endif //end of FEATURE_TEST_MODE == xxx
 
-/////////////////// TEST FEATURE SELECTION /////////////////////////////////
-
-
-
-//ble link layer test
-#define	TEST_LL_MD										1   //link layer more data
-
-#define TEST_LL_DLE										2   //link layer Data Length Extension
-
-#define TEST_2M_CODED_PHY_CONNECTION					3
-
-#define TEST_WHITELIST									4
-
-#define TEST_SMP										5
-
-#define TEST_GATT_API									6
-
-#define TEST_EXT_ADV									7   //Extended ADV demo
-
-#define TEST_EXT_SCAN									8   //Extended Scan demo
-
-#define TEST_PER_ADV									9   //Periodic ADV demo
-
-#define TEST_PER_ADV_SYNC								30	//Periodic ADV Sync demo
-
-#define TEST_LL_PRIVACY									14  //Only legAdv and slave role support LL_Privacy1.2
-
-#define TEST_OTA										20
-
-#define TEST_SOFT_TIMER                                 22
-
-#define TEST_MISC_FUNC									190
-
-#define TEST_FEATURE_BACKUP								200
-
-
-#define FEATURE_TEST_MODE								TEST_LL_MD//TEST_OTA//TEST_FEATURE_BACKUP
-
-
-
-
-
-
-#endif /* FEATURE_CONFIG_H_ */
+#endif /* APP_UI_H_ */

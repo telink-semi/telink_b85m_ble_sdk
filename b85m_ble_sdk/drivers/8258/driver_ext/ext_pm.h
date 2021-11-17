@@ -54,6 +54,15 @@
 #endif
 
 
+/**
+ * @brief      This function servers to wake up the cpu from sleep mode.
+ * @param[in]  sleep_mode - sleep mode type select.
+ * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_tick - the time of sleep,unit is 31.25us,1ms = 32.
+ * @return     indicate whether the cpu is wake up successful.
+ */
+int cpu_long_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+
 
 /**********************************  Internal APIs (not for user)***************************************************/
 extern	unsigned int 			g_sleep_32k_rc_cnt;
