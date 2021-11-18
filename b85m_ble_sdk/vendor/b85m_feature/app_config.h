@@ -61,8 +61,6 @@
 	#include "feature_2M_coded_phy/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_LL_DLE)
 	#include "feature_dle/app_config.h"
-#elif (FEATURE_TEST_MODE == TEST_LL_PRIVACY)
-	#include "feature_privacy/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_WHITELIST)
 	#include "feature_whitelist/app_config.h"
 #elif (FEATURE_TEST_MODE == TEST_GATT_API)

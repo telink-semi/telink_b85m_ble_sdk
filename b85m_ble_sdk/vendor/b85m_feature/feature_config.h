@@ -75,8 +75,6 @@
 
 #define TEST_PER_ADV_SYNC								30	//Periodic ADV Sync demo
 
-#define TEST_LL_PRIVACY									14  //Only legAdv and slave role support LL_Privacy1.2
-
 #define TEST_OTA										20
 
 #define TEST_SOFT_TIMER                                 22
