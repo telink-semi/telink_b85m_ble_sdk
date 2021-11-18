@@ -1,7 +1,7 @@
 ## V4.0.1.2
 
 ### Notes
-** Customers must confirm flash size in app_config.h **
+* Customers must confirm flash size in app_config.h *
 
 ### Features
 * SDK version：telink_b85m_ble_sdk_V4.0.1.2
@@ -24,7 +24,7 @@
 
 
 ### Notes
-** 用户必须要在app_config.h中确认flash size与当前所用芯片相符 **
+* 用户必须要在app_config.h中确认flash size与当前所用芯片相符 *
 
 ### Features
 * SDK 版本：telink_b85m_ble_sdk_V4.0.1.2
