@@ -582,6 +582,7 @@ _attribute_no_inline_ void user_init_normal(void)
 
 	u8  mac_public[6];
 	u8  mac_random_static[6];
+	/* Note: If change IC type, need to confirm the FLASH_SIZE_CONFIG */
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
 
 
@@ -665,6 +666,7 @@ _attribute_no_inline_ void user_init_normal(void)
 
 	/* SMP Initialization */
 	#if (BLE_SLAVE_SMP_ENABLE || BLE_MASTER_SMP_ENABLE)
+		/* Note: If change IC type, need to confirm the FLASH_SIZE_CONFIG */
 		blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
 	#endif
 

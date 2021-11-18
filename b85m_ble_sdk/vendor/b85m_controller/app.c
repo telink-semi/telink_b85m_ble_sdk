@@ -131,6 +131,7 @@ void user_init_normal(void)
 	 * for 1M   Flash, flash_sector_mac_address equals to 0xFF000 */
 	u8  mac_public[6];
 	u8  mac_random_static[6];
+	/* Note: If change IC type, need to confirm the FLASH_SIZE_CONFIG */
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
 
 #if (APP_DUMP_EN)

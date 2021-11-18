@@ -58,9 +58,19 @@
 
 
 ///////////////////////// Feature Configuration ///////////////////////////////////////////////
+/*
+ *	Note: If change IC type, need to confirm the flash size.
+	IC Type			Flash Size
+	8253			512 KB
+	8258			512 KB / 1 MB
+	8273			512 KB
+	8278			1 MB
+ */
 #if(CHIP_TYPE == CHIP_TYPE_825x)
+	/* Note: if change to TLSR8258F1K, need pay attention to select the correct flash size */
 	#define	FLASH_SIZE_CONFIG		   				FLASH_SIZE_512K  //very important, user need confirm !!!
 #elif(CHIP_TYPE == CHIP_TYPE_827x)
+	/* Note: if change to TLSR8273, need pay attention to select the correct flash size */
 	#define	FLASH_SIZE_CONFIG		   				FLASH_SIZE_1M    //very important, user need confirm !!!
 #else
 #endif

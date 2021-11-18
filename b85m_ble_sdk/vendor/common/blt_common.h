@@ -272,6 +272,8 @@ static inline void blc_app_setExternalCrystalCapEnable(u8  en)
  */
 static inline void blc_app_loadCustomizedParameters(void)
 {
+	/* Note: If change IC type, need to confirm the FLASH_SIZE_CONFIG */
+
 	if(!blt_miscParam.ext_cap_en)
 	{
 		//customize freq_offset adjust cap value, if not customized, default ana_81 is 0xd0
