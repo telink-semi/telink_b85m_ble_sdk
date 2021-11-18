@@ -1,7 +1,7 @@
 ## V4.0.1.2
 
 ### Notes
-* Customers must confirm flash size in app_config.h *
+* Customers must confirm flash size in app_config.h
 
 ### Features
 * SDK version：telink_b85m_ble_sdk_V4.0.1.2
@@ -24,22 +24,22 @@
 
 
 ### Notes
-* 用户必须要在app_config.h中确认flash size与当前所用芯片相符 *
+* 用户必须要在app_config.h中确认flash size与当前所用芯片相符。
 
 ### Features
 * SDK 版本：telink_b85m_ble_sdk_V4.0.1.2
-* 支持8253/8258/8273/8278.
-* 优化Channel map/PHY/Connection parameter更新流程.
-* 清理优化应用层代码，提高用户友好性，比如用宏自动计算相关的buffer大小.
-* 根据用户反馈，增加了如下API.
-  +  长休眠.
-  +  获取RSSI.
-  +  OTA超时设置上限从250s调整到1000s.
+* 支持8253/8258/8273/8278。
+* 优化Channel map/PHY/Connection parameter更新流程。
+* 清理优化应用层代码，提高用户友好性，比如用宏自动计算相关的buffer大小。
+* 根据用户反馈，增加了如下API。
+  +  长休眠。
+  +  获取RSSI。
+  +  OTA超时设置上限从250s调整到1000s。
 
 ### Bug Fixes
-  +  连接参数在PM下更新异常.
-  +  CONNECT_IND, SCAN_RSP, AUX_CONNECT_REQ的T_IFS时间不准.
-  +  软件定时器回调运行太长影响时序逻辑错误.
+  +  连接参数在PM下更新异常。
+  +  CONNECT_IND, SCAN_RSP, AUX_CONNECT_REQ的T_IFS时间不准。
+  +  软件定时器回调运行太长影响时序逻辑错误。
 
 ### BREAKING CHANGES
   - N/A
