@@ -1,7 +1,7 @@
 ## V4.0.1.2_Patch_0001
 
 ### Bug Fixes
-* Data crosstalk happens occassionally if several connections' L2CAP packets consist of start fragment and continuation fragments. A connection's continuation fragment may reassemble to another connection's start fragment.
+* When MTU>23, data crosstalk happens occassionally if several connections' L2CAP packets consist of start fragment and continuation fragments. A connection's continuation fragment may reassemble to another connection's start fragment.
 
 ### BREAKING CHANGES
   - N/A
