@@ -168,7 +168,7 @@ int host_att_client_handler (u16 connHandle, u8 *p)
 		if ((connHandle & 7) == (host_att_req_busy & 7) && p_rsp->chanId == 0x04 &&
 			(p_rsp->opcode == 0x01 || p_rsp->opcode == ((host_att_req_busy >> 16) | 1)))
 		{
-			memcpy (p_att_response, p, p_rsp->rf_len+2);//+2 indicate type+rf_len
+			memcpy (p_att_response, p, p_rsp->l2capLen+6);//+6 indicate type(1B)+rf_len(1B)+l2cap_len(2B)+cid(2B)
 			host_att_req_busy = 0;
 		}
 	}
