@@ -1,0 +1,10 @@
+**************************************************************************
+                                                                        
+                       Telink SDK Patch List                              
+                                                                            
+                                                                        
+**************************************************************************
+
+1. 0001_20220221_Fix_Crosstalk
+	-Fix the crosstalk bug when several connections do L2CAP packets reassembly. 
+
