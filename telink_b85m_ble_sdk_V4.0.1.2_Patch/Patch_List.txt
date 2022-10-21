@@ -9,5 +9,6 @@
 	-Fix the crosstalk bug when several connections do L2CAP packets reassembly. 
 2. 0002_20220818_Fix_NoTaskReboot
 	-Fix abnormal phenomenon when there is no stack task in some cases.
-
+3. 0003_20221020_Support_8238
+	-Support 8238
 
