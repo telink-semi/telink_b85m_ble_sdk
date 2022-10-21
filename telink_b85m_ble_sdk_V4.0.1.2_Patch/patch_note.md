@@ -1,34 +1,3 @@
-## V4.0.1.2_Patch_0003
-
-### Features
-* Support 8238.
-* During SDP process, Master MTU can be set as more than 23 bytes.
-
-### Bug Fixes
-* Fixed disconnection when there is long user task in main loop.
-* Fixed connection failure when jumping over first packet after master's Connect Ind.
-* Fixed "MIC Fail" disconnection due to AES reentrancy.
-* Release blc_ll_register_user_irq_handler_cb() API to solve the data loss problem of hardware interfaces (eg. UART) in Adv status.
-* Fixed that Slave will still send the Security Request, thought SMP is disabled. 
-
-### BREAKING CHANGES
-  - N/A
-
- ### Features
-* 支持8238。
-* SDP过程中,支持MTU大于23字节。
-
-
-### Bug Fixes
-* 修复mainloop用户任务长时间阻塞，导致连接断开。
-* 修复Slave在收到Connect Ind之后没有收到第一个包的情况下产生断连。
-* 修复AES重入导致的 MIC Fail 断连。
-* 释放blc_ll_register_user_irq_handler_cb api接口，解决在广播态下存在的硬件接口（如UART等）数据丢失问题。
-* 修复SMP关闭的情况下，Slave仍然会发送Security Request。
-
-### BREAKING CHANGES
-  - N/A
-
 ## V4.0.1.2_Patch_0002
 
 ### Features
