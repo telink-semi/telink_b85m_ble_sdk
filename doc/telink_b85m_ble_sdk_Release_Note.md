@@ -1,3 +1,30 @@
+## V4.0.1.3
+
+
+### Features
+* SDK version：telink_b85m_ble_sdk_V4.0.1.3
+* Normalizes the naming of content related to private schemas.
+
+### Bug Fixes
+
+
+### BREAKING CHANGES
+  - N/A
+
+
+
+### Features
+* SDK 版本：telink_b85m_ble_sdk_V4.0.1.3
+* 规范化与私有模式相关内容的命名
+
+### Bug Fixes
+
+
+### BREAKING CHANGES
+  - N/A
+
+
+
 ## V4.0.1.2
 
 ### Notes
