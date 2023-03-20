@@ -77,7 +77,8 @@ typedef enum{
 	LL_FEATURE_DISABLE  = 0,
 }ll_feature_value_t;
 
-
+typedef void (*user_irq_handler_cb_t)(void);
+extern  user_irq_handler_cb_t  usr_irq_handler_cb;
 
 /**
  * @brief	Telink defined LinkLayer Event callBack
@@ -86,6 +87,13 @@ typedef enum{
  * @return	none
  */
 void 		blc_ll_registerTelinkControllerEventCallback (u8 e, blt_event_callback_t p);
+
+/**
+ * @brief      register user irq handler call-back
+ * @param      cb     pointer point to function
+ * @return
+ */
+void blc_ll_register_user_irq_handler_cb(user_irq_handler_cb_t cb);
 
 /**
  * @brief	irq_handler for BLE stack, process system tick interrupt and RF interrupt
@@ -205,4 +213,11 @@ ble_sts_t  	blc_hci_reset(void);
 ble_sts_t 	blc_hci_le_getRemoteSupportedFeatures(u16 connHandle);
 ble_sts_t 	blc_hci_le_readChannelMap(u16 connHandle, u8 *returnChannelMap);
 
+/**
+ * @brief      this function checks whether the Bluetooth stack task is IDLE
+ * @param	   none
+ * @return     status, 0:  idle
+ *                     1:  task
+ */
+u32 blc_ll_checkBleTaskIsIdle(void);
 #endif /* LL_H_ */

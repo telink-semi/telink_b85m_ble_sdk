@@ -184,7 +184,7 @@ void rf_start_fsm(fsm_mode_e mode, void* tx_addr, unsigned int tick);
 
 //TX settle time
 #define		LL_TX_STL_ADV_1M								74
-#define 	LL_SCAN_TX_SETTLE								50
+#define 	LL_SCAN_TX_SETTLE								56
 #define 	LL_INIT_TX_SETTLE								50
 #define     LL_SCANRSP_TX_SETTLE                            71
 #define 	LL_SLAVE_TX_SETTLE								76

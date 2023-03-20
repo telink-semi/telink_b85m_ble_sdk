@@ -265,7 +265,7 @@ void rf_switchPhyTestMode(RF_ModeTypeDef mode);
 
 //TX settle time
 #define		LL_TX_STL_ADV_1M								81
-#define 	LL_SCAN_TX_SETTLE								56
+#define 	LL_SCAN_TX_SETTLE								63
 #define 	LL_INIT_TX_SETTLE								56
 #define     LL_SCANRSP_TX_SETTLE                            78
 #define 	LL_SLAVE_TX_SETTLE								83

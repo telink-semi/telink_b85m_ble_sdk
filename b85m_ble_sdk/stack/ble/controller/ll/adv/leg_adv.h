@@ -99,8 +99,12 @@ ble_sts_t   blc_ll_setAdvParam( adv_inter_t intervalMin, adv_inter_t intervalMax
  */
 ble_sts_t   blc_ll_setAdvEnable(adv_en_t adv_enable);
 
-
-
+/**
+ * @brief      this function is used to set whether to continue sending broadcast packets when receiving scan request in the current adv interval.
+ * @param[in]  enable - enable:continue sending broadcast packets when receiving scan request.
+ * @return     none.
+ */
+void 		blc_ll_continue_adv_after_scan_req(u8 enable);
 
 
 /**
