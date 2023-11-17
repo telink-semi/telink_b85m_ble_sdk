@@ -1,0 +1,15 @@
+**************************************************************************
+                                                                        
+                       Telink SDK Patch Guide                              
+                                                                            
+                                                                        
+**************************************************************************
+
+1. 0001_20231117
+	replace file "b85m_ble_sdk/proj_lib/liblt_8258.a" with "patch_0001_20231117/proj_lib/liblt_8258.a",
+	replace file "b85m_ble_sdk/proj_lib/liblt_8258_m0s4.a" with "patch_0001_20231117/proj_lib/liblt_8258_m0s4.a",
+	replace file "b85m_ble_sdk/proj_lib/liblt_8258_m1s1.a" with "patch_0001_20231117/proj_lib/liblt_8258_m1s1.a",
+	replace file "b85m_ble_sdk/proj_lib/liblt_8278.a" with "patch_0001_20231117/proj_lib/liblt_8278.a",
+	replace file "b85m_ble_sdk/proj_lib/liblt_8278_m0s4.a" with "patch_0001_20231117/proj_lib/liblt_8278_m0s4.a",
+	replace file "b85m_ble_sdk/proj_lib/liblt_8278_m1s1.a" with "patch_0001_20231117/proj_lib/liblt_8278_m1s1.a",
+	into this folder
