@@ -1,11 +1,12 @@
 ## V4.0.1.3_Patch_0001
 
 ### Bug Fixes
-Fix an issue:Very few chips, low probability of insufficient vibration of 24M crystal after sleep wake-up, resulting in a crash
-Fix an issue:Secure Connection level 3, deep retention is enabled, and the pairing fails with a low probability.
-Fix an issue:In Extended Scan mode, the adv packet using Code PHY cannot be received from the primary channel.
-Fix an issue:In Extended Scan mode, the RSSI value in the Extended ADV report event is incorrect.
-Fix an issue:In Extended Scan mode, when a connection is created as the Central, the receive window may be too small to receive AUX_CONNECT_RSP packets. This causes the created connection to fail.
+Fix an issue:Very few chips, low probability of insufficient vibration of 24M crystal after sleep wake-up, resulting in a crash  
+Fix an issue:Secure Connection level 3, deep retention is enabled, and the pairing fails with a low probability.  
+Fix an issue:In Extended Scan mode, the adv packet using Code PHY cannot be received from the primary channel.  
+Fix an issue:In Extended Scan mode, the RSSI value in the Extended ADV report event is incorrect.  
+Fix an issue:In Extended Scan mode, when a connection is created as the Central, the receive window may be too small to receive AUX_CONNECT_RSP packets. This causes the created connection to fail.  
+
 
 ### BREAKING CHANGES
   - N/A
