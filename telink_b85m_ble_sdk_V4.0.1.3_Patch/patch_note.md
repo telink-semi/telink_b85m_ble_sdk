@@ -1,11 +1,11 @@
 ## V4.0.1.3_Patch_0001
 
 ### Bug Fixes
-Fixed: A very small number of chips rarely experience insufficient oscillation of the 24M crystal after waking up from sleep, leading to MCU abnormality.
-Fixed: Pairing failure occurs when using Secure Connection with low power deepsleep retention mode.
-Fixed: The primary Channel advertising packet can not be received when using Coded PHY in Extended Scan.
-Fixed: The RSSI value is incorrect in the Extended advertising report event.
-Fixed: The AUX_CONNECT_RSP PDU can not be received when initiating a connection request under Extended Scan Coded PHY S8 mode, resulting in creating connection failure.
+Fixed: A very small number of chips rarely experience insufficient oscillation of the 24M crystal after waking up from sleep, leading to MCU abnormality.  
+Fixed: Pairing failure occurs when using Secure Connection with low power deepsleep retention mode.  
+Fixed: The primary Channel advertising packet can not be received when using Coded PHY in Extended Scan.  
+Fixed: The RSSI value is incorrect in the Extended advertising report event.  
+Fixed: The AUX_CONNECT_RSP PDU can not be received when initiating a connection request under Extended Scan Coded PHY S8 mode, resulting in creating connection failure.  
 
 ### BREAKING CHANGES
   - N/A
