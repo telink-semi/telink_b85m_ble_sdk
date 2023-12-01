@@ -212,6 +212,7 @@ typedef int (*suspend_handler_t)(void);
 extern  suspend_handler_t 		 func_before_suspend;
 
 typedef void (*check_32k_clk_handler_t)(void);
+extern  check_32k_clk_handler_t  pm_check_32k_clk_stable;
 
 typedef unsigned int (*pm_get_32k_clk_handler_t)(void);
 extern  pm_get_32k_clk_handler_t	pm_get_32k_tick;
@@ -290,8 +291,22 @@ unsigned int cpu_stall(int WakeupSrc, unsigned int IntervalUs,unsigned int syscl
 void cpu_set_gpio_wakeup (GPIO_PinTypeDef pin, GPIO_LevelTypeDef pol, int en);
 
 
+/**
+ * @brief   This function serves to get the 32k tick.
+ * @param   none
+ * @return  tick of 32k .
+ */
+
+extern unsigned int get_32k_tick(void);
 
 
+/**
+ * @brief   This function serves to check if the 32k clk is stable.
+ * @param   none
+ * @return  none .
+ */
+
+extern void check_32k_clk_stable(void);
 
 /**
  * @brief   This function serves to initialize MCU
@@ -307,6 +322,13 @@ void cpu_wakeup_init(void);
  */
 unsigned int pm_tim_recover_32k_rc(unsigned int now_tick_32k);
 
+/**
+ * @brief   This function serves to recover system timer from tick of external 32k crystal.
+ * @param   none.
+ * @return  none.
+ */
+unsigned int pm_tim_recover_32k_xtal(unsigned int now_tick_32k);
+
 
 typedef unsigned int (*pm_tim_recover_handler_t)(unsigned int);
 
@@ -321,6 +343,15 @@ extern  pm_tim_recover_handler_t pm_tim_recover;
  * @return     indicate whether the cpu is wake up successful.
  */
 int  cpu_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+
+/**
+ * @brief      This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
+ * @param[in]  sleep_mode - sleep mode type select.
+ * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
+ * @return     indicate whether the cpu is wake up successful.
+ */
+int  cpu_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
 
 typedef int (*cpu_pm_handler_t)(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
 
@@ -339,6 +370,19 @@ static inline void blc_pm_select_internal_32k_crystal(void)
 	blt_miscParam.pm_enter_en 	= 1; // allow enter pm, 32k rc does not need to wait for 32k clk to be stable
 }
 
+/**
+ * @brief      This function serves to determine whether wake up source is external 32k RC.
+ * @param[in]  none.
+ * @return     none.
+ */
+static inline void blc_pm_select_external_32k_crystal(void)
+{
+	cpu_sleep_wakeup 	 	= cpu_sleep_wakeup_32k_xtal;
+	pm_tim_recover		 	= pm_tim_recover_32k_xtal;
+	pm_check_32k_clk_stable = check_32k_clk_stable;
+	pm_get_32k_tick         = get_32k_tick;
+	blt_miscParam.pad32k_en 	= 1; // set '1': 32k clk src use external 32k crystal
+}
 
 /************************* Stack Interface, user can not use!!! ***************************/
 extern  unsigned char 		    tl_24mrc_cal;
